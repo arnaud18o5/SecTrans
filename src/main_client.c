@@ -19,12 +19,20 @@ int main(int argc, char *argv[])
         fprintf(stderr, "  -down <message>: Download a message from the server\n");
         return EXIT_FAILURE;
     }
-
+    char message[1024] = "";
+    for (int i = 2; i < argc; ++i)
+    {
+        strcat(message, argv[i]);
+        if (i < argc - 1)
+        {
+            strcat(message, " "); // Ajoutez un espace entre les mots
+        }
+    }
     // Traitement des options en fonction des arguments de la ligne de commande
-    if (strcmp(argv[1], "-up") == 0 && argc == 3)
+    if (strcmp(argv[1], "-up") == 0 && argc >= 3)
     {
         // Exemple d'utilisation : ./client -up "Hello, Server!"
-        long long result = sndmsg(argv[2], port);
+        long long result = sndmsg(message, port);
         if (result != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
@@ -44,13 +52,12 @@ int main(int argc, char *argv[])
     {
         // Exemple d'utilisation : ./client -down "filename"
         char server_message[1024];
-        int result = read_server_message(server_message);
-        if (result != 0)
-        {
-            fprintf(stderr, "Erreur lors de la récupération du message du serveur\n");
-            return EXIT_FAILURE;
-        }
-        printf("Message reçu du serveur : %s\n", server_message);
+        // int result = read_server_message(server_message);// if (result != 0)
+        // {
+        //    fprintf(stderr, "Erreur lors de la récupération du message du serveur\n");
+        //  return EXIT_FAILURE;
+        //}
+        // printf("Message reçu du serveur : %s\n", server_message);
     }
     else
     {
