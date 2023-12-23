@@ -7,19 +7,56 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-int main()
+int main(int argc, char *argv[])
 {
-    int port = 12345; // Assurez-vous d'utiliser le même port que le serveur
-
-    char message_to_send[1024] = "Hello, server!";
-
-    if (sndmsg(message_to_send, port) == -1)
+    int port = 12345;
+    if (argc < 2)
     {
-        fprintf(stderr, "Failed to send message to the server\n");
+        fprintf(stderr, "Usage: %s <option>\n", argv[0]);
+        fprintf(stderr, "Options:\n");
+        fprintf(stderr, "  -up <message>: Upload a message to the server\n");
+        fprintf(stderr, "  -list: List files stored on the server\n");
+        fprintf(stderr, "  -down <message>: Download a message from the server\n");
         return EXIT_FAILURE;
     }
 
-    printf("Message sent to the server: %s\n", message_to_send);
+    // Traitement des options en fonction des arguments de la ligne de commande
+    if (strcmp(argv[1], "-up") == 0 && argc == 3)
+    {
+        // Exemple d'utilisation : ./client -up "Hello, Server!"
+        long long result = sndmsg(argv[2], port);
+        if (result != 0)
+        {
+            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+            return EXIT_FAILURE;
+        }
+        printf("Message envoyé avec succès au serveur.\n");
+    }
+    else if (strcmp(argv[1], "-list") == 0 && argc == 2)
+    {
+        // Exemple d'utilisation : ./client -list
+        // Ajoutez le code nécessaire pour demander la liste des fichiers au serveur
+        // ...
+        printf("Liste des fichiers stockés sur le serveur :\n");
+        // Affichez la liste des fichiers reçue du serveur
+    }
+    else if (strcmp(argv[1], "-down") == 0 && argc == 3)
+    {
+        // Exemple d'utilisation : ./client -down "filename"
+        char server_message[1024];
+        int result = read_server_message(server_message);
+        if (result != 0)
+        {
+            fprintf(stderr, "Erreur lors de la récupération du message du serveur\n");
+            return EXIT_FAILURE;
+        }
+        printf("Message reçu du serveur : %s\n", server_message);
+    }
+    else
+    {
+        fprintf(stderr, "Option non reconnue ou nombre incorrect d'arguments.\n");
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
