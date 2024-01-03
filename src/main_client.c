@@ -93,12 +93,6 @@ int main(int argc, char *argv[])
             strcat(server_message, encoded_message);
             free(encoded_message);
 
-            // Log the sended message
-            printf("Message envoyé au serveur : %s\n", server_message);
-            // Log the length
-            printf("Longueur du message envoyé au serveur : %ld\n", strlen(server_message));
-            // Log num read
-            printf("Nombre de caractères lus : %ld\n", num_read);
             long long result = sndmsg(server_message, port);
             if (result != 0)
             {

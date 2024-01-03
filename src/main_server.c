@@ -30,13 +30,9 @@ unsigned char* base64_decode(const char* buffer, size_t* length) {
 
 void processUpMessage(char *received_msg)
 {
-    printf("UP message received\n");
     // Move the pointer to the first character after the comma
     char *msg = strchr(received_msg, ',') + 1;
-    printf("Message à stocker : %s\n", msg);
-    printf("Longueur du message : %ld\n", strlen(msg));
-    // Ajoutez le code nécessaire pour stocker le message dans un fichier
-    // ...
+
     // Check if header contains FILE_START
     char *fileStart = "FILE_START";
     char *fileEnd = "FILE_END";
@@ -56,14 +52,12 @@ void processUpMessage(char *received_msg)
         char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
         strcpy(fullFilename, uploadDir);
         strcat(fullFilename, filename);
-        printf("Full filename : %s\n", fullFilename);
+        printf("Uploaded file: %s\n", fullFilename);
 
         // Open file
         currentOpenedFile = fopen(fullFilename, "w");
         if (currentOpenedFile == NULL) {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-        } else {
-            printf("Fichier ouvert\n");
         }
     }
     // Check if header contains FILE_END
@@ -71,7 +65,7 @@ void processUpMessage(char *received_msg)
         // Close file
         fclose(currentOpenedFile);
 
-        printf("Fichier fermé\n");
+        printf("File uploaded!\n");
     }
 
     // Write to file
