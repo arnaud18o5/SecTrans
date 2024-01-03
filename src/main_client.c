@@ -67,6 +67,27 @@ int main(int argc, char *argv[])
 
         sndmsg(server_message, port);
 
+        if (startserver(portClient) == -1)
+        {
+            fprintf(stderr, "Failed to start the server client\n");
+            return EXIT_FAILURE;
+        }
+        int messageReceived = 0;
+        char received_msg[1024] = "";
+        while (messageReceived == 0)
+        {
+            if (getmsg(received_msg) == -1)
+            {
+                fprintf(stderr, "Error while receiving message\n");
+                break;
+            }
+            if (strcmp(received_msg, ""))
+            {
+                printf("Message reçu du serveur : %s\n", received_msg);
+                messageReceived = 1;
+            }
+        }
+
         // int result = read_server_message(server_message);// if (result != 0)
         // {
         //    fprintf(stderr, "Erreur lors de la récupération du message du serveur\n");

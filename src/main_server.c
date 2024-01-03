@@ -61,6 +61,8 @@ int main()
             char *port = strtok(NULL, ",");
             char *msg = strtok(NULL, ",");
             printf("Message à télécharger : %s\n", msg);
+            int portClient = atoi(port);
+            sndmsg(msg, portClient);
             // Ajoutez le code nécessaire pour envoyer le contenu du fichier au client
             // ...
         }
