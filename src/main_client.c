@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 {
     int port = 12345;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 500; i++) {
         char server_message[1024] = "up, Test message ";
         char num[10];
         sprintf(num, "%d %s", i, argv[1]);
