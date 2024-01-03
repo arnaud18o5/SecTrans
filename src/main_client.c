@@ -7,56 +7,57 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+int print_usage()
+{
+    fprintf(stderr, "Usage: ./client <option>\n");
+    fprintf(stderr, "Options:\n");
+    fprintf(stderr, "  -up <message>: Upload a message to the server\n");
+    fprintf(stderr, "  -list: List files stored on the server\n");
+    fprintf(stderr, "  -down <message>: Download a message from the server\n");
+    return EXIT_FAILURE;
+}
+
 int main(int argc, char *argv[])
 {
     int port = 12345;
 
-    for (int i = 0; i < 500; i++) {
-        char server_message[1024] = "up, Test message ";
-        char num[10];
-        sprintf(num, "%d %s", i, argv[1]);
-        strcat(server_message, num);
-        long long result = sndmsg(server_message, port);
-        if (result != 0) {
-            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-            return EXIT_FAILURE;
-        }
-        printf("Message envoyé avec succès au serveur.\n");
-        // Ici, vous pouvez ajouter du code pour lire la réponse du serveur
-        // et vérifier qu'elle correspond à ce que vous attendez.
-    }
-    exit(0);
+    if (argc < 2) return print_usage();
 
-    if (argc < 2)
-    {
-        fprintf(stderr, "Usage: %s <option>\n", argv[0]);
-        fprintf(stderr, "Options:\n");
-        fprintf(stderr, "  -up <message>: Upload a message to the server\n");
-        fprintf(stderr, "  -list: List files stored on the server\n");
-        fprintf(stderr, "  -down <message>: Download a message from the server\n");
-        return EXIT_FAILURE;
-    }
-    char message[1024] = "";
-    for (int i = 2; i < argc; ++i)
-    {
-        strcat(message, argv[i]);
-        if (i < argc - 1)
-        {
-            strcat(message, " "); // Ajoutez un espace entre les mots
-        }
-    }
     // Traitement des options en fonction des arguments de la ligne de commande
     if (strcmp(argv[1], "-up") == 0 && argc >= 3)
     {
-        // Exemple d'utilisation : ./client -up "Hello, Server!"
-        char server_message[1024] = "up, ";
-        strcat(server_message, message);
-        long long result = sndmsg(server_message, port);
-        if (result != 0)
+        // Exemple d'utilisation : ./client -up <nom du fichier>
+
+        // Open the file, read its content in 999 chars; store it in server_message and send it
+        FILE *file = fopen(argv[2], "r");
+        if (file == NULL)
         {
-            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
             return EXIT_FAILURE;
         }
+
+        // Get total file length
+        fseek(file, 0, SEEK_END);
+        long long file_size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+
+        char message[1000];
+        long long total_read = 0;
+        while (fgets(message, 1000, file) != NULL)
+        {
+            char server_message[1024] = "up, ";
+            strcat(server_message, message);
+            long long result = sndmsg(server_message, port);
+            if (result != 0)
+            {
+                fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+                return EXIT_FAILURE;
+            }
+            // Show progress
+            total_read += strlen(message);
+            printf("Progress: %lld/%lld (%lld)\n", total_read, file_size, total_read * 100 / file_size);
+        }
+
         printf("Message envoyé avec succès au serveur.\n");
     }
     else if (strcmp(argv[1], "-list") == 0 && argc == 2)
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
     {
         // Exemple d'utilisation : ./client -down "filename"
         char server_message[1024] = "down, ";
-        strcat(server_message, message);
+        strcat(server_message, argv[2]);
         sndmsg(server_message, port);
 
         // int result = read_server_message(server_message);// if (result != 0)
