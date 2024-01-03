@@ -88,16 +88,13 @@ int main(int argc, char *argv[])
             // Calculate exact message size uploadable
             int header_size = strlen(server_message); // Size of your header
             int null_terminator_size = 1; // Size of null terminator is 1 byte
-            int original_data_size = 1024 - header_size; // Size of the original data before Base64 encoding
+            int original_data_size = 1024 - header_size - null_terminator_size; // Size of the original data before Base64 encoding
 
             // Calculate the size of the Base64 encoded data
             int base64_size = (int)ceil((double)original_data_size / 3) * 4;
 
-            // Calculate the exact message size uploaded
-            int message_size = base64_size - null_terminator_size;
-
-            char message[message_size]; // 33% less than 999 for base64 encoding
-            size_t num_read = fread(message, 1, sizeof(message) - 1, file);
+            char message[base64_size]; // 33% less than 999 for base64 encoding
+            size_t num_read = fread(message, 1, base64_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
             
             // Encode the message to base64
