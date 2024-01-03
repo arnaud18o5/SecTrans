@@ -85,15 +85,10 @@ int main(int argc, char *argv[])
         while (!feof(file))
         {
             char server_message[1024] = "up,";
-            // Calculate exact message size uploadable
-            int header_size = strlen(server_message); // Size of your header
-            int null_terminator_size = 1; // Size of null terminator is 1 byte
-            int original_data_size = 1024 - header_size - null_terminator_size; // Size of the original data before Base64 encoding
-
-            // Calculate the max size retrieve to be 1024 in Base64 encoding
-            int base64_size = (original_data_size / 4) * 3;
-
-            int max_retreive_size = base64_size - null_terminator_size;
+            // Calculate the max num of chars to read
+            int max_retrieve_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
+            // Take in account the base64 encoding
+            max_retrieve_size = (int)floor(max_retrieve_size / 1.37);
 
             char message[max_retreive_size];
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
