@@ -10,6 +10,7 @@ void processUpMessage(char *received_msg)
     // Move the pointer to the first character after the comma
     char *msg = strchr(received_msg, ',') + 1;
     printf("Message à stocker : %s\n", msg);
+    printf("Longueur du message : %ld\n", strlen(msg));
     // Ajoutez le code nécessaire pour stocker le message dans un fichier
     // ...
 }
