@@ -40,7 +40,6 @@ void processUpMessage(char *received_msg)
         currentOpenedFile = fopen(fullFilename, "w");
         if (currentOpenedFile == NULL) {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-            return EXIT_FAILURE;
         } else {
             printf("Fichier ouvert\n");
         }
