@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
             // Calculate the size of the Base64 encoded data
             int base64_size = (int)ceil((double)original_data_size / 3) * 4;
-
+            printf("base64_size: %d\n", base64_size);
             char message[base64_size]; // 33% less than 999 for base64 encoding
             size_t num_read = fread(message, 1, base64_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
