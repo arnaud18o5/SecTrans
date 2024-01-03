@@ -23,7 +23,7 @@ void processUpMessage(char *received_msg)
         char *filenameWithoutPath = strrchr(filename, '/');
         if (filenameWithoutPath != NULL) {
             filename = filenameWithoutPath + 1;
-        }Ò
+        }
 
         // Create file in the directory upload
         char *uploadDir = "upload/";
