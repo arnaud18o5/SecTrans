@@ -6,7 +6,6 @@
 
 void processUpMessage(char *received_msg)
 {
-    char *token = strtok(received_msg, ",");
     printf("Message reçu du client : %s\n", received_msg);
     char *msg = strtok(NULL, ",");
     printf("Message à stocker : %s\n", msg);
