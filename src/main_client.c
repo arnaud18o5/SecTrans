@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < 5; i++) {
         char server_message[1024] = "up, Test message ";
-        char num[2];
-        sprintf(num, "%d", i);
+        char num[10];
+        sprintf(num, "%d %s", i, argv[1]);
         strcat(server_message, num);
         long long result = sndmsg(server_message, port);
         if (result != 0) {
