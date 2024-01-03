@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+FILE *currentOpenedFile;
+
 void processUpMessage(char *received_msg)
 {
     printf("UP message received\n");
@@ -15,6 +17,8 @@ void processUpMessage(char *received_msg)
     // ...
     // Check if header contains FILE_START
     char *fileStart = "FILE_START";
+    char *fileEnd = "FILE_END";
+
     if (strstr(msg, fileStart) != NULL) {
         // Get filename
         char *filename = strchr(msg, ',') + 1;
@@ -33,18 +37,28 @@ void processUpMessage(char *received_msg)
         printf("Full filename : %s\n", fullFilename);
 
         // Open file
-        // FILE *file = fopen(filename, "w");
-        // if (file == NULL) {
-        //     fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-        //     return EXIT_FAILURE;
-        // }
+        currentOpenedFile = fopen(fullFilename, "w");
+        if (currentOpenedFile == NULL) {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            return EXIT_FAILURE;
+        } else {
+            printf("Fichier ouvert\n");
+        }
     }
     // Check if header contains FILE_END
-    char *fileEnd = "FILE_END";
-    if (strstr(msg, fileEnd) != NULL) {
+    else if (strstr(msg, fileEnd) != NULL) {
         // Close file
-        // fclose(file);
+        fclose(currentOpenedFile);
+
         printf("Fichier fermé\n");
+    }
+
+    // Write to file
+    else {
+        // Write to file
+        fprintf(currentOpenedFile, "%s", msg);
+        
+        printf("Message écrit dans le fichier\n");
     }
 } 
 
