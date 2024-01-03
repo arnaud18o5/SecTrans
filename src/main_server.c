@@ -42,7 +42,6 @@ int main()
         if (token == 1)
         {
             printf("Message reçu du client : %s\n", received_msg);
-            char *token = strtok(received_msg, ", ");
             char *msg = strtok(received_msg, ", ");
             printf("Message à stocker : %s\n", msg);
             // Ajoutez le code nécessaire pour stocker le message dans un fichier
@@ -57,7 +56,6 @@ int main()
         else if (token == 3)
         {
             printf("Envoyer le contenu du fichier au client\n");
-            char *token = strtok(received_msg, ", ");
             char *msg = strtok(received_msg, ", ");
             printf("Message à télécharger : %s\n", msg);
             // Ajoutez le code nécessaire pour envoyer le contenu du fichier au client
