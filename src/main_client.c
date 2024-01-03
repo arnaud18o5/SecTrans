@@ -46,6 +46,16 @@ int main(int argc, char *argv[])
 
         long long total_read = 0;
 
+        // Send to the server a first message containing a start hint and the filename
+        char server_message[1024] = "up,FILE_START,";
+        strcat(server_message, argv[2]);
+        long long result = sndmsg(server_message, port);
+        if (result != 0)
+        {
+            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+            return EXIT_FAILURE;
+        }
+
         while (!feof(file))
         {
             char server_message[1024] = "up, ";
@@ -62,6 +72,15 @@ int main(int argc, char *argv[])
             // Show progress
             total_read += num_read;
             printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
+        }
+
+        // Send to the server a last message containing an end hint
+        char server_message2[1024] = "up,FILE_END";
+        long long result2 = sndmsg(server_message2, port);
+        if (result2 != 0)
+        {
+            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+            return EXIT_FAILURE;
         }
 
         printf("Message envoyé avec succès au serveur.\n");
