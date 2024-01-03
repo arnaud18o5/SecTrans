@@ -90,8 +90,8 @@ int main(int argc, char *argv[])
             int null_terminator_size = 1; // Size of null terminator is 1 byte
             int original_data_size = 1024 - header_size - null_terminator_size; // Size of the original data before Base64 encoding
 
-            // Calculate the size of the Base64 encoded data
-            int base64_size = (int)ceil((double)original_data_size / 3) * 4;
+            // Calculate the max size retrieve to be 1024 in Base64 encoding
+            int base64_size = (original_data_size / 4) * 3;
             printf("base64_size: %d\n", base64_size);
             char message[base64_size]; // 33% less than 999 for base64 encoding
             size_t num_read = fread(message, 1, base64_size - 1, file);
