@@ -18,7 +18,20 @@ void processUpMessage(char *received_msg)
     if (strstr(msg, fileStart) != NULL) {
         // Get filename
         char *filename = strchr(msg, ',') + 1;
-        printf("Filename : %s\n", filename);
+
+        // Get only the filename without the path
+        char *filenameWithoutPath = strrchr(filename, '/');
+        if (filenameWithoutPath != NULL) {
+            filename = filenameWithoutPath + 1;
+        }Ò
+
+        // Create file in the directory upload
+        char *uploadDir = "upload/";
+        char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
+        strcpy(fullFilename, uploadDir);
+        strcat(fullFilename, filename);
+        printf("Full filename : %s\n", fullFilename);
+
         // Open file
         // FILE *file = fopen(filename, "w");
         // if (file == NULL) {
