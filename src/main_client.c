@@ -51,8 +51,11 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[1], "-down") == 0 && argc == 3)
     {
         // Exemple d'utilisation : ./client -down "filename"
-        char server_message[1024];
-        // int result = read_server_message(server_message);// if (result != 0)
+        char server_message[1024] = "down, ";
+        strcat(server_message, message);
+        sndmsg(server_message, port);
+
+                // int result = read_server_message(server_message);// if (result != 0)
         // {
         //    fprintf(stderr, "Erreur lors de la récupération du message du serveur\n");
         //  return EXIT_FAILURE;
