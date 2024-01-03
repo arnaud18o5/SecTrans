@@ -8,6 +8,7 @@ Modifier le LD_LIBRARY_PATH pour que le compilateur puisse trouver les librairie
 Pour lancer le serveur:
 ```
   make run_server
+```
 
 Pour utiliser le client:
 ```
