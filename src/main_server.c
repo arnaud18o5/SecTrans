@@ -75,8 +75,6 @@ void processUpMessage(char *received_msg)
         unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
         fwrite(decodedMessage, 1, decodedLength, currentOpenedFile);
         free(decodedMessage);
-        
-        printf("Message écrit dans le fichier\n");
     }
 } 
 
@@ -131,6 +129,8 @@ int main()
 
             if (strcmp(token, "up") == 0)
             {
+                // Log received message length
+                printf("Longueur du message reçu : %d\n", strlen(received_msg));
                 processUpMessage(received_msg);
             }
             else if (strcmp(token, "list") == 0)
