@@ -63,6 +63,8 @@ int main(int argc, char *argv[])
             size_t num_read = fread(message, 1, sizeof(message) - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
             strcat(server_message, message);
+            // Log the sended message
+            printf("Message envoyé au serveur : %s\n", server_message);
             long long result = sndmsg(server_message, port);
             if (result != 0)
             {
