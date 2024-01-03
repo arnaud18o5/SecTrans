@@ -13,7 +13,28 @@ void processUpMessage(char *received_msg)
     printf("Longueur du message : %ld\n", strlen(msg));
     // Ajoutez le code nécessaire pour stocker le message dans un fichier
     // ...
-}
+    // Check if header contains FILE_START
+    char *fileStart = "FILE_START";
+    if (strstr(msg, fileStart) != NULL) {
+        // Get filename
+        char *filename = strchr(msg, ',') + 1;
+        printf("Filename : %s\n", filename);
+        // Open file
+        // FILE *file = fopen(filename, "w");
+        // if (file == NULL) {
+        //     fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        //     return EXIT_FAILURE;
+        // }
+    }
+    // Check if header contains FILE_END
+    char *fileEnd = "FILE_END";
+    if (strstr(msg, fileEnd) != NULL) {
+        // Close file
+        // fclose(file);
+        printf("Fichier fermé\n");
+    }
+} 
+
 
 void processListMessage(char *port)
 {
