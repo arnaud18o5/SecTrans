@@ -17,7 +17,7 @@ run_server: server
 
 run_client: client
 	@echo "Running client..."
-	@LD_LIBRARY_PATH=./lib ./client
+	@LD_LIBRARY_PATH=./lib 
 
 clean:
 	rm -f server client
