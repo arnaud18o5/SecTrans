@@ -32,7 +32,9 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "-up") == 0 && argc >= 3)
     {
         // Exemple d'utilisation : ./client -up "Hello, Server!"
-        long long result = sndmsg(message, port);
+        char server_message[1024] = "up, ";
+        strcat(server_message, message);
+        long long result = sndmsg(server_message, port);
         if (result != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
