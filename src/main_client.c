@@ -1,4 +1,6 @@
 #include "../include/client.h"
+#include "../include/server.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +12,7 @@
 int main(int argc, char *argv[])
 {
     int port = 12345;
+    int portClient = 12346;
     if (argc < 2)
     {
         fprintf(stderr, "Usage: %s <option>\n", argv[0]);
@@ -32,7 +35,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "-up") == 0 && argc >= 3)
     {
         // Exemple d'utilisation : ./client -up "Hello, Server!"
-        char server_message[1024] = "up, ";
+        char server_message[1024] = "up,";
         strcat(server_message, message);
         long long result = sndmsg(server_message, port);
         if (result != 0)
@@ -48,15 +51,44 @@ int main(int argc, char *argv[])
         // Ajoutez le code nécessaire pour demander la liste des fichiers au serveur
         // ...
         printf("Liste des fichiers stockés sur le serveur :\n");
-        sndmsg("list, ", port);
+        char server_message[1024] = "list,";
+        char portStr[10];                   // Crée une chaîne pour stocker la représentation en chaîne de l'entier
+        sprintf(portStr, "%d", portClient); // Convertit l'entier en chaîne de caractères
+        strcat(server_message, portStr);    // Concatène la chaîne représentant l'entier à server_message
+        sndmsg(server_message, port);
         // Affichez la liste des fichiers reçue du serveur
     }
     else if (strcmp(argv[1], "-down") == 0 && argc == 3)
     {
         // Exemple d'utilisation : ./client -down "filename"
-        char server_message[1024] = "down, ";
+        char server_message[1024] = "down,";
+        char portStr[10];                    // Crée une chaîne pour stocker la représentation en chaîne de l'entier
+        sprintf(portStr, "%d,", portClient); // Convertit l'entier en chaîne de caractères
+        strcat(server_message, portStr);     // Concatène la chaîne représentant l'entier à server_message
         strcat(server_message, message);
+
         sndmsg(server_message, port);
+
+        if (startserver(portClient) == -1)
+        {
+            fprintf(stderr, "Failed to start the server client\n");
+            return EXIT_FAILURE;
+        }
+        int messageReceived = 0;
+        char received_msg[1024] = "";
+        while (messageReceived == 0)
+        {
+            if (getmsg(received_msg) == -1)
+            {
+                fprintf(stderr, "Error while receiving message\n");
+                break;
+            }
+            if (strcmp(received_msg, ""))
+            {
+                printf("Message reçu du serveur : %s\n", received_msg);
+                messageReceived = 1;
+            }
+        }
 
         // int result = read_server_message(server_message);// if (result != 0)
         // {

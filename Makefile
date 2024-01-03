@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -I./include
 LDFLAGS = -L./lib
-LDLIBS = -lserver
+LDLIBS = -lserver -lclient
 
 all: server client
 
@@ -9,7 +9,7 @@ server: src/main_server.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $< $(LDLIBS)
 
 client: src/main_client.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o client $< -lclient
+	$(CC) $(CFLAGS) $(LDFLAGS) -o client $< $(LDLIBS)
 
 run_server: server
 	@echo "Running server..."
