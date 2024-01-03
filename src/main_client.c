@@ -92,14 +92,17 @@ int main(int argc, char *argv[])
 
             // Calculate the max size retrieve to be 1024 in Base64 encoding
             int base64_size = (original_data_size / 4) * 3;
-            printf("base64_size: %d\n", base64_size);
-            char message[base64_size]; // 33% less than 999 for base64 encoding
-            size_t num_read = fread(message, 1, base64_size - 1, file);
+
+            int max_retreive_size = base64_size - null_terminator_size;
+
+            char message[max_retreive_size];
+            size_t num_read = fread(message, 1, max_retreive_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
-            
+
             // Encode the message to base64
             char* encoded_message = base64_encode(message, num_read);
             strcat(server_message, encoded_message);
+            printf("size of encoded message : %ld\n", strlen(encoded_message));
             free(encoded_message);
 
             long long result = sndmsg(server_message, port);
