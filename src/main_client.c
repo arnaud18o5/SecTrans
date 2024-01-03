@@ -10,6 +10,7 @@
 int main(int argc, char *argv[])
 {
     int port = 12345;
+    int portClient = 12346;
     if (argc < 2)
     {
         fprintf(stderr, "Usage: %s <option>\n", argv[0]);
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "-up") == 0 && argc >= 3)
     {
         // Exemple d'utilisation : ./client -up "Hello, Server!"
-        char server_message[1024] = "up, ";
+        char server_message[1024] = "up,";
         strcat(server_message, message);
         long long result = sndmsg(server_message, port);
         if (result != 0)
@@ -48,13 +49,20 @@ int main(int argc, char *argv[])
         // Ajoutez le code nécessaire pour demander la liste des fichiers au serveur
         // ...
         printf("Liste des fichiers stockés sur le serveur :\n");
-        sndmsg("list, ", port);
+        char server_message[1024] = "list,";
+        char portStr[10];                   // Crée une chaîne pour stocker la représentation en chaîne de l'entier
+        sprintf(portStr, "%d", portClient); // Convertit l'entier en chaîne de caractères
+        strcat(server_message, portStr);    // Concatène la chaîne représentant l'entier à server_message
+        sndmsg(server_message, port);
         // Affichez la liste des fichiers reçue du serveur
     }
     else if (strcmp(argv[1], "-down") == 0 && argc == 3)
     {
         // Exemple d'utilisation : ./client -down "filename"
-        char server_message[1024] = "down, ";
+        char server_message[1024] = "down,12345";
+        char portStr[10];                   // Crée une chaîne pour stocker la représentation en chaîne de l'entier
+        sprintf(portStr, "%d", portClient); // Convertit l'entier en chaîne de caractères
+        strcat(server_message, portStr);    // Concatène la chaîne représentant l'entier à server_message
         strcat(server_message, message);
         sndmsg(server_message, port);
 
