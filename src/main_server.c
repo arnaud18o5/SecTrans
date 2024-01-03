@@ -11,11 +11,11 @@
 int verifyParameter(char *message)
 {
     char *token = strtok(message, ", ");
-    if (strcmp(token, "up"))
+    if (strcmp(token, "up") == 0)
         return 1;
-    if (strcmp(token, "list"))
+    if (strcmp(token, "list") == 0)
         return 2;
-    if (strcmp(token, "down"))
+    if (strcmp(token, "down") == 0)
         return 3;
 }
 

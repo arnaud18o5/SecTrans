@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
         // Ajoutez le code nécessaire pour demander la liste des fichiers au serveur
         // ...
         printf("Liste des fichiers stockés sur le serveur :\n");
+        sndmsg("list, ", port);
         // Affichez la liste des fichiers reçue du serveur
     }
     else if (strcmp(argv[1], "-down") == 0 && argc == 3)
@@ -55,7 +56,7 @@ int main(int argc, char *argv[])
         strcat(server_message, message);
         sndmsg(server_message, port);
 
-                // int result = read_server_message(server_message);// if (result != 0)
+        // int result = read_server_message(server_message);// if (result != 0)
         // {
         //    fprintf(stderr, "Erreur lors de la récupération du message du serveur\n");
         //  return EXIT_FAILURE;
