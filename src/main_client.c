@@ -8,6 +8,31 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/buffer.h>
+
+// Function to encode data to Base64
+char* base64_encode(const unsigned char* buffer, size_t length) {
+    BIO *bio, *b64;
+    BUF_MEM *bufferPtr;
+
+    b64 = BIO_new(BIO_f_base64());
+    bio = BIO_new(BIO_s_mem());
+    bio = BIO_push(b64, bio);
+
+    BIO_write(bio, buffer, length);
+    BIO_flush(bio);
+    BIO_get_mem_ptr(bio, &bufferPtr);
+    BIO_set_close(bio, BIO_NOCLOSE);
+    BIO_free_all(bio);
+
+    char* ret = (char*)malloc((bufferPtr->length + 1) * sizeof(char));
+    memcpy(ret, bufferPtr->data, bufferPtr->length);
+    ret[bufferPtr->length] = '\0';
+
+    return ret;
+}
 
 int print_usage()
 {
@@ -59,10 +84,15 @@ int main(int argc, char *argv[])
         while (!feof(file))
         {
             char server_message[1024] = "up,";
-            char message[1000];
+            char message[750]; // 33% less than 999 for base64 encoding
             size_t num_read = fread(message, 1, sizeof(message) - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
-            strcat(server_message, message);
+            
+            // Encode the message to base64
+            char* encoded_message = base64_encode(message, num_read);
+            strcat(server_message, encoded_message);
+            free(encoded_message);
+
             // Log the sended message
             printf("Message envoyé au serveur : %s\n", server_message);
             // Log the length

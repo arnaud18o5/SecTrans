@@ -3,8 +3,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/buffer.h>
 
 FILE *currentOpenedFile;
+
+// Function to decode Base64 to data
+unsigned char* base64_decode(const char* buffer, size_t* length) {
+    BIO *bio, *b64;
+
+    int decodeLen = strlen(buffer);
+    unsigned char* decode = (unsigned char*)malloc(decodeLen);
+    memset(decode, 0, decodeLen);
+
+    bio = BIO_new_mem_buf(buffer, -1);
+    b64 = BIO_new(BIO_f_base64());
+    bio = BIO_push(b64, bio);
+
+    *length = BIO_read(bio, decode, decodeLen);
+
+    BIO_free_all(bio);
+
+    return decode;
+}
 
 void processUpMessage(char *received_msg)
 {
@@ -54,8 +76,11 @@ void processUpMessage(char *received_msg)
 
     // Write to file
     else {
-        // Write to file
-        fprintf(currentOpenedFile, "%s", msg);
+        // Decode and write to file
+        size_t decodedLength;
+        unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
+        fwrite(decodedMessage, 1, decodedLength, currentOpenedFile);
+        free(decodedMessage);
         
         printf("Message écrit dans le fichier\n");
     }
