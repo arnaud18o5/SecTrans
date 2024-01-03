@@ -7,8 +7,7 @@
 void processUpMessage(char *received_msg)
 {
     printf("Message reçu du client : %s\n", received_msg);
-    char *msg = strtok(NULL, ",");
-    printf("Message à stocker : %s\n", msg);
+    //printf("Message à stocker : %s\n", msg);
     // Ajoutez le code nécessaire pour stocker le message dans un fichier
     // ...
 }
@@ -49,21 +48,37 @@ int main()
             fprintf(stderr, "Error while receiving message\n");
             break;
         }
-        const char *token = strtok(received_msg, ",");
-        if (strcmp(token, "up") == 0)
-        {
-            processUpMessage(received_msg);
-        }
-        else if (strcmp(token, "list") == 0)
-        {
-            char *port = strtok(NULL, ",");
-            processListMessage(port);
-        }
-        else if (strcmp(token, "down") == 0)
-        {
-            char *port = strtok(NULL, ",");
-            char *msg = strtok(NULL, ",");
-            processDownMessage(port, msg);
+
+        char *commaPos = strchr(received_msg, ',');
+        if (commaPos != NULL) {
+            int tokenLength = commaPos - received_msg;
+            char *token = malloc(tokenLength + 1); // +1 for the null-terminator
+            if (token == NULL) {
+                fprintf(stderr, "Failed to allocate memory for token\n");
+                return EXIT_FAILURE;
+            }
+            strncpy(token, received_msg, tokenLength);
+            token[tokenLength] = '\0'; // Null-terminate the string
+
+            if (strcmp(token, "up") == 0)
+            {
+                processUpMessage(received_msg);
+            }
+            else if (strcmp(token, "list") == 0)
+            {
+                char *port = strtok(NULL, ",");
+                processListMessage(port);
+            }
+            else if (strcmp(token, "down") == 0)
+            {
+                char *port = strtok(NULL, ",");
+                char *msg = strtok(NULL, ",");
+                processDownMessage(port, msg);
+            }
+
+            free(token); // Don't forget to free the memory when you're done
+        } else {
+            fprintf(stderr, "No comma found in message\n");
         }
     }
 
