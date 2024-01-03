@@ -59,11 +59,12 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[1], "-down") == 0 && argc == 3)
     {
         // Exemple d'utilisation : ./client -down "filename"
-        char server_message[1024] = "down,12345";
-        char portStr[10];                   // Crée une chaîne pour stocker la représentation en chaîne de l'entier
-        sprintf(portStr, "%d", portClient); // Convertit l'entier en chaîne de caractères
-        strcat(server_message, portStr);    // Concatène la chaîne représentant l'entier à server_message
+        char server_message[1024] = "down";
+        char portStr[10];                    // Crée une chaîne pour stocker la représentation en chaîne de l'entier
+        sprintf(portStr, "%d,", portClient); // Convertit l'entier en chaîne de caractères
+        strcat(server_message, portStr);     // Concatène la chaîne représentant l'entier à server_message
         strcat(server_message, message);
+
         sndmsg(server_message, port);
 
         // int result = read_server_message(server_message);// if (result != 0)
