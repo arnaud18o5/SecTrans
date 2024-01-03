@@ -41,11 +41,14 @@ int main(int argc, char *argv[])
         long long file_size = ftell(file);
         fseek(file, 0, SEEK_SET);
 
-        char message[1000];
         long long total_read = 0;
-        while (fgets(message, 1000, file) != NULL)
+
+        while (!feof(file))
         {
             char server_message[1024] = "up, ";
+            char message[1000];
+            size_t num_read = fread(message, 1, sizeof(message) - 1, file);
+            message[num_read] = '\0'; // Null-terminate the string
             strcat(server_message, message);
             long long result = sndmsg(server_message, port);
             if (result != 0)
@@ -54,8 +57,8 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             // Show progress
-            total_read += strlen(message);
-            printf("Progress: %lld/%lld (%lld)\n", total_read, file_size, total_read * 100 / file_size);
+            total_read += num_read;
+            printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
         }
 
         printf("Message envoyé avec succès au serveur.\n");
