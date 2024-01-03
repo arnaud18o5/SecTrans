@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
         while (!feof(file))
         {
-            char server_message[1024] = "up, ";
+            char server_message[1024] = "up,";
             char message[1000];
             size_t num_read = fread(message, 1, sizeof(message) - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
