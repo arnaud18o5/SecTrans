@@ -10,6 +10,23 @@
 int main(int argc, char *argv[])
 {
     int port = 12345;
+
+    for (int i = 0; i < 5; i++) {
+        char server_message[1024] = "up, Test message ";
+        char num[2];
+        sprintf(num, "%d", i);
+        strcat(server_message, num);
+        long long result = sndmsg(server_message, port);
+        if (result != 0) {
+            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+            return EXIT_FAILURE;
+        }
+        printf("Message envoyé avec succès au serveur.\n");
+        // Ici, vous pouvez ajouter du code pour lire la réponse du serveur
+        // et vérifier qu'elle correspond à ce que vous attendez.
+    }
+    exit(0);
+
     if (argc < 2)
     {
         fprintf(stderr, "Usage: %s <option>\n", argv[0]);
