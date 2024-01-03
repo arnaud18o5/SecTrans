@@ -97,7 +97,6 @@ int main(int argc, char *argv[])
             // Encode the message to base64
             char* encoded_message = base64_encode(message, num_read);
             strcat(server_message, encoded_message);
-            printf("size of encoded message : %ld\n", strlen(encoded_message));
             free(encoded_message);
 
             long long result = sndmsg(server_message, port);

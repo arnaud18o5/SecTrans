@@ -129,8 +129,6 @@ int main()
 
             if (strcmp(token, "up") == 0)
             {
-                // Log received message length
-                printf("Longueur du message reçu : %ld\n", strlen(received_msg));
                 processUpMessage(received_msg);
             }
             else if (strcmp(token, "list") == 0)
