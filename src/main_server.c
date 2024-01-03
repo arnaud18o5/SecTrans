@@ -49,13 +49,16 @@ int main()
         }
         else if (token == 2)
         {
-            printf("envoyer la liste des fichiers au client\n");
+            char *port = strtok(NULL, ",");
+            printf("envoyer la liste des fichiers au client au port %s\n", port);
+
             // Ajoutez le code nécessaire pour envoyer la liste des fichiers au client
             // ...
         }
         else if (token == 3)
         {
             printf("Envoyer le contenu du fichier au client\n");
+            char *port = strtok(NULL, ",");
             char *msg = strtok(NULL, ",");
             printf("Message à télécharger : %s\n", msg);
             // Ajoutez le code nécessaire pour envoyer le contenu du fichier au client
