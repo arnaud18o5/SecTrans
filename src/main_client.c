@@ -86,9 +86,9 @@ int main(int argc, char *argv[])
         {
             char server_message[1024] = "up,";
             // Calculate the max num of chars to read
-            int max_retrieve_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
+            int max_retreive_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
             // Take in account the base64 encoding
-            max_retrieve_size = (int)floor(max_retrieve_size / 1.37);
+            max_retreive_size = (int)floor(max_retreive_size / 1.37);
 
             char message[max_retreive_size];
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
