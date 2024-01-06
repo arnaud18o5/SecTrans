@@ -51,20 +51,19 @@ RSA *load_public_key_from_string(const char *public_key_str)
 void reformatKey(char *str)
 {
     char *pos;
-    while ((pos = strpbrk(str, "\n")) != NULL)
+    while ((pos = strchr(str, '\n')) != NULL)
     {
         memmove(pos, pos + 1, strlen(pos));
     }
 
-    char *start_ptr = strstr(str, "-----BEGIN RSA PUBLIC KEY-----\n");
-    char *end_ptr = strstr(str, "-----END RSA PUBLIC KEY-----\n");
+    char *start_ptr = strstr(str, "-----BEGIN RSA PUBLIC KEY-----");
+    char *end_ptr = strstr(str, "-----END RSA PUBLIC KEY-----");
 
     if (start_ptr != NULL && end_ptr != NULL)
     {
-        // Supprimer "coucou" et "salut" de la chaîne
-        memmove(str, start_ptr + strlen("-----BEGIN RSA PUBLIC KEY-----\n"), end_ptr - (start_ptr + strlen("-----BEGIN RSA PUBLIC KEY-----\n")));
-        str[end_ptr - (start_ptr + strlen("-----BEGIN RSA PUBLIC KEY-----\n"))] = '\0';
-
+        size_t prefix_len = strlen("-----BEGIN RSA PUBLIC KEY-----");
+        size_t suffix_len = strlen("-----END RSA PUBLIC KEY-----");
+        memmove(start_ptr, end_ptr + suffix_len, strlen(end_ptr + suffix_len) + 1);
         printf("Chaîne modifiée : %s\n", str);
     }
     else
