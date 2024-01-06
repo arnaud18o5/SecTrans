@@ -1,5 +1,6 @@
 #include "../include/client.h"
 #include "../include/server.h"
+#include "../include/hash.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,6 +65,14 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
             return EXIT_FAILURE;
         }
+
+        unsigned char* hash = calculate_hash(file);
+        // print hash
+        printf("Hash: ");
+        for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+            printf("%02x", hash[i]);
+        }
+        printf("\n");
 
         // Get total file length
         fseek(file, 0, SEEK_END);
