@@ -14,6 +14,7 @@
 #include <openssl/buffer.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
+#include <openssl/err.h>
 
 // Function to encode data to Base64
 char *base64_encode(const unsigned char *buffer, size_t length)
@@ -36,6 +37,34 @@ char *base64_encode(const unsigned char *buffer, size_t length)
     ret[bufferPtr->length] = '\0';
 
     return ret;
+}
+
+// Fonction pour charger une clé publique RSA à partir d'une chaîne de caractères
+RSA *load_public_key_from_string(const char *public_key_str)
+{
+    BIO *key_bio = BIO_new_mem_buf((void *)public_key_str, -1);
+    RSA *rsa = PEM_read_bio_RSA_PUBKEY(key_bio, NULL, NULL, NULL);
+    BIO_free(key_bio);
+    return rsa;
+}
+
+// Fonction pour chiffrer un message avec une clé publique RSA
+// message : le message à chiffrer
+// public_key : la clé publique RSA
+// encrypted_len : la longueur du message chiffré
+// Retourne le message chiffré
+unsigned char *encrypt_message(const unsigned char *message, int message_len, RSA *public_key, int *encrypted_len)
+{
+    unsigned char *encrypted = (unsigned char *)malloc(RSA_size(public_key));
+    *encrypted_len = RSA_public_encrypt(message_len, message, encrypted, public_key, RSA_PKCS1_PADDING);
+    if (*encrypted_len == -1)
+    {
+        ERR_load_crypto_strings();
+        ERR_error_string(ERR_get_error(), err);
+        fprintf(stderr, "Error encrypting message: %s\n", err);
+        return NULL;
+    }
+    return encrypted;
 }
 
 int print_usage()
@@ -203,6 +232,13 @@ int main(int argc, char *argv[])
             if (strcmp(received_msg, ""))
             {
                 printf("Message reçu du serveur : %s\n", received_msg);
+
+                printf("test d'encryption avec le message: salut les foufous \n");
+
+                RSA *pubKey = load_public_key_from_string(received_msg);
+                char *message = "salut les foufous";
+                char *encrypted = encrypt_message(message, sizeof(message), pubKey, 256);
+                printf("message encrypté: %s\n", encrypted);
                 messageReceived = 1;
             }
         }
