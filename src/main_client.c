@@ -103,6 +103,9 @@ int print_usage()
 
 int main(int argc, char *argv[])
 {
+    // TO BE MOVED WHEN LOGIN ??
+    generate_rsa_keypair();
+    
     int port = 12345;
     int portClient = 12346;
 
