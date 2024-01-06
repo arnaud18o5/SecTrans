@@ -6,6 +6,7 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
+#define RSA_F4 65537
 
 FILE *currentOpenedFile;
 
@@ -106,8 +107,9 @@ int main()
 {
     int port = 12345; // Choisissez le port que vous souhaitez utiliser
 
-    // Génération de la paire de clés RSA
-    RSA *keypair = RSA_generate_key(128, RSA_F4, NULL, NULL);
+    RSA *keypair = RSA_new();
+    BIGNUM *e = BN_new();
+    RSA_generate_key_ex(keypair, 2048, e, NULL);
 
     if (startserver(port) == -1)
     {
@@ -185,3 +187,4 @@ int main()
 
         return EXIT_SUCCESS;
     }
+}
