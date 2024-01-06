@@ -1,15 +1,61 @@
 #include "server.h"
 #include "client.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <dirent.h>
+#include <openssl/evp.h>
+#include <openssl/pem.h>
+
 FILE *currentOpenedFile;
+
+int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    if (!ctx) {
+        // handle error
+        return 0;
+    }
+
+    EVP_PKEY* evp_key = NULL;
+    BIO* bio = BIO_new_mem_buf(publicKey, -1);
+    PEM_read_bio_PUBKEY(bio, &evp_key, NULL, NULL);
+    BIO_free(bio);
+
+    if (!evp_key) {
+        // handle error
+        EVP_MD_CTX_free(ctx);
+        return 0;
+    }
+
+    if (EVP_DigestVerifyInit(ctx, NULL, EVP_sha256(), NULL, evp_key) != 1) {
+        // handle error
+        EVP_PKEY_free(evp_key);
+        EVP_MD_CTX_free(ctx);
+        return 0;
+    }
+
+    unsigned char buffer[4096];
+    size_t len;
+    while ((len = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+        if (EVP_DigestVerifyUpdate(ctx, buffer, len) != 1) {
+            // handle error
+            EVP_PKEY_free(evp_key);
+            EVP_MD_CTX_free(ctx);
+            return 0;
+        }
+    }
+
+    int ret = EVP_DigestVerifyFinal(ctx, signature, signature_len);
+
+    EVP_PKEY_free(evp_key);
+    EVP_MD_CTX_free(ctx);
+
+    return (ret == 1);
+}
 
 // Function to decode Base64 to data
 unsigned char* base64_decode(const char* buffer, size_t* length) {
@@ -69,8 +115,21 @@ void processUpMessage(char *received_msg)
     else if (strstr(msg, fileEnd) != NULL) {
         // Get the signature after the comma
         char *signature = strchr(msg, ',') + 1;
-        // Log the signature
-        printf("Signature: %s\n", signature);
+
+        // Decode signature
+        size_t decodedLength;
+        unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
+
+        // Verify signature
+        int verified = verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey);
+        if (verified == 0) {
+            printf("Signature verified!\n");
+        } else {
+            printf("Signature not verified!\n");
+        }
+
+        // Free memory
+        free(decodedSignature);
 
         // Close file
         fclose(currentOpenedFile);
@@ -82,8 +141,6 @@ void processUpMessage(char *received_msg)
     else if (strstr(msg, publicKey) != NULL) {
         // Get the public key after the comma
         clientPublicKey = strchr(msg, ',') + 1;
-        // Log the public key
-        printf("Public key: %s\n", clientPublicKey);
     }
 
     // Write to file
