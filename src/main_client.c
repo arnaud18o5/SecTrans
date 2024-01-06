@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 {
     // TO BE MOVED WHEN LOGIN ??
     generate_rsa_keypair();
-    
+
     int port = 12345;
     int portClient = 12346;
 
@@ -124,13 +124,46 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        unsigned char* hash = calculate_hash(file);
-        // print hash
-        printf("Hash: ");
-        for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-            printf("%02x", hash[i]);
+        unsigned char* signature = calculate_hash(file);
+        // encrypt the signature with private key
+        FILE *privateKeyFile = fopen("client_private.pem", "r");
+        if (privateKeyFile == NULL)
+        {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            return EXIT_FAILURE;
         }
-        printf("\n");
+        // Load the private key
+        EVP_PKEY *privateKey;
+        if (!(privateKey = EVP_PKEY_new())) {
+            fprintf(stderr, "Error creating EVP_PKEY structure.\n");
+            return EXIT_FAILURE;
+        }
+
+        PEM_read_PrivateKey(privateKeyFile, &privateKey, NULL, NULL);
+
+        // Create the signature
+        unsigned char *signature_encrypted = malloc(EVP_PKEY_size(privateKey));
+        unsigned int signature_length;
+        if (EVP_SignInit_ex(mdctx, EVP_sha256(), NULL) != 1) {
+            fprintf(stderr, "Error initializing EVP_SignInit_ex.\n");
+            return EXIT_FAILURE;
+        }
+
+        if (EVP_SignUpdate(mdctx, signature, strlen((char*)signature)) != 1) {
+            fprintf(stderr, "Error in EVP_SignUpdate.\n");
+            return EXIT_FAILURE;
+        }
+
+        if (EVP_SignFinal(mdctx, signature_encrypted, &signature_length, privateKey) != 1) {
+            fprintf(stderr, "Error in EVP_SignFinal.\n");
+            return EXIT_FAILURE;
+        }
+
+        EVP_PKEY_free(privateKey);
+
+        // Log the signature
+        printf("Signature: %s\n", signature_encrypted);
+
 
         // Get total file length
         fseek(file, 0, SEEK_END);
@@ -177,7 +210,7 @@ int main(int argc, char *argv[])
             printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
         }
 
-        // Send to the server a last message containing an end hint
+        // Send to the server a last message containing an end hint with crypted signature
         char server_message2[1024] = "up,FILE_END";
         long long result2 = sndmsg(server_message2, port);
         if (result2 != 0)
