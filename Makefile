@@ -6,13 +6,13 @@ LDLIBS = -lserver -lclient -lssl -lcrypto -lm
 all: server client
 
 hash: include/hash.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -c -o hash $< $(LDLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o hash.o $< $(LDLIBS)
 
 server: src/main_server.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o server $< $(LDLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
-client: src/main_client.c hash
-	$(CC) $(CFLAGS) $(LDFLAGS) -o client $< $(LDLIBS)
+client: src/main_client.c hash.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o client $^ $(LDLIBS)
 
 run_server: server
 	@echo "Running server..."
