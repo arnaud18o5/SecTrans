@@ -14,7 +14,8 @@
 #include <openssl/buffer.h>
 
 // Function to encode data to Base64
-char* base64_encode(const unsigned char* buffer, size_t length) {
+char *base64_encode(const unsigned char *buffer, size_t length)
+{
     BIO *bio, *b64;
     BUF_MEM *bufferPtr;
 
@@ -28,7 +29,7 @@ char* base64_encode(const unsigned char* buffer, size_t length) {
     BIO_set_close(bio, BIO_NOCLOSE);
     BIO_free_all(bio);
 
-    char* ret = (char*)malloc((bufferPtr->length + 1) * sizeof(char));
+    char *ret = (char *)malloc((bufferPtr->length + 1) * sizeof(char));
     memcpy(ret, bufferPtr->data, bufferPtr->length);
     ret[bufferPtr->length] = '\0';
 
@@ -50,7 +51,8 @@ int main(int argc, char *argv[])
     int port = 12345;
     int portClient = 12346;
 
-    if (argc < 2) return print_usage();
+    if (argc < 2)
+        return print_usage();
 
     // Traitement des options en fonction des arguments de la ligne de commande
     if (strcmp(argv[1], "-up") == 0 && argc >= 3)
@@ -95,7 +97,7 @@ int main(int argc, char *argv[])
             message[num_read] = '\0'; // Null-terminate the string
 
             // Encode the message to base64
-            char* encoded_message = base64_encode(message, num_read);
+            char *encoded_message = base64_encode(message, num_read);
             strcat(server_message, encoded_message);
             free(encoded_message);
 
@@ -172,6 +174,14 @@ int main(int argc, char *argv[])
         //  return EXIT_FAILURE;
         //}
         // printf("Message reçu du serveur : %s\n", server_message);
+    }
+    else if (strcmp(argv[1], "-rsa") == 0 && argc == 2)
+    {
+        char server_message[1024] = "rsa,";
+        char portStr[10];                    // Crée une chaîne pour stocker la représentation en chaîne de l'entier
+        sprintf(portStr, "%d,", portClient); // Convertit l'entier en chaîne de caractères
+        strcat(server_message, portStr);
+        sndmsg(server_message, port);
     }
     else
     {
