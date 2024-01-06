@@ -37,6 +37,7 @@ void processUpMessage(char *received_msg)
 
     // Check if header contains FILE_START
     char *fileStart = "FILE_START";
+    char *publicKey = "PUBLIC_KEY";
     char *fileEnd = "FILE_END";
 
     if (strstr(msg, fileStart) != NULL) {
@@ -73,6 +74,14 @@ void processUpMessage(char *received_msg)
         fclose(currentOpenedFile);
 
         printf("File uploaded!\n");
+    }
+
+    // Check if header contains PUBLIC_KEY
+    else if (strstr(msg, publicKey) != NULL) {
+        // Get the public key after the comma
+        char *publicKey = strchr(msg, ',') + 1;
+        // Log the public key
+        printf("Public key: %s\n", publicKey);
     }
 
     // Write to file

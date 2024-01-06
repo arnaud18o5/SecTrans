@@ -169,6 +169,25 @@ int main(int argc, char *argv[])
             printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
         }
 
+        // Send the public key to the server
+        char server_message1[1024] = "up,PUBLIC_KEY,";
+        FILE *publicKeyFile = fopen("client_public.pem", "r");
+        if (publicKeyFile == NULL)
+        {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            return EXIT_FAILURE;
+        }
+        // Get the public key
+        char publicKey[1024];
+        fgets(publicKey, 1024, publicKeyFile);
+        strcat(server_message1, publicKey);
+        long long result1 = sndmsg(server_message1, port);
+        if (result1 != 0)
+        {
+            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+            return EXIT_FAILURE;
+        }
+
         // Create signed hash
         unsigned char* hash = calculate_hash(file);
         // sign the hash with private key
