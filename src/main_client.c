@@ -124,6 +124,52 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
+        // Get total file length
+        fseek(file, 0, SEEK_END);
+        long long file_size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+
+        long long total_read = 0;
+
+        // Send to the server a first message containing a start hint and the filename
+        char server_message[1024] = "up,FILE_START,";
+        strcat(server_message, argv[2]);
+        long long result = sndmsg(server_message, port);
+        if (result != 0)
+        {
+            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+            return EXIT_FAILURE;
+        }
+
+        while (!feof(file))
+        {
+            char server_message[1024] = "up,";
+            // Calculate the max num of chars to read
+            int max_retreive_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
+            // Take in account the base64 encoding
+            max_retreive_size = (int)floor(max_retreive_size / 1.37);
+
+            char message[max_retreive_size];
+            size_t num_read = fread(message, 1, max_retreive_size - 1, file);
+            message[num_read] = '\0'; // Null-terminate the string
+
+            // Encode the message to base64
+            char* encoded_message = base64_encode(message, num_read);
+            strcat(server_message, encoded_message);
+            free(encoded_message);
+
+            long long result = sndmsg(server_message, port);
+            if (result != 0)
+            {
+                fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+                return EXIT_FAILURE;
+            }
+            // Show progress
+            total_read += num_read;
+            printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
+        }
+
+        // Create signed hash
         unsigned char* hash = calculate_hash(file);
         // sign the hash with private key
         EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
@@ -170,58 +216,12 @@ int main(int argc, char *argv[])
         // Encode the signature to base64
         char* encoded_signature = base64_encode(signature_encrypted, signature_length);
         free(signature_encrypted);
-        // Log the signature and length
-        printf("Signature: %s\n", encoded_signature);
-        printf("Signature length: %d\n", (int)strlen(encoded_signature));
 
-
-        // Get total file length
-        fseek(file, 0, SEEK_END);
-        long long file_size = ftell(file);
-        fseek(file, 0, SEEK_SET);
-
-        long long total_read = 0;
-
-        // Send to the server a first message containing a start hint and the filename
-        char server_message[1024] = "up,FILE_START,";
-        strcat(server_message, argv[2]);
-        long long result = sndmsg(server_message, port);
-        if (result != 0)
-        {
-            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-            return EXIT_FAILURE;
-        }
-
-        while (!feof(file))
-        {
-            char server_message[1024] = "up,";
-            // Calculate the max num of chars to read
-            int max_retreive_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
-            // Take in account the base64 encoding
-            max_retreive_size = (int)floor(max_retreive_size / 1.37);
-
-            char message[max_retreive_size];
-            size_t num_read = fread(message, 1, max_retreive_size - 1, file);
-            message[num_read] = '\0'; // Null-terminate the string
-
-            // Encode the message to base64
-            char* encoded_message = base64_encode(message, num_read);
-            strcat(server_message, encoded_message);
-            free(encoded_message);
-
-            long long result = sndmsg(server_message, port);
-            if (result != 0)
-            {
-                fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-                return EXIT_FAILURE;
-            }
-            // Show progress
-            total_read += num_read;
-            printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
-        }
-
-        // Send to the server a last message containing an end hint with crypted signature
+        // Send to the server a last message containing an end hint with signed hash
         char server_message2[1024] = "up,FILE_END";
+        strcat(server_message2, ",");
+        strcat(server_message2, encoded_signature);
+        free(encoded_signature);
         long long result2 = sndmsg(server_message2, port);
         if (result2 != 0)
         {
