@@ -6,7 +6,10 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
-#define RSA_F4 65537
+#include <openssl/pem.h>
+
+#define KEY_LENGTH 512
+#define PUB_EXP 65537
 
 FILE *currentOpenedFile;
 
@@ -107,9 +110,31 @@ int main()
 {
     int port = 12345; // Choisissez le port que vous souhaitez utiliser
 
-    RSA *keypair = RSA_new();
-    BIGNUM *e = BN_new();
-    RSA_generate_key_ex(keypair, 2048, e, NULL);
+    size_t pri_len; // Length of private key
+    size_t pub_len; // Length of public key
+    char *pri_key;  // Private key
+    char *pub_key;  // Public key
+
+    RSA *keypair = RSA_generate_key(KEY_LENGTH, PUB_EXP, NULL, NULL);
+
+    // To get the C-string PEM form:
+    BIO *pri = BIO_new(BIO_s_mem());
+    BIO *pub = BIO_new(BIO_s_mem());
+
+    PEM_write_bio_RSAPrivateKey(pri, keypair, NULL, NULL, 0, NULL, NULL);
+    PEM_write_bio_RSAPublicKey(pub, keypair);
+
+    pri_len = BIO_pending(pri);
+    pub_len = BIO_pending(pub);
+
+    pri_key = malloc(pri_len + 1);
+    pub_key = malloc(pub_len + 1);
+
+    BIO_read(pri, pri_key, pri_len);
+    BIO_read(pub, pub_key, pub_len);
+
+    pri_key[pri_len] = '\0';
+    pub_key[pub_len] = '\0';
 
     if (startserver(port) == -1)
     {
@@ -168,10 +193,7 @@ int main()
                         strncpy(token, commaPos + 1, length);
                         token[length] = '\0'; // Ajouter le caractère nul à la fin
                         int portClient = atoi(token);
-                        printf("Port client : %d\n", portClient);
-                        char *pubKey = malloc(1024);
-                        int pubKeyLength = BN_bn2bin(keypair->n, pubKey);
-                        printf("Longueur de la clé publique : %d\n", pubKeyLength);
+                        sndmsg(pub_key, portClient);
                     }
                 }
 

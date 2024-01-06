@@ -184,6 +184,28 @@ int main(int argc, char *argv[])
         sprintf(portStr, "%d,", portClient); // Convertit l'entier en chaîne de caractères
         strcat(server_message, portStr);
         sndmsg(server_message, port);
+
+        if (startserver(portClient) == -1)
+        {
+            fprintf(stderr, "Failed to start the server client\n");
+            return EXIT_FAILURE;
+        }
+
+        int messageReceived = 0;
+        char received_msg[1024] = "";
+        while (messageReceived == 0)
+        {
+            if (getmsg(received_msg) == -1)
+            {
+                fprintf(stderr, "Error while receiving message\n");
+                break;
+            }
+            if (strcmp(received_msg, ""))
+            {
+                printf("Message reçu du serveur : %s\n", received_msg);
+                messageReceived = 1;
+            }
+        }
     }
     else
     {
