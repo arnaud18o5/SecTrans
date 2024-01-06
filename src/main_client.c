@@ -48,28 +48,40 @@ RSA *load_public_key_from_string(const char *public_key_str)
     return rsa;
 }
 
-void reformatKey(char *str)
+void removeBeginPublicKey(char *str)
+{
+    char *start_ptr = strstr(str, "-----BEGIN RSA PUBLIC KEY-----");
+    if (start_ptr != NULL)
+    {
+        size_t prefix_len = strlen("-----BEGIN RSA PUBLIC KEY-----");
+        memmove(start_ptr, start_ptr + prefix_len, strlen(start_ptr + prefix_len) + 1);
+    }
+}
+
+void removeNewlines(char *str)
 {
     char *pos;
     while ((pos = strchr(str, '\n')) != NULL)
     {
         memmove(pos, pos + 1, strlen(pos));
     }
+}
 
-    char *start_ptr = strstr(str, "-----BEGIN RSA PUBLIC KEY-----");
+void removeEndPublicKey(char *str)
+{
     char *end_ptr = strstr(str, "-----END RSA PUBLIC KEY-----");
-
-    if (start_ptr != NULL && end_ptr != NULL)
+    if (end_ptr != NULL)
     {
-        size_t prefix_len = strlen("-----BEGIN RSA PUBLIC KEY-----");
         size_t suffix_len = strlen("-----END RSA PUBLIC KEY-----");
-        memmove(start_ptr, end_ptr + suffix_len, strlen(end_ptr + suffix_len) + 1);
-        printf("Chaîne modifiée : %s\n", str);
+        *end_ptr = '\0';
     }
-    else
-    {
-        printf("Les motifs '-----BEGIN RSA PUBLIC KEY-----' et '-----END RSA PUBLIC KEY-----' n'ont pas été trouvés dans la chaîne.\n");
-    }
+}
+
+void reformatKey(char *str)
+{
+    removeBeginPublicKey(str);
+    removeNewlines(str);
+    removeEndPublicKey(str);
 }
 
 // Fonction pour chiffrer un message avec une clé publique RSA

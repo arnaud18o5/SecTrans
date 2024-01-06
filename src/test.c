@@ -12,6 +12,35 @@
 #define PRINT_KEYS
 #define WRITE_TO_FILE
 
+void removeBeginPublicKey(char *str)
+{
+    char *start_ptr = strstr(str, "-----BEGIN RSA PUBLIC KEY-----");
+    if (start_ptr != NULL)
+    {
+        size_t prefix_len = strlen("-----BEGIN RSA PUBLIC KEY-----");
+        memmove(start_ptr, start_ptr + prefix_len, strlen(start_ptr + prefix_len) + 1);
+    }
+}
+
+void removeNewlines(char *str)
+{
+    char *pos;
+    while ((pos = strchr(str, '\n')) != NULL)
+    {
+        memmove(pos, pos + 1, strlen(pos));
+    }
+}
+
+void removeEndPublicKey(char *str)
+{
+    char *end_ptr = strstr(str, "-----END RSA PUBLIC KEY-----");
+    if (end_ptr != NULL)
+    {
+        size_t suffix_len = strlen("-----END RSA PUBLIC KEY-----");
+        *end_ptr = '\0';
+    }
+}
+
 int main(void)
 {
     size_t pri_len; // Length of private key
@@ -48,4 +77,15 @@ int main(void)
     pub_key[pub_len] = '\0';
 
     printf("\nprivate : %s\npublic : %s\n", pri_key, pub_key);
+
+    // reformatKey(pub_key);
+    // char public_key[sizeof(pub_key)];
+    // strcpy(public_key, pub_key);
+
+    char str[] = "-----BEGIN RSA PUBLIC KEY-----\nMEgCQQDawg/kNlkmsa4q9IBd0eFVTX7qMB4USm+4a/I/ckskajuDug9oLksyRZ65\noMaJQODb5oXL22fEUQtqqyHZM8ytAgMBAAE=\n-----END RSA PUBLIC KEY-----";
+
+    removeBeginPublicKey(str);
+    removeNewlines(str);
+    removeEndPublicKey(str);
+    printf("public : %s\n", str);
 }
