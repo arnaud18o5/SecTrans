@@ -234,14 +234,14 @@ int main(int argc, char *argv[])
             {
                 printf("Message reçu du serveur : %s\n", received_msg);
 
-                char *start_ptr = strstr(received_msg, "-----BEGIN RSA PUBLIC KEY-----");
-                char *end_ptr = strstr(received_msg, "-----END RSA PUBLIC KEY-----");
+                char *start_ptr = strstr(received_msg, "-----BEGIN RSA PUBLIC KEY-----\n");
+                char *end_ptr = strstr(received_msg, "-----END RSA PUBLIC KEY-----\n");
 
                 if (start_ptr != NULL && end_ptr != NULL)
                 {
                     // Supprimer "coucou" et "salut" de la chaîne
-                    memmove(received_msg, start_ptr + strlen("-----BEGIN RSA PUBLIC KEY-----"), end_ptr - (start_ptr + strlen("-----BEGIN RSA PUBLIC KEY-----")));
-                    received_msg[end_ptr - (start_ptr + strlen("-----BEGIN RSA PUBLIC KEY-----"))] = '\0';
+                    memmove(received_msg, start_ptr + strlen("-----BEGIN RSA PUBLIC KEY-----\n"), end_ptr - (start_ptr + strlen("-----BEGIN RSA PUBLIC KEY-----\n")));
+                    received_msg[end_ptr - (start_ptr + strlen("-----BEGIN RSA PUBLIC KEY-----\n"))] = '\0';
 
                     printf("Chaîne modifiée : %s\n", received_msg);
                 }
@@ -254,7 +254,8 @@ int main(int argc, char *argv[])
 
                 RSA *pubKey = load_public_key_from_string(received_msg);
                 char *message = "salut les foufous";
-                char *encrypted = encrypt_message(message, sizeof(message), pubKey, 256);
+                int encrypted_size;
+                char *encrypted = encrypt_message(message, sizeof(message), pubKey, &encrypted_size);
                 printf("message encrypté: %s\n", encrypted);
                 messageReceived = 1;
             }
