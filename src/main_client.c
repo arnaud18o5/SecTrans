@@ -124,8 +124,13 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        unsigned char* signature = calculate_hash(file);
-        // encrypt the signature with private key
+        unsigned char* hash = calculate_hash(file);
+        // sign the hash with private key
+        EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+        if(!mdctx) {
+            fprintf(stderr, "Error creating EVP_MD_CTX structure.\n");
+            return EXIT_FAILURE;
+        }
         FILE *privateKeyFile = fopen("client_private.pem", "r");
         if (privateKeyFile == NULL)
         {
@@ -149,7 +154,7 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        if (EVP_SignUpdate(mdctx, signature, strlen((char*)signature)) != 1) {
+        if (EVP_SignUpdate(mdctx, hash, strlen((char*)hash)) != 1) {
             fprintf(stderr, "Error in EVP_SignUpdate.\n");
             return EXIT_FAILURE;
         }
