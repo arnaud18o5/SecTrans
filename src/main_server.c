@@ -32,6 +32,7 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
 void processUpMessage(char *received_msg)
 {
     // Move the pointer to the first character after the comma
+
     char *msg = strchr(received_msg, ',') + 1;
 
     // Check if header contains FILE_START
@@ -154,20 +155,33 @@ int main()
             }
             else if (strcmp(token, "rsa") == 0)
             {
-                // Move the pointer to the first character after the comma
-                char *msg = strchr(received_msg, ',') + 1;
-                printf("Message reçu : %s\n", msg);
+                printf("Demande de clé publique\n");
+                if (commaPos != NULL)
+                {
+                    char *secondComma = strchr(commaPos + 1, ',');
+                    if (secondComma != NULL)
+                    {
+                        int length = secondComma - (commaPos + 1);
+                        char token[10]; // Taille suffisante pour stocker le token
+                        strncpy(token, commaPos + 1, length);
+                        token[length] = '\0'; // Ajouter le caractère nul à la fin
+                        int portClient = atoi(token);
+                        printf("Port client : %d\n", portClient);
+                        char *pubKey = malloc(1024);
+                        int pubKeyLength = BN_bn2bin(keypair->n, pubKey);
+                        printf("Longueur de la clé publique : %d\n", pubKeyLength);
+                    }
+                }
+
+                free(token); // Don't forget to free the memory when you're done
             }
+            else
+            {
+                fprintf(stderr, "No comma found in message\n");
+            }
+        }
 
-            free(token); // Don't forget to free the memory when you're done
-        }
-        else
-        {
-            fprintf(stderr, "No comma found in message\n");
-        }
+        stopserver();
+
+        return EXIT_SUCCESS;
     }
-
-    stopserver();
-
-    return EXIT_SUCCESS;
-}
