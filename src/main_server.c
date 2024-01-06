@@ -6,7 +6,9 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
 FILE *currentOpenedFile;
 
 // Function to decode Base64 to data
@@ -79,12 +81,48 @@ void processUpMessage(char *received_msg)
 } 
 
 
-void processListMessage(char *port)
-{
-    printf("envoyer la liste des fichiers au client au port %s\n", port);
-    // Ajoutez le code nécessaire pour envoyer la liste des fichiers au client
-    // ...
+void processListMessage(char *port) {
+    printf("Envoyer la liste de fichier au client\n");
+    int portClient = atoi(port);
+    // Ouvrir le répertoire /upload
+    DIR *dir;
+    struct dirent *entry;
+
+    dir = opendir("upload/");
+
+    if (dir == NULL) {
+        perror("Erreur lors de l'ouverture du répertoire");
+        exit(EXIT_FAILURE);
+    }
+
+    // Utiliser une chaîne dynamique pour stocker les noms de fichiers
+    char *res = malloc(1); // Allocation initiale d'un octet
+    res[0] = '\0'; // Chaîne vide
+
+    // Parcourir les fichiers du répertoire
+    while ((entry = readdir(dir)) != NULL) {
+        // Ignorer les entrées spéciales "." et ".."
+        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+            printf("%s\n", entry->d_name);
+            
+            // Allouer de l'espace pour le nouveau nom de fichier
+            res = realloc(res, strlen(res) + strlen(entry->d_name) + 2);
+            
+            // Concaténer le nouveau nom de fichier à la chaîne résultante
+            strcat(res, entry->d_name);
+            strcat(res, "\n");
+        }
+    }
+
+    sndmsg(res, portClient);
+
+    // Libérer la mémoire allouée pour la chaîne résultante
+    free(res);
+
+    // Fermer le répertoire
+    closedir(dir);
 }
+
 
 void processDownMessage(char *port, char *msg)
 {
@@ -133,8 +171,7 @@ int main()
             }
             else if (strcmp(token, "list") == 0)
             {
-                char *port = strtok(NULL, ",");
-                processListMessage(port);
+                processListMessage("12346");
             }
             else if (strcmp(token, "down") == 0)
             {

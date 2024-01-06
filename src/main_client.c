@@ -133,6 +133,26 @@ int main(int argc, char *argv[])
         strcat(server_message, portStr);    // Concatène la chaîne représentant l'entier à server_message
         sndmsg(server_message, port);
         // Affichez la liste des fichiers reçue du serveur
+        if (startserver(portClient) == -1)
+        {
+            fprintf(stderr, "Failed to start the server client\n");
+            return EXIT_FAILURE;
+        }
+        int messageReceived = 0;
+        char received_msg[1024] = "";
+        while (messageReceived == 0)
+        {
+            if (getmsg(received_msg) == -1)
+            {
+                fprintf(stderr, "Error while receiving message\n");
+                break;
+            }
+            if (strcmp(received_msg, ""))
+            {
+                printf("Message reçu du serveur : %s\n", received_msg);
+                messageReceived = 1;
+            }
+        }
     }
     else if (strcmp(argv[1], "-down") == 0 && argc == 3)
     {
