@@ -55,6 +55,7 @@ RSA *load_public_key_from_string(const char *public_key_str)
 // Retourne le message chiffré
 unsigned char *encrypt_message(const unsigned char *message, int message_len, RSA *public_key, int *encrypted_len)
 {
+    char *err;
     unsigned char *encrypted = (unsigned char *)malloc(RSA_size(public_key));
     *encrypted_len = RSA_public_encrypt(message_len, message, encrypted, public_key, RSA_PKCS1_PADDING);
     if (*encrypted_len == -1)
@@ -232,6 +233,22 @@ int main(int argc, char *argv[])
             if (strcmp(received_msg, ""))
             {
                 printf("Message reçu du serveur : %s\n", received_msg);
+
+                char *start_ptr = strstr(received_msg, "-----BEGIN PUBLIC KEY-----\n");
+                char *end_ptr = strstr(received_msg, "-----END PUBLIC KEY-----\n");
+
+                if (start_ptr != NULL && end_ptr != NULL)
+                {
+                    // Supprimer "coucou" et "salut" de la chaîne
+                    memmove(received_msg, start_ptr + strlen("-----BEGIN PUBLIC KEY-----\n"), end_ptr - (start_ptr + strlen("-----BEGIN PUBLIC KEY-----\n")));
+                    received_msg[end_ptr - (start_ptr + strlen("-----BEGIN PUBLIC KEY-----\n"))] = '\0';
+
+                    printf("Chaîne modifiée : %s\n", received_msg);
+                }
+                else
+                {
+                    printf("Les motifs '-----BEGIN PUBLIC KEY-----\n' et '-----END PUBLIC KEY-----\n' n'ont pas été trouvés dans la chaîne.\n");
+                }
 
                 printf("test d'encryption avec le message: salut les foufous \n");
 
