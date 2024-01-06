@@ -179,8 +179,11 @@ int main(int argc, char *argv[])
         }
         // Get the public key
         char publicKey[1024];
-        // Read all the chars in the file and remove the newline
-        fgets(publicKey, 1024, publicKeyFile);
+        // Read all the lines of the file and remove the newline
+        while (fgets(publicKey, 1024, publicKeyFile) != NULL)
+        {
+            publicKey[strcspn(publicKey, "\n")] = 0;
+        }
         fclose(publicKeyFile);
         strcat(server_message1, publicKey);
         long long result1 = sndmsg(server_message1, port);
