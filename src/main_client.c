@@ -13,6 +13,7 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
+#include <openssl/sha.h>
 
 // Function to encode data to Base64
 char* base64_encode(const unsigned char* buffer, size_t length) {
