@@ -39,6 +39,8 @@ void processUpMessage(char *received_msg)
     char *fileStart = "FILE_START";
     char *publicKey = "PUBLIC_KEY";
     char *fileEnd = "FILE_END";
+    
+    char *publicKey;
 
     if (strstr(msg, fileStart) != NULL) {
         // Get filename
@@ -78,8 +80,8 @@ void processUpMessage(char *received_msg)
 
     // Check if header contains PUBLIC_KEY
     else if (strstr(msg, publicKey) != NULL) {
-        // Get the public key after the comma
-        char *publicKey = strchr(msg, ',') + 1;
+        // Put the public key after the comma in publicKey variable
+        publicKey = strchr(msg, ',') + 1;
         // Log the public key
         printf("Public key: %s\n", publicKey);
     }
