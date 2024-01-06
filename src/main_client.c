@@ -177,34 +177,28 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
             return EXIT_FAILURE;
         }
-        // Load the public key
-        EVP_PKEY *publicKey;
-        if (!(publicKey = EVP_PKEY_new())) {
-            fprintf(stderr, "Error creating EVP_PKEY structure.\n");
-            return EXIT_FAILURE;
+        // Get the public key
+        char publicKey[1024];
+        // Read all the file content and remove all the newlines
+        char c;
+        int i = 0;
+        while ((c = fgetc(publicKeyFile)) != EOF)
+        {
+            if (c != '\n')
+            {
+                publicKey[i] = c;
+                i++;
+            }
         }
-        PEM_read_PUBKEY(publicKeyFile, &publicKey, NULL, NULL);
-        // Get the string representation of the public key
-        BIO *bio = BIO_new(BIO_s_mem());
-        PEM_write_bio_PUBKEY(bio, publicKey);
-        BUF_MEM *bio_buf;
-        BIO_get_mem_ptr(bio, &bio_buf);
-        char *publicKeyString = malloc(bio_buf->length + 1);
-        memcpy(publicKeyString, bio_buf->data, bio_buf->length);
-        publicKeyString[bio_buf->length] = '\0';
-        BIO_free_all(bio);
-        fclose(publicKeyFile);
-        EVP_PKEY_free(publicKey);
-        // Send the public key to the server
-        strcat(server_message1, publicKeyString);
-        free(publicKeyString);
+        publicKey[i] = '\0';
+        strcat(server_message1, publicKey);
         long long result1 = sndmsg(server_message1, port);
         if (result1 != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
             return EXIT_FAILURE;
         }
-        
+
 
         // Create signed hash
         unsigned char* hash = calculate_hash(file);
