@@ -5,7 +5,7 @@ LDLIBS = -lserver -lclient -lssl -lcrypto -lm
 
 all: server client
 
-hash: include/hash.c
+hash.o: include/hash.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o hash.o $< $(LDLIBS)
 
 server: src/main_server.c
