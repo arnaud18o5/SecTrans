@@ -64,8 +64,11 @@ void processUpMessage(char *received_msg)
     }
     // Check if header contains FILE_END
     else if (strstr(msg, fileEnd) != NULL) {
-        // Log msg  
-        printf("File end received : %s\n", msg); 
+        // Get the signature after the comma
+        char *signature = strchr(msg, ',') + 1;
+        // Log the signature
+        printf("Signature: %s\n", signature);
+
         // Close file
         fclose(currentOpenedFile);
 
