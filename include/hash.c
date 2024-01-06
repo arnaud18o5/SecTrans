@@ -1,5 +1,9 @@
 #include "./hash.h"
+
 #include <openssl/sha.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 unsigned char* calculate_hash(FILE* file) {
     // Ensure we're starting from the beginning of the file
