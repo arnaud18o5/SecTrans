@@ -68,7 +68,7 @@ char *encryptMessage(char *pub_key, char *message)
         exit(EXIT_FAILURE);
     }
 
-    rsa = PEM_read_bio_RSAPublicKey(bio, NULL, NULL, NULL);
+    PEM_read_bio_RSAPublicKey(bio, &rsa, NULL, NULL);
     if (rsa == NULL)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL

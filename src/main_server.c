@@ -279,7 +279,7 @@ int main()
                 }
             }
 
-            // stopserver();
+            stopserver();
 
             return EXIT_SUCCESS;
         }
