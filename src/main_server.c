@@ -10,7 +10,7 @@
 
 #include "encryption.h"
 
-#define KEY_LENGTH 512
+#define KEY_LENGTH 1024
 #define PUB_EXP 65537
 
 FILE *currentOpenedFile;
