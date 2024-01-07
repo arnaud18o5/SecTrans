@@ -29,8 +29,8 @@ typedef struct {
     char role[20];
     int attribuedPort;
     FILE *currentOpenedFile;
-    char* currentUploadFileName[256];
-    char* publicKey[1024];
+    char currentUploadFileName[256];
+    char publicKey[1024];
 } User; 
 
 // The passwords are written in the hexadecimal format
