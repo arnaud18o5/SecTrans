@@ -221,6 +221,8 @@ void processUpMessage(char *received_msg)
         }
         privateKey[i] = '\0';
 
+        printf("privateKey: %s\n", privateKey);
+
         char *decryptedSignature = malloc(decodedLength);
 
         // decouper decodedSignature en pakcet de 128 char
@@ -235,6 +237,8 @@ void processUpMessage(char *received_msg)
             }
             // decrypter packet
             char *decryptedPacket = decryptMessage(privateKey, packet);
+
+            printf("decryptedPacket: %s\n", decryptedPacket);
             // concat decryptedPacket dans decryptedSignature
             strcat(decryptedSignature, decryptedPacket);
         }
