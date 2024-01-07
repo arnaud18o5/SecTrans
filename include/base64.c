@@ -1,7 +1,7 @@
 #include "./base64.h"
 
 #include <openssl/bio.h>
-#include <openssl/buf.h>
+#include <openssl/buffer.h>
 
 // Function to decode Base64 to data
 unsigned char* base64_decode(const char* buffer, size_t* length) {
