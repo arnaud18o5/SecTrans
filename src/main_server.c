@@ -129,6 +129,9 @@ void processUpMessage(char *received_msg)
         size_t decodedLength;
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
 
+        // Log clientPublicKey
+        printf("clientPublicKey: %s\n", clientPublicKey);
+
         // Verify signature
         if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey)) {
             printf("Signature verified!\n");
