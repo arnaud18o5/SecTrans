@@ -150,6 +150,8 @@ void processUpMessage(char *received_msg)
     else if (strstr(msg, publicKey) != NULL) {
         // Get the public key after the comma
         clientPublicKey = strchr(msg, ',') + 1;
+        // Log public key
+        printf("FIRST publicKey: %s\n", clientPublicKey);
     }
 
     // Write to file
