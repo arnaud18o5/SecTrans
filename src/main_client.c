@@ -211,13 +211,13 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Error creating EVP_PKEY structure.\n");
             return EXIT_FAILURE;
         }
-        FILE *privateKeyFile = fopen("client_private.pem", "r");
-        if (privateKeyFile == NULL)
+        FILE *ffprivateKeyFile = fopen("client_private.pem", "r");
+        if (ffprivateKeyFile == NULL)
         {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
             return EXIT_FAILURE;
         }
-        PEM_read_PrivateKey(privateKeyFile, &privateKeyStruct, NULL, NULL);
+        PEM_read_PrivateKey(ffprivateKeyFile, &privateKeyStruct, NULL, NULL);
 
         // Check if the pair is valid
         if (EVP_PKEY_cmp(publicKeyStruct, privateKeyStruct) == 1) {
