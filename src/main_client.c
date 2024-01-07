@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
             // Print message
             for (int i = 0; i < num_read; i++)
             {
-                printf("%c", message[i]);
+                printf("%02x", message[i]);
             }
             printf("\n\n");
 
