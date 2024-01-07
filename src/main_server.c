@@ -329,7 +329,7 @@ void getLoginAndPassword(char message[], char login[], char password[]) {
     }
     else {
         fprintf(stderr, "Bad credentials\n");
-        break;
+        exit(EXIT_FAILURE);
     }
 
     token = strtok(NULL, ",");
@@ -340,7 +340,7 @@ void getLoginAndPassword(char message[], char login[], char password[]) {
     }
     else {
         fprintf(stderr, "Bad credentials\n");
-        break;
+        exit(EXIT_FAILURE);
     }
 }
 
