@@ -275,6 +275,8 @@ int main(int argc, char *argv[])
         }
         // Log len of hash
         printf("Hash len : %ld\n", strlen((char*)hash));
+        // Log SHA256_DIGEST_LENGTH
+        printf("SHA256_DIGEST_LENGTH : %d\n", SHA256_DIGEST_LENGTH);
         if (EVP_SignUpdate(mdctx, hash, strlen((char*)hash)) != 1) {
             fprintf(stderr, "Error in EVP_SignUpdate.\n");
             return EXIT_FAILURE;
