@@ -390,7 +390,7 @@ int main()
 
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
 
-                User *user = authenticateUser(clientUsername, clientPassword);
+                const User *user = authenticateUser(clientUsername, clientPassword);
                 if (user == NULL) {
                     sndmsg("error,Bad credentials", CLIENT_PORT);
                     fprintf(stderr, "Bad credentials\n");
