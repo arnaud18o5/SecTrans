@@ -5,6 +5,8 @@
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 
+#include "encrypt_message.h"
+
 char *decryptMessage(char *pri_key, char *message)
 {
     RSA *rsa = NULL;

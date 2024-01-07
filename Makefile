@@ -5,9 +5,8 @@ LDLIBS = -lserver -lclient -lencryption -lssl -lcrypto -lm
 
 all: server client
 
-lib_encryption: src/encrypt_message.c
-	$(CC) -c -fPIC $< -o lib.o
-	$(CC) -shared -o libencryption.so lib.o
+hash.o: include/encrypt_message.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o encrypt_message.o $< $(LDLIBS)
 
 server: src/main_server.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $< $(LDLIBS)

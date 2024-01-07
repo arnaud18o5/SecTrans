@@ -282,7 +282,6 @@ int main(int argc, char *argv[])
                 messageReceived = 1;
                 // Libérer la mémoire
                 free(encrypted_message);
-                RSA_free(rsa);
             }
         }
     }

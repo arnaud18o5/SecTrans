@@ -8,6 +8,8 @@
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 
+#include "encryption.h"
+
 #define KEY_LENGTH 512
 #define PUB_EXP 65537
 
