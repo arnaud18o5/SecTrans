@@ -225,6 +225,7 @@ User* getUserFromToken(const char *token) {
 void processListMessage(char *received_msg) {
     // Get token after the first comma
     char *token = strchr(received_msg, ',') + 1;
+    printf("Token: %s\n", token);
     const User *user = getUserFromToken(token);
     printf("User: %s\n", user->username);
 
