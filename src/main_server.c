@@ -175,7 +175,7 @@ void processUpMessage(char *received_msg)
         strcpy(fullFilename, uploadDir);
         strcat(fullFilename, filename);
         printf("Uploading file: %s\n", fullFilename);
-        user->currentUploadFileName = fullFilename;
+        strcpy(user->currentUploadFileName, fullFilename);
 
         // Check if file exists, if so send error
         if (access(fullFilename, F_OK) != -1) {
