@@ -422,9 +422,8 @@ int main()
             strncpy(token, received_msg, tokenLength);
             token[tokenLength] = '\0'; // Null-terminate the string
 
-            // TODO : voir ici commencer implémenter la décryption du token (par rapport troisième paramètre)
-
-            if (strcmp(token, "up") == 0 && decrypedToken )
+            // TODO: decrypedToken
+            if (strcmp(token, "up") == 0)
             {
                 processUpMessage(received_msg);
             }
