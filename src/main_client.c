@@ -175,7 +175,10 @@ int main(int argc, char *argv[])
         long long total_read = 0;
 
         // Send to the server a first message containing a start hint and the filename
-        char server_message[1024] = "up,FILE_START,";
+        char server_message[1024] = "up,";
+        // Add token
+        strcat(server_message, token);
+        strcat(server_message, ",FILE_START,");
         strcat(server_message, argv[2]);
         long long result = sndmsg(server_message, SERVER_PORT);
         if (result != 0)
@@ -187,6 +190,9 @@ int main(int argc, char *argv[])
         while (!feof(file))
         {
             char server_message[1024] = "up,";
+            // Add token
+            strcat(server_message, token);
+            strcat(server_message, ",");
             // Calculate the max num of chars to read
             int max_retreive_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
             // Take in account the base64 encoding
@@ -213,7 +219,10 @@ int main(int argc, char *argv[])
         }
 
         // Send the public key to the server
-        char server_message1[1024] = "up,PUBLIC_KEY,";
+        char server_message1[1024] = "up,";
+        // Add token
+        strcat(server_message1, token);
+        strcat(server_message1, ",PUBLIC_KEY,");
         FILE *publicKeyFile = fopen("client_public.pem", "r");
         if (publicKeyFile == NULL)
         {
@@ -284,7 +293,10 @@ int main(int argc, char *argv[])
         free(signature_encrypted);
 
         // Send to the server a last message containing an end hint with signed hash
-        char server_message2[1024] = "up,FILE_END";
+        char server_message2[1024] = "up,";
+        // Add token
+        strcat(server_message2, token);
+        strcat(server_message2, ",FILE_END");
         strcat(server_message2, ",");
         strcat(server_message2, encoded_signature);
         free(encoded_signature);
