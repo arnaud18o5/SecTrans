@@ -34,7 +34,7 @@ void processUpMessage(char *received_msg)
     char *token = strtok(NULL, ",");
 
     // Get user
-    User *user = getUserFromToken(token);
+    User *user = getUserFromToken(token, tokenKey);
     if (user == NULL) return;
 
     // Get the message after the 2 commas
@@ -144,7 +144,7 @@ void processUpMessage(char *received_msg)
 void processListMessage(char *received_msg) {
     // Get token after the first comma
     char *token = strchr(received_msg, ',') + 1;
-    User *user = getUserFromToken(token);
+    User *user = getUserFromToken(token, tokenKey);
     if (user == NULL) return;
 
     // Ouvrir le répertoire /upload
@@ -215,7 +215,7 @@ void processDownMessage(char *received_msg)
     char *filename = strtok(NULL, ",");
 
     // Get user
-    User *user = getUserFromToken(token);
+    User *user = getUserFromToken(token, tokenKey);
     if (user == NULL) return;
 
     char msg[1024];

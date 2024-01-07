@@ -18,7 +18,7 @@ typedef struct {
 extern User users[];
 
 User* authenticateUser(const char *username, const char *password);
-User* getUserFromToken(const char *token);
+User* getUserFromToken(const char *token, const unsigned char *key);
 char* createSpecialToken(const char *username, const char *role);
 unsigned char* encryptToken(const unsigned char *token, size_t tokenSize, const unsigned char *key);
 void getLoginAndPassword(char message[], char login[], char password[]);

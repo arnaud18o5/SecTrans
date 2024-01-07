@@ -39,11 +39,11 @@ unsigned char *decryptToken(const unsigned char *encryptedToken, size_t tokenSiz
     return decryptedToken;
 }
 
-User* getUserFromToken(const char *token) {
+User* getUserFromToken(const char *token, const unsigned char *key) {
     size_t decryptTokenLength;
     unsigned char *decodedToken = base64_decode(token, &decryptTokenLength);
 
-    unsigned char *decryptedToken = decryptToken(decodedToken, decryptTokenLength, tokenKey);
+    unsigned char *decryptedToken = decryptToken(decodedToken, decryptTokenLength, key);
 
     char *username = strtok(decryptedToken, ",");
     char *role = strtok(NULL, ",");
