@@ -28,10 +28,12 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
     BIO* bio = BIO_new_mem_buf(publicKey, -1);
     PEM_read_bio_PUBKEY(bio, &evp_key, NULL, NULL);
     BIO_free(bio);
+    printf("debug 1\n");
 
     if (!evp_key) {
         // handle error
         EVP_MD_CTX_free(ctx);
+        printf("debug 2\n");
         return 0;
     }
 
@@ -39,6 +41,7 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
         // handle error
         EVP_PKEY_free(evp_key);
         EVP_MD_CTX_free(ctx);
+        printf("debug 3\n");
         return 0;
     }
 
@@ -48,11 +51,12 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
         EVP_PKEY_free(evp_key);
         EVP_MD_CTX_free(ctx);
         free(file_hash);
+        printf("debug 4\n");
         return 0;
     }
 
     int ret = EVP_DigestVerifyFinal(ctx, signature, signature_len);
-
+    printf("debug 5\n");
     EVP_PKEY_free(evp_key);
     EVP_MD_CTX_free(ctx);
     free(file_hash);
