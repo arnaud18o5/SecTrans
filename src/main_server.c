@@ -183,7 +183,7 @@ void processUpMessage(char *received_msg)
 
 typedef struct {
     char username[30];
-    char password[64];
+    char password[65];
     char role[20];
 } User; 
 
@@ -344,10 +344,6 @@ void getLoginAndPassword(char message[], char login[], char password[]) {
         fprintf(stderr, "Bad credentials\n");
         exit(EXIT_FAILURE);
     }
-
-    // log all
-    printf("Login: %s\n", login);
-    printf("Password: %s\n", password);
 }
 
 int main()
@@ -399,10 +395,13 @@ int main()
             else if (strcmp(token, "auth") == 0)
             {
                 char clientUsername[30];
-                char clientPassword[30];
-                char clientRole[20];
+                char clientPassword[65];
 
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
+
+                // Print all
+                printf("Username: %s\n", clientUsername);
+                printf("Password: %s\n", clientPassword);
 
                 // Give the token
                 unsigned char key[32];
