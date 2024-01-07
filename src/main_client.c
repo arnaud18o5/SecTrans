@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
             // Take in account the base64 encoding
             max_retreive_size = (int)floor(max_retreive_size / 1.37);
 
-            char message[max_retreive_size];
+            unsigned char message[max_retreive_size];
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
 
