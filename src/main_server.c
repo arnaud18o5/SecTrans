@@ -35,10 +35,10 @@ typedef struct {
 
 // The passwords are written in the hexadecimal format
 User users[] = {
-    {"samuel", "6eac1114aa783f6549327e7d01f63752995da7b31f1f37092b7dcb9f49cf5651", "Reader", 0}, // Mot de passe : pwd1
-    {"arnaud", "149d2937d1bce53fa683ae652291bd54cc8754444216a9e278b45776b76375af", "Writer", 0}, // Mot de passe : pwd2
-    {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin", 0}, // Mot de passe : pwd3
-    {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin", 0} // Mot de passe : pwd4
+    {"samuel", "6eac1114aa783f6549327e7d01f63752995da7b31f1f37092b7dcb9f49cf5651", "Compta", 0}, // Mot de passe : pwd1
+    {"arnaud", "149d2937d1bce53fa683ae652291bd54cc8754444216a9e278b45776b76375af", "Compta", 0}, // Mot de passe : pwd2
+    {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Finance", 0}, // Mot de passe : pwd3
+    {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Finance", 0} // Mot de passe : pwd4
 };
 
 User* authenticateUser(const char *username, const char *password) {
@@ -193,6 +193,17 @@ void processUpMessage(char *received_msg)
         if (user->currentOpenedFile == NULL) {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         }
+
+        // Create metadata file with owner in first line and role in second line
+        char *metadataFilename = malloc(strlen(fullFilename) + 5);
+        strcpy(metadataFilename, fullFilename);
+        strcat(metadataFilename, ".meta");
+        FILE *metadataFile = fopen(metadataFilename, "w+");
+        if (metadataFile == NULL) {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        }
+        fprintf(metadataFile, "%s\n%s", user->username, user->role);
+        fclose(metadataFile);
     }
     // Check if header contains FILE_END
     else if (strstr(msg, fileEnd) != NULL) {
