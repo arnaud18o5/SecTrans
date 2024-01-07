@@ -195,7 +195,7 @@ void processUpMessage(char *received_msg)
     else if (strstr(msg, fileEnd) != NULL)
     {
 
-                // Get the signature after the comma
+        // Get the signature after the comma
         char *signature = strchr(msg, ',') + 1;
 
         // Decode signature
@@ -245,7 +245,7 @@ void processUpMessage(char *received_msg)
         // Remove "up," at the beginning of msg
         memmove(msg, msg + 3, strlen(msg));
         // decoupe decodedSignature tous les 128 char
-        int nbBlocks = strlen(received_msg) * sizeof(unsigned char) / 128;
+        int nbBlocks = strlen(received_msg) * sizeof(char) / 128;
 
         printf("nbBlocks: %d\n", nbBlocks);
 
@@ -269,7 +269,7 @@ void processUpMessage(char *received_msg)
 
         // printf("privateKey: %s\n", privateKey);
 
-        char *decryptedSignature = malloc(strlen(received_msg) * sizeof(unsigned char));
+        char *decryptedSignature = malloc(strlen(received_msg) * sizeof(char));
 
         // decouper decodedSignature en pakcet de 128 char
         unsigned char packet[128];
