@@ -88,7 +88,7 @@ char *encryptMessage(char *pub_key, char *message)
     }
 
     // Chiffrement RSA
-    int result = RSA_public_encrypt(message_len, (const unsigned char *)message, encrypted_message, rsa, RSA_PKCS1_OAEP_PADDING);
+    int result = RSA_public_encrypt(message_len + 1, (const unsigned char *)message, encrypted_message, rsa, RSA_PKCS1_OAEP_PADDING);
     if (result == -1)
     {
         perror("Erreur lors du chiffrement RSA");
