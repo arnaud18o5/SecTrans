@@ -130,8 +130,7 @@ void processUpMessage(char *received_msg)
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
 
         // Verify signature
-        int verified = verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey);
-        if (verified == 0) {
+        if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey)) {
             printf("Signature verified!\n");
         } else {
             printf("Signature not verified!\n");
