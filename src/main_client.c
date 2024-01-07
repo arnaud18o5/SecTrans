@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
             if (strcmp(received_msg, ""))
             {
                 printf("Message reçu du serveur : %s\n", received_msg);
-                char *rsa = "Hello les foufous";
+                char *rsa = "Hello les foufous\0";
                 char *encrypted_message = encryptMessage(received_msg, rsa);
 
                 printf("envoie du message vers serveur : %s\n", encrypted_message);
