@@ -433,6 +433,8 @@ int main()
             strncpy(token, decoded, tokenLength);
             token[tokenLength] = '\0'; // Null-terminate the string
 
+            printf("Token: %s\n", token);
+
             if (strcmp(token, "up") == 0)
             {
                 processUpMessage(decoded);
