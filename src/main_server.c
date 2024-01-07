@@ -1,5 +1,6 @@
 #include "server.h"
 #include "client.h"
+#include "../include/hash.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,8 +9,8 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
-#include <openssl/evp.h>
 #include <openssl/pem.h>
+#include <openssl/sha.h>
 
 FILE *currentOpenedFile;
 
@@ -18,6 +19,14 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
     if (!ctx) {
         // handle error
         return 0;
+    }
+
+    // TEST
+    // Create signed hash
+    unsigned char* hash = calculate_hash(file);
+    // Log the hash
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        printf("%02x", hash[i]);
     }
 
     EVP_PKEY* evp_key = NULL;
