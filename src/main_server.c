@@ -125,11 +125,11 @@ void processUpMessage(char *received_msg)
     }
     // Check if header contains FILE_END
     else if (strstr(msg, fileEnd) != NULL) {
-        // Get the signature after the comma
-        char *signature = strchr(msg, ',') + 1;
-
         // Log clientPublicKey
         printf("clientPublicKey: %s\n", clientPublicKey);
+
+        // Get the signature after the comma
+        char *signature = strchr(msg, ',') + 1;
 
         // Decode signature
         size_t decodedLength;
