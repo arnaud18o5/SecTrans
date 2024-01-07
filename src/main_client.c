@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
                 publicKey[i] = '\0';
 
                 char *encryptedPacket = encryptMessage(publicKey, packet);
-                printf("encryptedPacket : %s\n", encryptedPacket);
+                // printf("encryptedPacket : %s\n", encryptedPacket);
 
                 // add encrypted packet to encrypted message
                 strcat(encrypted_message, encryptedPacket);
