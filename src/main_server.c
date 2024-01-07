@@ -166,11 +166,14 @@ void processUpMessage(char *received_msg)
 
     // Write to file
     else {
-        // print the message
-        printf("%s\n", msg);
         // Decode and write to file
         size_t decodedLength;
         unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
+        // Print decoded message
+        for (int i = 0; i < decodedLength; i++) {
+            printf("%02x", decodedMessage[i]);
+        }
+        printf("\n\n");
         fwrite(decodedMessage, 1, decodedLength, currentOpenedFile);
         free(decodedMessage);
     }

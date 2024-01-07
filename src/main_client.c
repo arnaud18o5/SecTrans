@@ -153,14 +153,17 @@ int main(int argc, char *argv[])
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
 
+            // Print message
+            for (int i = 0; i < num_read; i++)
+            {
+                printf("%c", message[i]);
+            }
+            printf("\n\n");
+
             // Encode the message to base64
             char* encoded_message = base64_encode(message, num_read);
             strcat(server_message, encoded_message);
             free(encoded_message);
-
-            // Send the message to the server
-            // print the message
-            printf("Message envoyé au serveur : %s\n", server_message);
 
             long long result = sndmsg(server_message, port);
             if (result != 0)
