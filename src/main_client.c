@@ -196,35 +196,46 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        // Check public and private pair key are valid
-        // Load the public key
-        EVP_PKEY *publicKeyStruct;
-        if (!(publicKeyStruct = EVP_PKEY_new())) {
-            fprintf(stderr, "Error creating EVP_PKEY structure.\n");
-            return EXIT_FAILURE;
-        }
-        PEM_read_PUBKEY(publicKeyFile, &publicKeyStruct, NULL, NULL);
 
-        // Load the private key
-        EVP_PKEY *privateKeyStruct;
-        if (!(privateKeyStruct = EVP_PKEY_new())) {
-            fprintf(stderr, "Error creating EVP_PKEY structure.\n");
-            return EXIT_FAILURE;
-        }
-        FILE *ffprivateKeyFile = fopen("client_private.pem", "r");
-        if (ffprivateKeyFile == NULL)
+
+
+        // Check public and private pair key are valid
+        // Load the RSA public key
+        FILE *publicKeyFile2 = fopen("client_public.pem", "r");
+        if (publicKeyFile2 == NULL)
         {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
             return EXIT_FAILURE;
         }
-        PEM_read_PrivateKey(ffprivateKeyFile, &privateKeyStruct, NULL, NULL);
+
+        RSA *rsa_pub = EVP_PKEY_get1_RSA(publicKeyFile2);
+        const BIGNUM *rsa_pub_n;
+        RSA_get0_key(rsa_pub, &rsa_pub_n, NULL, NULL);
+
+        // Load the RSA private key
+        FILE *privateKeyFile2 = fopen("client_private.pem", "r");
+        if (privateKeyFile2 == NULL)
+        {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            return EXIT_FAILURE;
+        }
+
+        RSA *rsa_priv = EVP_PKEY_get1_RSA(privateKeyFile2);
+        const BIGNUM *rsa_priv_n;
+        RSA_get0_key(rsa_priv, &rsa_priv_n, NULL, NULL);
 
         // Check if the pair is valid
-        if (EVP_PKEY_cmp(publicKeyStruct, privateKeyStruct) == 1) {
+        if (BN_cmp(rsa_pub_n, rsa_priv_n) == 0) {
             printf("Public and private key pair is valid!\n");
         } else {
             printf("Public and private key pair is not valid!\n");
         }
+
+        // Free the RSA structures
+        RSA_free(rsa_pub);
+        RSA_free(rsa_priv);
+
+
         
 
         // Create signed hash
