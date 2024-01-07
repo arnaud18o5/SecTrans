@@ -41,15 +41,18 @@ char *decryptMessage(char *pri_key, char *message)
         exit(EXIT_FAILURE);
     }
 
-    // Déchiffrement RSA
-    int result = RSA_private_decrypt(rsa_len, (const unsigned char *)message, decrypted_message, rsa, RSA_PKCS1_OAEP_PADDING);
-    if (result == -1)
+    while (strlen(decrypted_message) < 128)
     {
-        ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
-        perror("Erreur lors du déchiffrement RSA");
-        RSA_free(rsa);
-        free(decrypted_message);
-        exit(EXIT_FAILURE);
+        // Déchiffrement RSA
+        int result = RSA_private_decrypt(rsa_len, (const unsigned char *)message, decrypted_message, rsa, RSA_PKCS1_OAEP_PADDING);
+        if (result == -1)
+        {
+            ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
+            perror("Erreur lors du déchiffrement RSA");
+            RSA_free(rsa);
+            free(decrypted_message);
+            exit(EXIT_FAILURE);
+        }
     }
 
     RSA_free(rsa);
