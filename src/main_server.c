@@ -202,7 +202,7 @@ void processUpMessage(char *received_msg)
         if (metadataFile == NULL) {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         }
-        fprintf(metadataFile, "%s\n%s", user->role, user->username);
+        fprintf(metadataFile, "%s\n%s\n", user->role, user->username);
         fclose(metadataFile);
     }
     // Check if header contains FILE_END
@@ -277,14 +277,24 @@ void processListMessage(char *received_msg) {
 
     // Parcourir les fichiers du répertoire
     while ((entry = readdir(dir)) != NULL) {
-        // Ignorer les entrées spéciales "." et ".."
-        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {            
-            // Allouer de l'espace pour le nouveau nom de fichier
-            res = realloc(res, strlen(res) + strlen(entry->d_name) + 2);
-            
-            // Concaténer le nouveau nom de fichier à la chaîne résultante
-            strcat(res, entry->d_name);
-            strcat(res, "\n");
+        // Get only file finished by .meta
+        if (strstr(entry->d_name, ".meta") != NULL) {
+            // Open file and read first line
+            FILE *metadataFile = fopen(entry->d_name, "r");
+            if (metadataFile == NULL) continue;
+            char role[20];
+            fscanf(metadataFile, "%s", role);
+            fclose(metadataFile);
+
+            // Check if user has access to file
+            if (strcmp(user->role, role) == 0) {
+                // Allouer de l'espace pour le nouveau nom de fichier (sans .meta)
+                char *filename = malloc(strlen(entry->d_name) - 4);
+                
+                // Concaténer le nouveau nom de fichier à la chaîne résultante (sans .meta)
+                strncpy(filename, entry->d_name, strlen(entry->d_name) - 5);
+                strcat(res, "\n");
+            }
         }
     }
 
