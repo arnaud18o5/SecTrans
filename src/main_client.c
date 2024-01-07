@@ -161,17 +161,12 @@ int main(int argc, char *argv[])
     int port = 12345;
     int portClient = 12346;
 
-    char username[30];
-    char password[30];
+    char auth_message[50];
 
-    printf("Veuillez entrer votre nom d'utilisateur : ");
-    scanf("%29s", username);
-
-    printf("Veuillez entrer votre mot de passe : ");
-    scanf("%29s", password);
+    printf("Veuillez entrer votre nom d'utilisateur sous la forme 'login,password' : ");
+    scanf("%29s", auth_message);
 
     char auth_message[1024];
-    sprintf(auth_message, "auth,%s,%s", username, password);
     if (sndmsg(auth_message, port) != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
@@ -186,6 +181,7 @@ int main(int argc, char *argv[])
     processUpMessage(received_msg);
 
     // TODO passer ici à < 3 pour que l'on puisse insérer le token par la suite
+    // plus modiifer juste
 
     if (argc < 2) return print_usage();
 
