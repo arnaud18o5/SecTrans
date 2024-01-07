@@ -24,7 +24,7 @@ char *currentUploadFileName;
 unsigned char tokenKey[32];
 
 const int CLIENT_PORT = 12346;
-const int lastAttribuedClientPort = 12347;
+int lastAttribuedClientPort = 12347;
 
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
     // Set file to beginning
@@ -179,7 +179,7 @@ User users[] = {
     {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin", 0}, // pwd3
     {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin", 0} // pwd4
 };
-const User* authenticateUser(const char *username, const char *password) {
+User* authenticateUser(const char *username, const char *password) {
     for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
         if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
             return &(users[i]);
@@ -200,7 +200,7 @@ unsigned char *decryptToken(const unsigned char *encryptedToken, size_t tokenSiz
     return decryptedToken;
 }
 
-const User* getUserFromToken(const char *token) {
+User* getUserFromToken(const char *token) {
     size_t decryptTokenLength;
     unsigned char *decodedToken = base64_decode(token, &decryptTokenLength);
 
@@ -396,7 +396,7 @@ int main()
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
 
                 // Authenticate user
-                const User *user = authenticateUser(clientUsername, clientPassword);
+                User *user = authenticateUser(clientUsername, clientPassword);
                 if (user == NULL) {
                     sndmsg("error,Bad credentials", CLIENT_PORT);
                     fprintf(stderr, "Error when authenticating: bad credentials\n");
