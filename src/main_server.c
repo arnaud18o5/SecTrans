@@ -149,15 +149,8 @@ void processUpMessage(char *received_msg)
     else if (strstr(msg, publicKey) != NULL) {
         // Get message after the comma
         char *publicKey = strchr(msg, ',') + 1;
-        // Decode and store public key
-        size_t decodedLength;
-        unsigned char *decodedPublicKey = base64_decode(publicKey, &decodedLength);
-        // Log decoded public key
-        printf("decodedPublicKey: %s\n", decodedPublicKey);
-        clientPublicKey = malloc(decodedLength + 1);
-        memcpy(clientPublicKey, decodedPublicKey, decodedLength);
-        clientPublicKey[decodedLength] = '\0';
-        free(decodedPublicKey);
+        // Log publicKey
+        printf("publicKey: %s\n", publicKey);
     }
 
     // Write to file
