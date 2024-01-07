@@ -291,13 +291,16 @@ void processListMessage(char *received_msg) {
 
             // Check if user has access to file
             if (strcmp(user->role, role) == 0) {
-                // Log ok
-                printf("User %s has access to file %s\n", user->username, entry->d_name);
                 // Allouer de l'espace pour le nouveau nom de fichier (sans .meta)
-                char *filename = malloc(strlen(entry->d_name) - 4);
+                char *filename = malloc(strlen(entry->d_name) - 5);
+                // Reallouer la chaîne résultante pour y ajouter le nouveau nom de fichier
+                res = realloc(res, strlen(res) + strlen(entry->d_name) - 5 + 5);
                 
                 // Concaténer le nouveau nom de fichier à la chaîne résultante (sans .meta)
                 strncpy(filename, entry->d_name, strlen(entry->d_name) - 5);
+                filename[strlen(entry->d_name) - 5] = '\0';
+                strcat(res, " - ");
+                strcat(res, filename);
                 strcat(res, "\n");
             }
         }
