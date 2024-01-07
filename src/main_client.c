@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
 
 
         // Check public and private pair key are valid
+
         // Load the RSA public key
         FILE *publicKeyFile2 = fopen("client_public.pem", "r");
         if (publicKeyFile2 == NULL)
@@ -207,8 +208,10 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
             return EXIT_FAILURE;
         }
-
-        RSA *rsa_pub = EVP_PKEY_get1_RSA(publicKeyFile2);
+        // Load the public key
+        EVP_PKEY *publicKeyStruct2 = NULL;
+        PEM_read_PUBKEY(publicKeyFile2, &publicKeyStruct2, NULL, NULL);
+        RSA *rsa_pub = EVP_PKEY_get1_RSA(publicKeyStruct2);
         const BIGNUM *rsa_pub_n;
         RSA_get0_key(rsa_pub, &rsa_pub_n, NULL, NULL);
 
@@ -219,8 +222,10 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
             return EXIT_FAILURE;
         }
-
-        RSA *rsa_priv = EVP_PKEY_get1_RSA(privateKeyFile2);
+        // Load the private key
+        EVP_PKEY *privateKeyStruct2 = NULL;
+        PEM_read_PrivateKey(privateKeyFile2, &privateKeyStruct2, NULL, NULL);
+        RSA *rsa_priv = EVP_PKEY_get1_RSA(privateKeyStruct2);
         const BIGNUM *rsa_priv_n;
         RSA_get0_key(rsa_priv, &rsa_priv_n, NULL, NULL);
 
