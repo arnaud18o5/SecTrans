@@ -203,9 +203,18 @@ int main(int argc, char *argv[])
         // Create signed hash
         unsigned char* hash = calculate_hash(file);
         // Log the hash
+        printf("\n");
         for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
             printf("%02x", hash[i]);
         }
+        // LOg the file size
+        printf("\nFile size: %lld\n", file_size);
+        // Log the first 10 bytes of the file
+        fseek(file, 0, SEEK_SET);
+        char first_bytes[10];
+        fread(first_bytes, 1, 10, file);
+        printf("First 10 bytes: %s", first_bytes);
+        fseek(file, 0, SEEK_SET);
         // sign the hash with private key
         EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
         if(!mdctx) {
