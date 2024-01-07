@@ -415,7 +415,7 @@ int main()
 
                 // Send token to client with the port
                 char message[1024];
-                snprintf(message, 1024, "%s,%s", base64Token, user->attribuedPort);
+                snprintf(message, 1024, "%s,%d", base64Token, user->attribuedPort);
                 sndmsg(message,12346);
                 
                 // Free memory
