@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
             // Calculate the max num of chars to read
             int max_retreive_size = (1024 - 1024 / 128 * 11) - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
             // Take in account the base64 encoding
-            // max_retreive_size = (int)floor(max_retreive_size / 1.37);
+            max_retreive_size = (int)floor(max_retreive_size / 1.37);
             unsigned char message[max_retreive_size];
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
@@ -243,19 +243,18 @@ int main(int argc, char *argv[])
             // Split the message into packets of 128
             int packet_size = 128 - 11;
             int num_packets = (num_read + packet_size - 1) / packet_size;
+            // Open the public key file
+            FILE *public_key_file = fopen("server_public_key.pem", "r");
+            if (public_key_file == NULL)
+            {
+                fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
+                return EXIT_FAILURE;
+            }
             for (int i = 0; i < num_packets; i++)
             {
                 char packet[packet_size + 1];
                 strncpy(packet, message + i * packet_size, packet_size);
                 packet[packet_size] = '\0'; // Null-terminate the packet
-
-                // Open the public key file
-                FILE *public_key_file = fopen("server_public_key.pem", "r");
-                if (public_key_file == NULL)
-                {
-                    fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
-                    return EXIT_FAILURE;
-                }
 
                 // Get the public key
                 char publicKey[1024];
@@ -278,13 +277,15 @@ int main(int argc, char *argv[])
                 printf("size packet : %d\n", strlen(packet));
             }
 
+            close(public_key_file);
+
             printf("encrypted_message : %s\n", encrypted_message);
             printf("size encrypted_message : %d\n", strlen(encrypted_message));
 
             // Encode the message to base64
-            // char *encoded_message = base64_encode(encrypted_message, num_read);
+            char *encoded_message = base64_encode(encrypted_message, num_read);
             strcat(server_message, encrypted_message);
-            // free(encoded_message);
+            free(encoded_message);
 
             long long result = sndmsg(server_message, port);
             if (result != 0)
