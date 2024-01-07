@@ -273,17 +273,12 @@ void processDownMessage(char *received_msg)
     printf("Envoyer le contenu du fichier au client\n");
 
     // Get data
-    char *token = strtok(received_msg, ",");
-    token = strtok(NULL, ",");
+    strtok(received_msg, ",");
+    char *token = strtok(NULL, ",");
     char *filename = strtok(NULL, ",");
 
     // Get user
     User *user = getUserFromToken(token);
-
-    // print all info
-    printf("Token: %s\n", token);
-    printf("Filename: %s\n", filename);
-    printf("User: %s\n", user->username);
 
     char msg[1024];
     snprintf(msg, 1024, "FILE_START,%s", filename);
