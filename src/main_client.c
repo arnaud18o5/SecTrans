@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
                 // add encrypted packet to encrypted message
                 strcat(encrypted_message, encryptedPacket);
 
-                printf("size packet : %d\n", strlen(packet));
+                printf("size packet : %d\n", strlen(encryptedPacket));
             }
 
             close(public_key_file);
