@@ -285,6 +285,8 @@ void processListMessage(char *received_msg) {
             char role[20];
             fscanf(metadataFile, "%s", role);
             fclose(metadataFile);
+            // log filename
+            printf("Filename: %s\n", entry->d_name);
 
             // Check if user has access to file
             if (strcmp(user->role, role) == 0) {
