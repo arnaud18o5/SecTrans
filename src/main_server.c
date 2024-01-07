@@ -151,6 +151,8 @@ void processUpMessage(char *received_msg)
         char *publicKey = strchr(msg, ',') + 1;
         // Log publicKey
         printf("publicKey: %s\n", publicKey);
+        // Set clientPublicKey
+        clientPublicKey = publicKey;
     }
 
     // Write to file
