@@ -24,6 +24,7 @@ char *currentUploadFileName;
 unsigned char tokenKey[32];
 
 const int CLIENT_PORT = 12346;
+const int lastAttribuedClientPort = 12347;
 
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
     // Set file to beginning
@@ -168,14 +169,15 @@ typedef struct {
     char username[30];
     char password[65];
     char role[20];
+    int attribuedPort;
 } User; 
 
 // The passwords are written in the hexadecimal format
 User users[] = {
-    {"samuel", "6eac1114aa783f6549327e7d01f63752995da7b31f1f37092b7dcb9f49cf5651", "Reader"}, // pwd1
-    {"arnaud", "149d2937d1bce53fa683ae652291bd54cc8754444216a9e278b45776b76375af", "Writer"}, // pwd2
-    {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin"}, // pwd3
-    {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin"} // pwd4
+    {"samuel", "6eac1114aa783f6549327e7d01f63752995da7b31f1f37092b7dcb9f49cf5651", "Reader", 0}, // pwd1
+    {"arnaud", "149d2937d1bce53fa683ae652291bd54cc8754444216a9e278b45776b76375af", "Writer", 0}, // pwd2
+    {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin", 0}, // pwd3
+    {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin", 0} // pwd4
 };
 const User* authenticateUser(const char *username, const char *password) {
     for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
@@ -220,7 +222,12 @@ const User* getUserFromToken(const char *token) {
     return NULL;
 }
 
-void processListMessage() {
+void processListMessage(char *received_msg) {
+    // Get token after the first comma
+    char *token = strchr(received_msg, ',') + 1;
+    const User *user = getUserFromToken(token);
+    printf("User: %s\n", user->username);
+
     // Ouvrir le répertoire /upload
     DIR *dir;
     struct dirent *entry;
@@ -373,7 +380,7 @@ int main()
             }
             else if (strcmp(token, "list") == 0)
             {
-                processListMessage();
+                processListMessage(received_msg);
             }
             else if (strcmp(token, "down") == 0)
             {
@@ -383,10 +390,12 @@ int main()
             }
             else if (strcmp(token, "auth") == 0)
             {
+                // Get login and password
                 char clientUsername[30];
                 char clientPassword[65];
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
 
+                // Authenticate user
                 const User *user = authenticateUser(clientUsername, clientPassword);
                 if (user == NULL) {
                     sndmsg("error,Bad credentials", CLIENT_PORT);
@@ -394,14 +403,22 @@ int main()
                     continue;
                 }
 
+                // Generate token
                 size_t tokenSize = strlen(clientUsername) + strlen(user->role) + 2;
                 unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role),tokenSize,tokenKey);
-
                 size_t encryptedSize = (tokenSize / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
                 char *base64Token = base64_encode(encryptedToken, encryptedSize);
 
-                sndmsg(base64Token,12346);
+                // Assign port to user
+                user->attribuedPort = lastAttribuedClientPort;
+                lastAttribuedClientPort++;
+
+                // Send token to client with the port
+                char message[1024];
+                snprintf(message, 1024, "%s,", base64Token, user->attribuedPort);
+                sndmsg(message,12346);
                 
+                // Free memory
                 free(encryptedToken);
                 free(base64Token);
             }

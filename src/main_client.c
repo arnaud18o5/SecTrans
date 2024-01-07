@@ -20,6 +20,13 @@
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 
+
+const int SERVER_PORT = 12345;
+const int DEFAULT_CLIENT_PORT = 12346;
+
+const char *token;
+int attribuedPort;
+
 int generate_rsa_keypair() {
     int ret = 0;
     RSA *r = NULL;
@@ -87,9 +94,6 @@ int main(int argc, char *argv[])
     // TO BE MOVED WHEN LOGIN ??
     generate_rsa_keypair();
 
-    int port = 12345;
-    int portClient = 12346;
-
     printf("Veuillez entrez votre nom d'utilisateur : \n");
     char username[100];
     scanf("%s", username);
@@ -104,13 +108,13 @@ int main(int argc, char *argv[])
     }
     free(password_hash);
 
-    startserver(portClient);
+    startserver(DEFAULT_CLIENT_PORT);
 
     char auth_message[1024] = "auth,";
     strcat(auth_message, username);
     strcat(auth_message, ",");
     strcat(auth_message, password_hash_hexa);
-    if (sndmsg(auth_message, port) != 0)
+    if (sndmsg(auth_message, SERVER_PORT) != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
         return EXIT_FAILURE;
@@ -133,15 +137,9 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    // Log received message
-    printf("Message reçu du serveur : %s\n", token_msg);
-    // Length of the token
-    int token_len = strlen(token_msg);
-    // Print
-    printf("Token length: %d\n", token_len);
-
-    // TODO passer ici à < 3 pour que l'on puisse insérer le token par la suite
-    // plus modiifer juste
+    // Save token
+    token = malloc(strlen(token_msg));
+    strcpy(token, token_msg);
 
     if (argc < 2) return print_usage();
 
@@ -151,7 +149,7 @@ int main(int argc, char *argv[])
         // Exemple d'utilisation : ./client -up <nom du fichier>
 
         // Start server to receive server messages
-        if (startserver(portClient) == -1)
+        if (startserver(attribuedPort) == -1)
         {
             fprintf(stderr, "Failed to start the server client\n");
             return EXIT_FAILURE;
@@ -175,7 +173,7 @@ int main(int argc, char *argv[])
         // Send to the server a first message containing a start hint and the filename
         char server_message[1024] = "up,FILE_START,";
         strcat(server_message, argv[2]);
-        long long result = sndmsg(server_message, port);
+        long long result = sndmsg(server_message, SERVER_PORT);
         if (result != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
@@ -199,7 +197,7 @@ int main(int argc, char *argv[])
             strcat(server_message, encoded_message);
             free(encoded_message);
 
-            long long result = sndmsg(server_message, port);
+            long long result = sndmsg(server_message, SERVER_PORT);
             if (result != 0)
             {
                 fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
@@ -230,7 +228,7 @@ int main(int argc, char *argv[])
         }
         publicKey[i] = '\0';
         strcat(server_message1, publicKey);
-        long long result1 = sndmsg(server_message1, port);
+        long long result1 = sndmsg(server_message1, SERVER_PORT);
         if (result1 != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
@@ -286,7 +284,7 @@ int main(int argc, char *argv[])
         strcat(server_message2, ",");
         strcat(server_message2, encoded_signature);
         free(encoded_signature);
-        long long result2 = sndmsg(server_message2, port);
+        long long result2 = sndmsg(server_message2, SERVER_PORT);
         if (result2 != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
@@ -308,12 +306,11 @@ int main(int argc, char *argv[])
     {
         // Exemple d'utilisation : ./client -list
         char server_message[1024] = "list,";
-        char portStr[10];                   // Crée une chaîne pour stocker la représentation en chaîne de l'entier
-        sprintf(portStr, "%d", portClient); // Convertit l'entier en chaîne de caractères
-        strcat(server_message, portStr);    // Concatène la chaîne représentant l'entier à server_message
-        sndmsg(server_message, port);
+        // Add token
+        strcat(server_message, token);
+        sndmsg(server_message, SERVER_PORT);
         // Affichez la liste des fichiers reçue du serveur
-        if (startserver(portClient) == -1)
+        if (startserver(attribuedPort) == -1)
         {
             fprintf(stderr, "Failed to start the server client\n");
             return EXIT_FAILURE;
@@ -338,14 +335,11 @@ int main(int argc, char *argv[])
     {
         // Exemple d'utilisation : ./client -down "filename"
         char server_message[1024] = "down,";
-        char portStr[10];                    // Crée une chaîne pour stocker la représentation en chaîne de l'entier
-        sprintf(portStr, "%d,", portClient); // Convertit l'entier en chaîne de caractères
-        strcat(server_message, portStr);     // Concatène la chaîne représentant l'entier à server_message
         strcat(server_message, argv[2]);
 
-        sndmsg(server_message, port);
+        sndmsg(server_message, SERVER_PORT);
 
-        if (startserver(portClient) == -1)
+        if (startserver(attribuedPort) == -1)
         {
             fprintf(stderr, "Failed to start the server client\n");
             return EXIT_FAILURE;
