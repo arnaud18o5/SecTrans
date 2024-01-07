@@ -11,6 +11,7 @@
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 #include <openssl/sha.h>
+#include <openssl/err.h>
 
 FILE *currentOpenedFile;
 char *clientPublicKey;
