@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
         strcat(server_message, argv[2]);
 
         // Encode the server message in base64
-        char *base64_server_message = base64_encode(server_message, 1024);
+        char *base64_server_message = base64_encode(server_message, strlen(server_message));
         long long result = sndmsg(base64_server_message, port);
         if (result != 0)
         {
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 
             // Encode the message to base64
             strcat(server_message, encrypted_message);
-            char *encoded_message = base64_encode(server_message, 1024);
+            char *encoded_message = base64_encode(server_message, strlen(server_message));
             printf("encoded_message : %s\n", encoded_message);
             printf("size encoded_message : %d\n", strlen(encoded_message));
             long long result = sndmsg(encoded_message, port);
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
         EVP_MD_CTX_free(mdctx);
 
         // Encode the signature to base64
-        char *encoded_signature = base64_encode(signature_encrypted, 1024);
+        char *encoded_signature = base64_encode(signature_encrypted, strlen(signature_encrypted));
         free(signature_encrypted);
 
         // Send to the server a last message containing an end hint with signed hash
@@ -479,7 +479,7 @@ int main(int argc, char *argv[])
         char portStr[10];                    // Crée une chaîne pour stocker la représentation en chaîne de l'entier
         sprintf(portStr, "%d,", portClient); // Convertit l'entier en chaîne de caractères
         strcat(server_message, portStr);
-        char *base64_server_message = base64_encode(server_message, 1024);
+        char *base64_server_message = base64_encode(server_message, strlen(server_message));
         sndmsg(base64_server_message, port);
 
         if (startserver(portClient) == -1)
