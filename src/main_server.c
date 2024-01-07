@@ -58,7 +58,10 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
     // Calculate hash of file
     unsigned char* file_hash = calculate_hash(file);
     // Log hash
-    printf("Hash: %s\n", file_hash);
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        printf("%02x", file_hash[i]);
+    }
+    printf("\n");
     // Check if hash is valid
     if (EVP_DigestVerifyUpdate(ctx, file_hash, SHA256_DIGEST_LENGTH) != 1) {
         EVP_PKEY_free(evp_key);
@@ -146,7 +149,10 @@ void processUpMessage(char *received_msg)
         size_t decodedLength;
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
         // Log decoded signature
-        printf("Decoded signature: %s\n", decodedSignature);
+        for (int i = 0; i < decodedLength; i++) {
+            printf("%02x", decodedSignature[i]);
+        }
+        printf("\n");
         // Verify signature
         if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey)) {
             printf("Signature verified!\n");
