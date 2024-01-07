@@ -257,6 +257,11 @@ int main(int argc, char *argv[])
                     return EXIT_FAILURE;
                 }
 
+                // print public key as char*
+                char *public_key_str = malloc(1024);
+                fgets(public_key_str, 1024, public_key_file);
+                printf("public_key_str : %s\n", public_key_str);
+
                 // Read the public key
                 RSA *public_key = RSA_new();
                 if (PEM_read_RSA_PUBKEY(public_key_file, &public_key, NULL, NULL) == NULL)
