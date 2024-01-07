@@ -202,7 +202,7 @@ void processUpMessage(char *received_msg)
         int nbBlocks = decodedLength / 128;
 
         FILE *privateKeyFile = fopen("private.pem", "r");
-        if (publicKeyFile == NULL)
+        if (privateKeyFile == NULL)
         {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
             return EXIT_FAILURE;
