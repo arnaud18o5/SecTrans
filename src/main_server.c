@@ -385,37 +385,23 @@ int main()
             {
                 char clientUsername[30];
                 char clientPassword[65];
-
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
 
                 const User *user = authenticateUser(clientUsername, clientPassword);
                 if (user == NULL) {
                     sndmsg("error,Bad credentials", CLIENT_PORT);
-                    fprintf(stderr, "Bad credentials\n");
+                    fprintf(stderr, "Error when authenticating: bad credentials\n");
                     continue;
                 }
 
                 size_t tokenSize = strlen(clientUsername) + strlen(user->role) + 2;
                 unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role),tokenSize,tokenKey);
-                // Print ecrypted token in hexadecimal format
-                printf("Encrypted token: ");
-                for (int i = 0; i < strlen(encryptedToken); i++) {
-                    printf("%02x", encryptedToken[i]);
-                }
-                printf("\n");
+
                 size_t encryptedSize = (tokenSize / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
                 char *base64Token = base64_encode(encryptedToken, encryptedSize);
-                printf("Base64 token: %s\n", base64Token);
 
                 sndmsg(base64Token,12346);
                 
-                // TEst
-                const User *test = getUserFromToken(base64Token);
-                // print all
-                printf("Username: %s\n", test->username);
-                printf("Role: %s\n", test->role);
-                printf("Password: %s\n", test->password);
-
                 free(encryptedToken);
                 free(base64Token);
             }

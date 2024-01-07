@@ -135,6 +135,10 @@ int main(int argc, char *argv[])
 
     // Log received message
     printf("Message reçu du serveur : %s\n", token_msg);
+    // Length of the token
+    int token_len = strlen(token_msg);
+    // Print
+    printf("Token length: %d\n", token_len);
 
     // TODO passer ici à < 3 pour que l'on puisse insérer le token par la suite
     // plus modiifer juste
