@@ -258,66 +258,6 @@ int main()
                             }
                             printf("Message reçu : %s\n", msg_to_decrypt);
                             RSA *rsa = NULL;
-                            // Charger la clé publique RSA depuis la chaîne PEM
-                            /*BIO *bio_pub = BIO_new_mem_buf(pub_key, -1);
-                            if (bio_pub == NULL)
-                            {
-                                perror("Erreur lors de la création du BIO pour la clé publique");
-                                exit(EXIT_FAILURE);
-                            }
-
-                            rsa = PEM_read_bio_RSAPublicKey(bio_pub, NULL, NULL, NULL);
-                            if (rsa == NULL)
-                            {
-                                ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
-                                perror("Erreur lors de la lecture de la clé publique");
-                                BIO_free(bio_pub);
-                                exit(EXIT_FAILURE);
-                            }
-
-                            BIO_free(bio_pub);*/
-
-                            // Charger la clé privée RSA depuis la chaîne PEM
-                            /*BIO *bio_priv = BIO_new_mem_buf(pri_key, -1);
-                            if (bio_priv == NULL)
-                            {
-                                perror("Erreur lors de la création du BIO pour la clé privée");
-                                RSA_free(rsa);
-                                exit(EXIT_FAILURE);
-                            }
-
-                            rsa = PEM_read_bio_RSAPrivateKey(bio_priv, NULL, NULL, NULL);
-                            if (rsa == NULL)
-                            {
-                                ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
-                                perror("Erreur lors de la lecture de la clé privée");
-                                BIO_free(bio_priv);
-                                RSA_free(rsa);
-                                exit(EXIT_FAILURE);
-                            }
-
-                            BIO_free(bio_priv);
-
-                            int rsa_len = RSA_size(rsa);
-
-                            // Buffer pour le message déchiffré
-                            unsigned char decrypted_message[rsa_len];
-
-                            // Déchiffrement RSA
-                            int result = RSA_private_decrypt(rsa_len, received_msg, decrypted_message, rsa, RSA_PKCS1_PADDING);
-                            if (result == -1)
-                            {
-                                ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
-                                perror("Erreur lors du déchiffrement RSA");
-                                RSA_free(rsa);
-                                exit(EXIT_FAILURE);
-                            }
-
-                            // Afficher le message déchiffré
-                            printf("Message déchiffré : %s\n", decrypted_message);
-
-                            RSA_free(rsa);*/
-                            printf('%s \n', pri_key);
                             char *decryptedMessage = decryptMessage(pri_key, msg_to_decrypt);
                             printf("Message déchiffré : %s\n", decryptedMessage);
                         }
