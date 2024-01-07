@@ -153,7 +153,7 @@ void processUpMessage(char *received_msg)
 {
 
     // decoupe decodedSignature tous les 128 char
-    int nbBlocks = decodedLength / 128;
+    int nbBlocks = strlen(received_msg) / 128;
 
     FILE *privateKeyFile = fopen("private.pem", "r");
     if (privateKeyFile == NULL)
@@ -245,7 +245,7 @@ void processUpMessage(char *received_msg)
 
         printf("decoded signature: %s\n", decodedSignature);
 
-                // Verify signature
+        // Verify signature
         if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey))
         {
             char message[1024] = "File uploaded successfully!";
