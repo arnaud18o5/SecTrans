@@ -89,14 +89,13 @@ void processUpMessage(char *received_msg)
     // Get token after the first comma
     strtok(received_msg_copy, ",");
     char *token = strtok(NULL, ",");
-    // Log token
-    printf("Token: %s\n", token);
+
+    // Get user
+    User *user = getUserFromToken(token);
 
     // Get the message after the 2 commas
     char *msg = strchr(received_msg, ',') + 1;
     msg = strchr(msg, ',') + 1;
-    // Log message
-    printf("Message: %s\n", msg);
 
     // Check if header contains FILE_START
     char *fileStart = "FILE_START";
@@ -141,7 +140,7 @@ void processUpMessage(char *received_msg)
             char message[1024] = "File uploaded successfully!";
             fclose(currentOpenedFile);
             // Notify client that file was uploaded successfully
-            sndmsg(message, DEFAULT_CLIENT_PORT);
+            sndmsg(message, user->attribuedPort);
             printf("File uploaded successfully!\n");
         } else {
             char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
@@ -149,7 +148,7 @@ void processUpMessage(char *received_msg)
             fclose(currentOpenedFile);
             unlink(currentUploadFileName);
             // Notify client that file couldn't be uploaded
-            sndmsg(message, DEFAULT_CLIENT_PORT);
+            sndmsg(message, user->attribuedPort);
             printf("ERROR: Invalid signature, the file is deleted!\n");
         }
 
@@ -438,7 +437,7 @@ int main()
                 // Send token to client with the port
                 char message[1024];
                 snprintf(message, 1024, "%s,%d", base64Token, user->attribuedPort);
-                sndmsg(message,12346);
+                sndmsg(message, DEFAULT_CLIENT_PORT);
                 
                 // Free memory
                 free(encryptedToken);
