@@ -1,0 +1,1 @@
+char *decrypt(char *ciphertext, char *key);
