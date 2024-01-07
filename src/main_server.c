@@ -347,7 +347,7 @@ void getLoginAndPassword(char message[], char login[], char password[]) {
 
     // log all
     printf("Login: %s\n", login);
-    printf("Password": %s\n, password);
+    printf("Password: %s\n", password);
 }
 
 int main()
