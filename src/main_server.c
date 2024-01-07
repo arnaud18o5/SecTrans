@@ -94,20 +94,13 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
     int decodeLen = strlen(buffer);
     unsigned char *decode = (unsigned char *)malloc(decodeLen);
 
-    printf("here \n");
     memset(decode, 0, decodeLen);
-    printf("here \n");
 
     bio = BIO_new_mem_buf(buffer, -1);
-    printf("here \n");
     b64 = BIO_new(BIO_f_base64());
-    printf("here \n");
     bio = BIO_push(b64, bio);
-    printf("here \n");
     *length = BIO_read(bio, decode, decodeLen);
-    printf("here \n");
     BIO_free_all(bio);
-    printf("here \n");
     return decode;
 }
 
@@ -159,48 +152,6 @@ void processUpMessage(char *received_msg)
 {
 
     printf("received_msg: %s\n", received_msg);
-    // decoupe decodedSignature tous les 128 char
-    int nbBlocks = strlen(received_msg) * sizeof(char) / 128;
-
-    FILE *privateKeyFile = fopen("private.pem", "r");
-    if (privateKeyFile == NULL)
-    {
-        fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-        return EXIT_FAILURE;
-    }
-    // Get the public key
-    char privateKey[1024];
-    // Read all the file content
-    char c;
-    int i = 0;
-    while ((c = fgetc(privateKeyFile)) != EOF)
-    {
-        privateKey[i] = c;
-        i++;
-    }
-    privateKey[i] = '\0';
-
-    // printf("privateKey: %s\n", privateKey);
-
-    char *decryptedSignature = malloc(strlen(received_msg) * sizeof(char));
-
-    // decouper decodedSignature en pakcet de 128 char
-    char *packet = malloc(128);
-    int j = 0;
-    int k = 0;
-    for (j = 0; j < nbBlocks; j++)
-    {
-        for (k = 0; k < 128; k++)
-        {
-            packet[k] = received_msg[k + (j * 128)];
-        }
-        // decrypter packet
-        char *decryptedPacket = decryptMessage(privateKey, packet);
-
-        printf("decryptedPacket: %s\n", decryptedPacket);
-        // concat decryptedPacket dans decryptedSignature
-        strcat(decryptedSignature, decryptedPacket);
-    }
 
     // printf("decryptedSignature: %s\n", decryptedSignature);
     //  Move the pointer to the first character after the comma
@@ -243,6 +194,53 @@ void processUpMessage(char *received_msg)
     // Check if header contains FILE_END
     else if (strstr(msg, fileEnd) != NULL)
     {
+
+        // Remove "up," at the beginning of msg
+        memmove(msg, msg + 3, strlen(msg));
+        // decoupe decodedSignature tous les 128 char
+        int nbBlocks = strlen(received_msg) * sizeof(unsigned char) / 128;
+
+        FILE *privateKeyFile = fopen("private.pem", "r");
+        if (privateKeyFile == NULL)
+        {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            return EXIT_FAILURE;
+        }
+        // Get the public key
+        char privateKey[1024];
+        // Read all the file content
+        char c;
+        int i = 0;
+        while ((c = fgetc(privateKeyFile)) != EOF)
+        {
+            privateKey[i] = c;
+            i++;
+        }
+        privateKey[i] = '\0';
+
+        // printf("privateKey: %s\n", privateKey);
+
+        char *decryptedSignature = malloc(strlen(received_msg) * sizeof(unsigned char));
+
+        // decouper decodedSignature en pakcet de 128 char
+        unsigned char packet[128];
+        int j = 0;
+        int k = 0;
+        for (j = 0; j < nbBlocks; j++)
+        {
+            for (k = 0; k < 128; k++)
+            {
+                packet[k] = received_msg[k + (j * 128)];
+            }
+
+            printf("packet: %s\n", packet);
+            // decrypter packet
+            char *decryptedPacket = decryptMessage(privateKey, packet);
+
+            printf("decryptedPacket: %s\n", decryptedPacket);
+            // concat decryptedPacket dans decryptedSignature
+            strcat(decryptedSignature, decryptedPacket);
+        }
         // Get the signature after the comma
         char *signature = strchr(msg, ',') + 1;
 
