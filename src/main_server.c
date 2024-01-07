@@ -18,9 +18,6 @@
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 
-FILE *currentOpenedFile;
-char *clientPublicKey;
-char *currentUploadFileName;
 unsigned char tokenKey[32];
 
 const int DEFAULT_CLIENT_PORT = 12346;
@@ -31,6 +28,9 @@ typedef struct {
     char password[65];
     char role[20];
     int attribuedPort;
+    FILE *currentOpenedFile;
+    char* currentUploadFileName[256];
+    char* publicKey[1024];
 } User; 
 
 // The passwords are written in the hexadecimal format
@@ -175,7 +175,7 @@ void processUpMessage(char *received_msg)
         strcpy(fullFilename, uploadDir);
         strcat(fullFilename, filename);
         printf("Uploading file: %s\n", fullFilename);
-        currentUploadFileName = fullFilename;
+        user->currentUploadFileName = fullFilename;
 
         // Check if file exists, if so send error
         if (access(fullFilename, F_OK) != -1) {
@@ -189,8 +189,8 @@ void processUpMessage(char *received_msg)
         }
 
         // Open file
-        currentOpenedFile = fopen(fullFilename, "w+");
-        if (currentOpenedFile == NULL) {
+        user->currentOpenedFile = fopen(fullFilename, "w+");
+        if (user->currentOpenedFile == NULL) {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         }
     }
@@ -204,17 +204,17 @@ void processUpMessage(char *received_msg)
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
 
         // Verify signature
-        if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey)) {
+        if (verifySignature(user->currentOpenedFile, decodedSignature, decodedLength, user->publicKey)) {
             char message[1024] = "File uploaded successfully!";
-            fclose(currentOpenedFile);
+            fclose(user->currentOpenedFile);
             // Notify client that file was uploaded successfully
             sndmsg(message, user->attribuedPort);
             printf("File uploaded successfully!\n");
         } else {
             char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
             // Close file and delete it
-            fclose(currentOpenedFile);
-            unlink(currentUploadFileName);
+            fclose(user->currentOpenedFile);
+            unlink(user->currentUploadFileName);
             // Notify client that file couldn't be uploaded
             sndmsg(message, user->attribuedPort);
             printf("ERROR: Invalid signature, the file is deleted!\n");
@@ -222,16 +222,13 @@ void processUpMessage(char *received_msg)
 
         // Free memory
         free(decodedSignature);
-        free(clientPublicKey);
-        free(currentUploadFileName);
     }
 
     // Check if header contains PUBLIC_KEY
     else if (strstr(msg, publicKey) != NULL) {
         // Get the public key after the comma and copy it in new memory location
         char *publicKey = strchr(msg, ',') + 1;
-        clientPublicKey = malloc(strlen(publicKey) + 1);
-        strncpy(clientPublicKey, publicKey, strlen(publicKey) + 1);
+        strncpy(user->publicKey, publicKey, strlen(publicKey) + 1);
     }
 
     // Write to file
@@ -239,7 +236,7 @@ void processUpMessage(char *received_msg)
         // Decode and write to file
         size_t decodedLength;
         unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
-        fwrite(decodedMessage, 1, decodedLength, currentOpenedFile);
+        fwrite(decodedMessage, 1, decodedLength, user->currentOpenedFile);
         free(decodedMessage);
     }
 
