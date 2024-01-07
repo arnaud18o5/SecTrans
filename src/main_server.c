@@ -209,8 +209,12 @@ int main()
                                 fprintf(stderr, "Error while receiving message\n");
                                 break;
                             }
-
-                            printf("Message reçu : %s\n", received_msg);
+                            printf("Message chiffré (hex) : ");
+                            for (int i = 0; i < rsa_len; i++)
+                            {
+                                printf("%02x", received_msg[i]);
+                            }
+                            printf("\n");
                         }
                     }
 
