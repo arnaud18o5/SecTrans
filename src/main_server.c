@@ -15,32 +15,14 @@
 FILE *currentOpenedFile;
 
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
+    // Set file to beginning
+    fseek(file, 0, SEEK_SET);
+
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
     if (!ctx) {
         // handle error
         return 0;
     }
-
-    // TEST
-    // Create signed hash
-    unsigned char* hash = calculate_hash(file);
-    // Log the hash
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        printf("%02x", hash[i]);
-    }
-    // Log the file size
-    fseek(file, 0, SEEK_END);
-    long fileSize = ftell(file);
-    printf("\nFile size: %ld\n", fileSize);
-    // Log the first 10 bytes
-    fseek(file, 0, SEEK_SET);
-    unsigned char testtest[200];
-    fread(testtest, 1, 200, file);
-    for (int i = 0; i < 200; i++) {
-        printf("%02x", testtest[i]);
-    }
-    printf("\n");
-    fseek(file, 0, SEEK_SET);
 
     EVP_PKEY* evp_key = NULL;
     BIO* bio = BIO_new_mem_buf(publicKey, -1);
