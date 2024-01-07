@@ -499,6 +499,7 @@ int main(int argc, char *argv[])
                 }
                 fprintf(file, "%s", received_msg);
                 fclose(file);
+                messageReceived = 1;
                 /*printf("Message reçu du serveur : %s\n", received_msg);
                 char *rsa = "Hello les foufous les foufous ca va les foufous de foufous ???";
                 printf("envoie du message vers serveur : %s\n", rsa);
