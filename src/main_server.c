@@ -151,6 +151,51 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
 
 void processUpMessage(char *received_msg)
 {
+
+    // decoupe decodedSignature tous les 128 char
+    int nbBlocks = decodedLength / 128;
+
+    FILE *privateKeyFile = fopen("private.pem", "r");
+    if (privateKeyFile == NULL)
+    {
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        return EXIT_FAILURE;
+    }
+    // Get the public key
+    char privateKey[1024];
+    // Read all the file content
+    char c;
+    int i = 0;
+    while ((c = fgetc(privateKeyFile)) != EOF)
+    {
+        privateKey[i] = c;
+        i++;
+    }
+    privateKey[i] = '\0';
+
+    printf("privateKey: %s\n", privateKey);
+
+    char *decryptedSignature = malloc(strlen(received_msg) * sizeof(char));
+
+    // decouper decodedSignature en pakcet de 128 char
+    char *packet = malloc(128);
+    int j = 0;
+    int k = 0;
+    for (j = 0; j < nbBlocks; j++)
+    {
+        for (k = 0; k < 128; k++)
+        {
+            packet[k] = received_msg[k + (j * 128)];
+        }
+        // decrypter packet
+        char *decryptedPacket = decryptMessage(privateKey, packet);
+
+        printf("decryptedPacket: %s\n", decryptedPacket);
+        // concat decryptedPacket dans decryptedSignature
+        strcat(decryptedSignature, decryptedPacket);
+    }
+
+    printf("decryptedSignature: %s\n", decryptedSignature);
     // Move the pointer to the first character after the comma
 
     char *msg = strchr(received_msg, ',') + 1;
@@ -200,51 +245,7 @@ void processUpMessage(char *received_msg)
 
         printf("decoded signature: %s\n", decodedSignature);
 
-        // decoupe decodedSignature tous les 128 char
-        int nbBlocks = decodedLength / 128;
-
-        FILE *privateKeyFile = fopen("private.pem", "r");
-        if (privateKeyFile == NULL)
-        {
-            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-            return EXIT_FAILURE;
-        }
-        // Get the public key
-        char privateKey[1024];
-        // Read all the file content
-        char c;
-        int i = 0;
-        while ((c = fgetc(privateKeyFile)) != EOF)
-        {
-            privateKey[i] = c;
-            i++;
-        }
-        privateKey[i] = '\0';
-
-        printf("privateKey: %s\n", privateKey);
-
-        char *decryptedSignature = malloc(decodedLength);
-
-        // decouper decodedSignature en pakcet de 128 char
-        char *packet = malloc(128);
-        int j = 0;
-        int k = 0;
-        for (j = 0; j < nbBlocks; j++)
-        {
-            for (k = 0; k < 128; k++)
-            {
-                packet[k] = decodedSignature[k + (j * 128)];
-            }
-            // decrypter packet
-            char *decryptedPacket = decryptMessage(privateKey, packet);
-
-            printf("decryptedPacket: %s\n", decryptedPacket);
-            // concat decryptedPacket dans decryptedSignature
-            strcat(decryptedSignature, decryptedPacket);
-        }
-
-        printf("decryptedSignature: %s\n", decryptedSignature);
-        // Verify signature
+                // Verify signature
         if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey))
         {
             char message[1024] = "File uploaded successfully!";
