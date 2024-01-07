@@ -423,7 +423,7 @@ int main()
         char *commaPos = strchr(received_msg, ',');
         if (commaPos != NULL)
         {
-            int tokenLength = commaPos - decoded;
+            int tokenLength = (unsigned char *)commaPos - (unsigned char *)decoded;
             char *token = malloc(tokenLength + 1); // +1 for the null-terminator
             if (token == NULL)
             {
