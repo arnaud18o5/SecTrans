@@ -199,46 +199,46 @@ int main(int argc, char *argv[])
 
 
 
-        // Check public and private pair key are valid
+        // // Check public and private pair key are valid
 
-        // Load the RSA public key
-        FILE *publicKeyFile2 = fopen("client_public.pem", "r");
-        if (publicKeyFile2 == NULL)
-        {
-            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-            return EXIT_FAILURE;
-        }
-        // Load the public key
-        EVP_PKEY *publicKeyStruct2 = NULL;
-        PEM_read_PUBKEY(publicKeyFile2, &publicKeyStruct2, NULL, NULL);
-        RSA *rsa_pub = EVP_PKEY_get1_RSA(publicKeyStruct2);
-        const BIGNUM *rsa_pub_n;
-        RSA_get0_key(rsa_pub, &rsa_pub_n, NULL, NULL);
+        // // Load the RSA public key
+        // FILE *publicKeyFile2 = fopen("client_public.pem", "r");
+        // if (publicKeyFile2 == NULL)
+        // {
+        //     fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        //     return EXIT_FAILURE;
+        // }
+        // // Load the public key
+        // EVP_PKEY *publicKeyStruct2 = NULL;
+        // PEM_read_PUBKEY(publicKeyFile2, &publicKeyStruct2, NULL, NULL);
+        // RSA *rsa_pub = EVP_PKEY_get1_RSA(publicKeyStruct2);
+        // const BIGNUM *rsa_pub_n;
+        // RSA_get0_key(rsa_pub, &rsa_pub_n, NULL, NULL);
 
-        // Load the RSA private key
-        FILE *privateKeyFile2 = fopen("client_private.pem", "r");
-        if (privateKeyFile2 == NULL)
-        {
-            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-            return EXIT_FAILURE;
-        }
-        // Load the private key
-        EVP_PKEY *privateKeyStruct2 = NULL;
-        PEM_read_PrivateKey(privateKeyFile2, &privateKeyStruct2, NULL, NULL);
-        RSA *rsa_priv = EVP_PKEY_get1_RSA(privateKeyStruct2);
-        const BIGNUM *rsa_priv_n;
-        RSA_get0_key(rsa_priv, &rsa_priv_n, NULL, NULL);
+        // // Load the RSA private key
+        // FILE *privateKeyFile2 = fopen("client_private.pem", "r");
+        // if (privateKeyFile2 == NULL)
+        // {
+        //     fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        //     return EXIT_FAILURE;
+        // }
+        // // Load the private key
+        // EVP_PKEY *privateKeyStruct2 = NULL;
+        // PEM_read_PrivateKey(privateKeyFile2, &privateKeyStruct2, NULL, NULL);
+        // RSA *rsa_priv = EVP_PKEY_get1_RSA(privateKeyStruct2);
+        // const BIGNUM *rsa_priv_n;
+        // RSA_get0_key(rsa_priv, &rsa_priv_n, NULL, NULL);
 
-        // Check if the pair is valid
-        if (BN_cmp(rsa_pub_n, rsa_priv_n) == 0) {
-            printf("Public and private key pair is valid!\n");
-        } else {
-            printf("Public and private key pair is not valid!\n");
-        }
+        // // Check if the pair is valid
+        // if (BN_cmp(rsa_pub_n, rsa_priv_n) == 0) {
+        //     printf("Public and private key pair is valid!\n");
+        // } else {
+        //     printf("Public and private key pair is not valid!\n");
+        // }
 
-        // Free the RSA structures
-        RSA_free(rsa_pub);
-        RSA_free(rsa_priv);
+        // // Free the RSA structures
+        // RSA_free(rsa_pub);
+        // RSA_free(rsa_priv);
 
 
         
