@@ -36,7 +36,7 @@ char *decryptMessage(char *pri_key, char *message)
     unsigned char *decrypted_message = (unsigned char *)malloc(rsa_len);
 
     // Déchiffrement RSA
-    int result = RSA_private_decrypt(rsa_len, message, decrypted_message, rsa, RSA_PKCS1_PADDING);
+    int result = RSA_private_decrypt(rsa_len, message, decrypted_message, rsa, RSA_PKCS1_OAEP_PADDING);
     if (result == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
@@ -88,7 +88,7 @@ char *encryptMessage(char *pub_key, char *message)
     }
 
     // Chiffrement RSA
-    int result = RSA_public_encrypt(message_len, (const unsigned char *)message, encrypted_message, rsa, RSA_PKCS1_PADDING);
+    int result = RSA_public_encrypt(message_len, (const unsigned char *)message, encrypted_message, rsa, RSA_PKCS1_OAEP_PADDING);
     if (result == -1)
     {
         perror("Erreur lors du chiffrement RSA");
