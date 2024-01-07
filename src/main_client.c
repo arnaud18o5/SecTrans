@@ -119,6 +119,8 @@ int main(int argc, char *argv[])
     char password[100];
     scanf("%s", password);
 
+    startserver(portClient);
+
     char auth_message[1024] = "auth,";
     strcat(auth_message, username);
     strcat(auth_message, ",");
@@ -132,6 +134,15 @@ int main(int argc, char *argv[])
     char token_msg[1024] = "";
     if (getmsg(token_msg) == -1) {
         fprintf(stderr, "Error while receiving AES token message\n");
+        return EXIT_FAILURE;
+    }
+    stopserver();
+
+    // Check if token_msg contains "error", if so, show message and exit
+    if (strstr(token_msg, "error") != NULL) {
+        // Get message after comma
+        char* error_msg = strchr(token_msg, ',');
+        printf("Error while authenticating: %s\n", error_msg);
         return EXIT_FAILURE;
     }
 
