@@ -344,6 +344,10 @@ void getLoginAndPassword(char message[], char login[], char password[]) {
         fprintf(stderr, "Bad credentials\n");
         exit(EXIT_FAILURE);
     }
+
+    // log all
+    printf("Login: %s\n", login);
+    printf("Password": %s\n, password);
 }
 
 int main()
