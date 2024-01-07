@@ -337,13 +337,13 @@ void processDownMessage(char *received_msg)
     // Check if user has access to file
     char *metadataFilename = malloc(strlen(filename) + 5 + 8);
     strcpy(metadataFilename, "upload/");
-    strcpy(metadataFilename, filename);
+    strcat(metadataFilename, filename);
     strcat(metadataFilename, ".meta");
-    // Log 
-    printf("metadataFilename: %s\n", metadataFilename);
     FILE *metadataFile = fopen(metadataFilename, "r");
     if (metadataFile == NULL) {
-        fprintf(stderr, "Error opening metadata file\n");
+        char message[1024] = "error,File doesn't exist!";
+        sndmsg(message, user->attribuedPort);
+        printf("ERROR: File doesn't exist!\n");
         return;
     }
     char role[20];
