@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
                 /*char *encoded_packet = base64_encode(packet, strlen(packet));
                 strcat(server_message, encoded_packet);
                 free(encoded_packet);*/
-                printf("packet : %s\n", packet);
+                printf("size packet : %s\n", strlen(packet));
             }
 
             // Encode the message to base64
