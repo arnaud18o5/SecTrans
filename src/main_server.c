@@ -26,6 +26,64 @@ unsigned char tokenKey[32];
 const int DEFAULT_CLIENT_PORT = 12346;
 int lastAttribuedClientPort = 12347;
 
+typedef struct {
+    char username[30];
+    char password[65];
+    char role[20];
+    int attribuedPort;
+} User; 
+
+// The passwords are written in the hexadecimal format
+User users[] = {
+    {"samuel", "6eac1114aa783f6549327e7d01f63752995da7b31f1f37092b7dcb9f49cf5651", "Reader", 0}, // Mot de passe : pwd1
+    {"arnaud", "149d2937d1bce53fa683ae652291bd54cc8754444216a9e278b45776b76375af", "Writer", 0}, // Mot de passe : pwd2
+    {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin", 0}, // Mot de passe : pwd3
+    {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin", 0} // Mot de passe : pwd4
+};
+
+User* authenticateUser(const char *username, const char *password) {
+    for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
+        if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
+            return &(users[i]);
+        }
+    }
+    return NULL;
+}
+
+unsigned char *decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const unsigned char *key) {
+    AES_KEY aesKey;
+    AES_set_decrypt_key(key, 256, &aesKey);
+
+    unsigned char *decryptedToken = (unsigned char *)malloc(tokenSize);
+    memset(decryptedToken, 0, sizeof(decryptedToken));
+
+    AES_decrypt(encryptedToken, decryptedToken, &aesKey);
+
+    return decryptedToken;
+}
+
+User* getUserFromToken(const char *token) {
+    size_t decryptTokenLength;
+    unsigned char *decodedToken = base64_decode(token, &decryptTokenLength);
+
+    unsigned char *decryptedToken = decryptToken(decodedToken, decryptTokenLength, tokenKey);
+
+    char *username = strtok(decryptedToken, ",");
+    char *role = strtok(NULL, ",");
+    if (username == NULL || role == NULL) {
+        fprintf(stderr, "Error parsing token\n");
+        return NULL;
+    }
+
+    for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
+        if (strcmp(username, users[i].username) == 0) {
+            return &(users[i]);
+        }
+    }
+
+    return NULL;
+}
+
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
     // Set file to beginning
     fseek(file, 0, SEEK_SET);
@@ -176,64 +234,6 @@ void processUpMessage(char *received_msg)
     }
 
     free(received_msg_copy);
-} 
-
-typedef struct {
-    char username[30];
-    char password[65];
-    char role[20];
-    int attribuedPort;
-} User; 
-
-// The passwords are written in the hexadecimal format
-User users[] = {
-    {"samuel", "6eac1114aa783f6549327e7d01f63752995da7b31f1f37092b7dcb9f49cf5651", "Reader", 0}, // Mot de passe : pwd1
-    {"arnaud", "149d2937d1bce53fa683ae652291bd54cc8754444216a9e278b45776b76375af", "Writer", 0}, // Mot de passe : pwd2
-    {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin", 0}, // Mot de passe : pwd3
-    {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin", 0} // Mot de passe : pwd4
-};
-
-User* authenticateUser(const char *username, const char *password) {
-    for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
-        if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
-            return &(users[i]);
-        }
-    }
-    return NULL;
-}
-
-unsigned char *decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const unsigned char *key) {
-    AES_KEY aesKey;
-    AES_set_decrypt_key(key, 256, &aesKey);
-
-    unsigned char *decryptedToken = (unsigned char *)malloc(tokenSize);
-    memset(decryptedToken, 0, sizeof(decryptedToken));
-
-    AES_decrypt(encryptedToken, decryptedToken, &aesKey);
-
-    return decryptedToken;
-}
-
-User* getUserFromToken(const char *token) {
-    size_t decryptTokenLength;
-    unsigned char *decodedToken = base64_decode(token, &decryptTokenLength);
-
-    unsigned char *decryptedToken = decryptToken(decodedToken, decryptTokenLength, tokenKey);
-
-    char *username = strtok(decryptedToken, ",");
-    char *role = strtok(NULL, ",");
-    if (username == NULL || role == NULL) {
-        fprintf(stderr, "Error parsing token\n");
-        return NULL;
-    }
-
-    for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
-        if (strcmp(username, users[i].username) == 0) {
-            return &(users[i]);
-        }
-    }
-
-    return NULL;
 }
 
 void processListMessage(char *received_msg) {
