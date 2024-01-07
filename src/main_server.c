@@ -372,7 +372,7 @@ int main()
                     continue;
                 }
 
-                size_t tokenSize = strlen(clientUsername) + strlen(role) + 2;
+                size_t tokenSize = strlen(clientUsername) + strlen(user->role) + 2;
                 unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role),tokenSize,tokenKey);
                 // Print ecrypted token in hexadecimal format
                 printf("Encrypted token: ");
