@@ -12,6 +12,8 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
+#include <openssl/aes.h>
+#include <openssl/rand.h>
 
 // Function to encode data to Base64
 char* base64_encode(const unsigned char* buffer, size_t length) {
@@ -45,10 +47,86 @@ int print_usage()
     return EXIT_FAILURE;
 }
 
+void processUpMessage(char *received_msg)
+{
+    char *msg = strchr(received_msg, ',') + 1;
+
+    char *fileStart = "FILE_START";
+    char *fileEnd = "FILE_END";
+
+    if (strstr(msg, fileStart) != NULL)
+    {
+        char *filename = strchr(msg, ',') + 1;
+
+        // filename no path
+        char *filenameWithoutPath = strrchr(filename, '/');
+        if (filenameWithoutPath != NULL)
+        {
+            filename = filenameWithoutPath + 1;
+        }
+
+
+        char *uploadDir = "upload/";
+        char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
+        strcpy(fullFilename, uploadDir);
+        strcat(fullFilename, filename);
+        printf("Uploaded file: %s\n", fullFilename);
+
+        currentOpenedFile = fopen(fullFilename, "wb");
+        if (currentOpenedFile == NULL)
+        {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        }
+    }
+
+    // header contains FILE_END or not
+    else if (strstr(msg, fileEnd) != NULL)
+    {
+        fclose(currentOpenedFile);
+        printf("File uploaded!\n");
+    }
+
+    // write
+    else
+    {
+        size_t decodedLength;
+        unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
+        fwrite(decodedMessage, 1, decodedLength, currentOpenedFile);
+        free(decodedMessage);
+    }
+}
+
+
+
 int main(int argc, char *argv[])
 {
     int port = 12345;
     int portClient = 12346;
+
+    char username[30];
+    char password[30];
+
+    printf("Veuillez entrer votre nom d'utilisateur : ");
+    scanf("%29s", username);
+
+    printf("Veuillez entrer votre mot de passe : ");
+    scanf("%29s", password);
+
+    char auth_message[1024];
+    sprintf(auth_message, "auth,%s,%s", username, password);
+    if (sndmsg(auth_message, port) != 0)
+    {
+        fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
+        return EXIT_FAILURE;
+    }
+
+    if (getmsg(received_msg) == -1) {
+        fprintf(stderr, "Error while receiving AES token message\n");
+        return EXIT_FAILURE;
+    }
+    
+    processUpMessage(received_msg);
+
 
     if (argc < 2) return print_usage();
 
