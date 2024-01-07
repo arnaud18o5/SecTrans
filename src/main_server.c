@@ -199,9 +199,7 @@ void processListMessage() {
     // Parcourir les fichiers du répertoire
     while ((entry = readdir(dir)) != NULL) {
         // Ignorer les entrées spéciales "." et ".."
-        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
-            printf("%s\n", entry->d_name);
-            
+        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {            
             // Allouer de l'espace pour le nouveau nom de fichier
             res = realloc(res, strlen(res) + strlen(entry->d_name) + 2);
             
@@ -218,6 +216,8 @@ void processListMessage() {
 
     // Fermer le répertoire
     closedir(dir);
+
+    printf("Liste de fichier envoyée au client\n");
 }
 
 

@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
             }
             if (strcmp(received_msg, ""))
             {
-                printf("Message reçu du serveur : %s\n", received_msg);
+                printf("Liste des fichiers stockés sur le serveur :\n%s\n", received_msg);
                 messageReceived = 1;
             }
         }
