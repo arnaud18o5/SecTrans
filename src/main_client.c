@@ -274,11 +274,7 @@ int main(int argc, char *argv[])
                 printf("Message reçu du serveur : %s\n", received_msg);
                 char *rsa = "Hello les foufous\0";
                 char *encrypted_message = encryptMessage(received_msg, rsa);
-<<<<<<< HEAD
                 sleep(1);
-=======
-                sleep(100);
->>>>>>> f865e4143db7fc8d22900e2305dda3848a3ce176
                 printf("envoie du message vers serveur : %s\n", encrypted_message);
                 sndmsg(encrypted_message, port);
 
