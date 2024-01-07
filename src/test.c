@@ -12,6 +12,31 @@
 #define PRINT_KEYS
 #define WRITE_TO_FILE
 
+RSA *load_public_key_from_string(const char *public_key_str)
+{
+    BIO *key_bio = BIO_new_mem_buf((void *)public_key_str, -1);
+    RSA *rsa = PEM_read_bio_RSA_PUBKEY(key_bio, NULL, NULL, NULL);
+    BIO_free(key_bio);
+    return rsa;
+}
+
+unsigned char *encrypt_message(const unsigned char *message, int message_len, RSA *public_key, int *encrypted_len)
+{
+    printf("1");
+    char *err;
+    unsigned char *encrypted = (unsigned char *)malloc(RSA_size(public_key));
+    *encrypted_len = RSA_public_encrypt(message_len, message, encrypted, public_key, RSA_PKCS1_PADDING);
+    printf("2");
+    if (*encrypted_len == -1)
+    {
+        // ERR_load_crypto_strings();
+        // ERR_error_string(ERR_get_error(), err);
+        fprintf(stderr, "Error encrypting message: %s\n", err);
+        return NULL;
+    }
+    return encrypted;
+}
+
 void removeBeginPublicKey(char *str)
 {
     char *start_ptr = strstr(str, "-----BEGIN RSA PUBLIC KEY-----");
@@ -82,10 +107,74 @@ int main(void)
     // char public_key[sizeof(pub_key)];
     // strcpy(public_key, pub_key);
 
-    char str[] = "-----BEGIN RSA PUBLIC KEY-----\nMEgCQQDawg/kNlkmsa4q9IBd0eFVTX7qMB4USm+4a/I/ckskajuDug9oLksyRZ65\noMaJQODb5oXL22fEUQtqqyHZM8ytAgMBAAE=\n-----END RSA PUBLIC KEY-----";
+    RSA *rsa = NULL;
+    // Charger la clé publique RSA depuis la chaîne PEM
+    BIO *bio = BIO_new_mem_buf(pub_key, -1);
+    if (bio == NULL)
+    {
+        perror("Erreur lors de la création du BIO");
+        exit(EXIT_FAILURE);
+    }
 
-    removeBeginPublicKey(str);
+    rsa = PEM_read_bio_RSAPublicKey(bio, NULL, NULL, NULL);
+    if (rsa == NULL)
+    {
+        // ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
+        perror("Erreur lors de la lecture de la clé publique");
+        BIO_free(bio);
+        exit(EXIT_FAILURE);
+    }
+
+    BIO_free(bio);
+
+    // Message à chiffrer
+    const char *message = "Hello, RSA!";
+    size_t message_len = strlen(message);
+
+    // Taille du bloc chiffré
+    int rsa_len = RSA_size(rsa);
+
+    // Buffers pour le message chiffré et le message original
+    unsigned char *encrypted_message = (unsigned char *)malloc(rsa_len);
+    if (encrypted_message == NULL)
+    {
+        perror("Erreur d'allocation de mémoire");
+        RSA_free(rsa);
+        exit(EXIT_FAILURE);
+    }
+
+    // Chiffrement RSA
+    int result = RSA_public_encrypt(message_len, (const unsigned char *)message, encrypted_message, rsa, RSA_PKCS1_PADDING);
+    if (result == -1)
+    {
+        perror("Erreur lors du chiffrement RSA");
+        free(encrypted_message);
+        RSA_free(rsa);
+        exit(EXIT_FAILURE);
+    }
+
+    // Afficher le message chiffré (en hexadécimal)
+    printf("Message chiffré (hex) : ");
+    for (int i = 0; i < rsa_len; i++)
+    {
+        printf("%02x", encrypted_message[i]);
+    }
+    printf("\n");
+
+    // Libérer la mémoire
+    free(encrypted_message);
+    RSA_free(rsa);
+
+    return 0;
+    /*removeBeginPublicKey(str);
     removeNewlines(str);
     removeEndPublicKey(str);
     printf("public : %s\n", str);
+
+    RSA *pubKey = load_public_key_from_string(str);
+
+    char *message = "salut les foufous";
+    int encrypted_size;
+    char *encrypted = encrypt_message((const unsigned char *)message, sizeof(message), pubKey, &encrypted_size);
+    printf("message encrypté: %s\n", encrypted);*/
 }
