@@ -209,9 +209,10 @@ int main()
                                 fprintf(stderr, "Error while receiving message\n");
                                 break;
                             }
+                            printf("Message reçu : %s\n", received_msg);
                             RSA *rsa = NULL;
                             // Charger la clé publique RSA depuis la chaîne PEM
-                            BIO *bio_pub = BIO_new_mem_buf(pub_key, -1);
+                            /*BIO *bio_pub = BIO_new_mem_buf(pub_key, -1);
                             if (bio_pub == NULL)
                             {
                                 perror("Erreur lors de la création du BIO pour la clé publique");
@@ -227,7 +228,7 @@ int main()
                                 exit(EXIT_FAILURE);
                             }
 
-                            BIO_free(bio_pub);
+                            BIO_free(bio_pub);*/
 
                             // Charger la clé privée RSA depuis la chaîne PEM
                             BIO *bio_priv = BIO_new_mem_buf(pri_key, -1);
