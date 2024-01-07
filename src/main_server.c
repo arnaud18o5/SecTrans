@@ -153,7 +153,7 @@ void processUpMessage(char *received_msg)
 {
 
     // decoupe decodedSignature tous les 128 char
-    int nbBlocks = strlen(received_msg) / 128;
+    int nbBlocks = strlen(received_msg) * sizeof(char) / 128;
 
     FILE *privateKeyFile = fopen("private.pem", "r");
     if (privateKeyFile == NULL)
@@ -173,7 +173,7 @@ void processUpMessage(char *received_msg)
     }
     privateKey[i] = '\0';
 
-    printf("privateKey: %s\n", privateKey);
+    // printf("privateKey: %s\n", privateKey);
 
     char *decryptedSignature = malloc(strlen(received_msg) * sizeof(char));
 
@@ -195,8 +195,8 @@ void processUpMessage(char *received_msg)
         strcat(decryptedSignature, decryptedPacket);
     }
 
-    printf("decryptedSignature: %s\n", decryptedSignature);
-    // Move the pointer to the first character after the comma
+    // printf("decryptedSignature: %s\n", decryptedSignature);
+    //  Move the pointer to the first character after the comma
 
     char *msg = strchr(received_msg, ',') + 1;
 
