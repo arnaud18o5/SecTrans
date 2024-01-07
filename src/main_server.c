@@ -186,6 +186,39 @@ const User* authenticateUser(const char *username, const char *password) {
     return NULL;
 }
 
+unsigned char *decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const unsigned char *key) {
+    AES_KEY aesKey;
+    AES_set_decrypt_key(key, 256, &aesKey);
+
+    unsigned char decryptedToken = (unsigned char *)malloc(tokenSize);
+    memset(decryptedToken, 0, sizeof(decryptedToken));
+
+    AES_decrypt(encryptedToken, decryptedToken, &aesKey);
+
+    return decryptedToken;
+}
+
+const User* getUserFromToken(const char *token) {
+    size_t decryptTokenLength;
+    unsigned char *decodedToken = base64_decode(token, &decryptTokenLength);
+
+    unsigned char *decryptedToken = decryptToken(decodedToken, decryptTokenLength, tokenKey);
+
+    char *username = strtok(decryptedToken, ",");
+    char *role = strtok(NULL, ",");
+    if (username == NULL || role == NULL) {
+        fprintf(stderr, "Error parsing token\n");
+        return NULL;
+    }
+    printf("Username: %s\n", username);
+    for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
+        if (strcmp(username, users[i].username) == 0) {
+            return &(users[i]);
+        }
+    }
+
+    return NULL;
+}
 
 void processListMessage() {
     // Ouvrir le répertoire /upload
@@ -269,16 +302,6 @@ unsigned char* encryptToken(const unsigned char *token, size_t tokenSize, const 
     AES_encrypt(token, encryptedToken, &aesKey);
 
     return encryptedToken;
-}
-
-void decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const unsigned char *key) {
-    AES_KEY aesKey;
-    AES_set_decrypt_key(key, 256, &aesKey);
-
-    unsigned char decryptedToken[tokenSize];
-    memset(decryptedToken, 0, sizeof(decryptedToken));
-
-    AES_decrypt(encryptedToken, decryptedToken, &aesKey);
 }
 
 void getLoginAndPassword(char message[], char login[], char password[]) {
@@ -385,6 +408,9 @@ int main()
                 printf("Base64 token: %s\n", base64Token);
 
                 sndmsg(base64Token,12346);
+                getUserFromToken(base64Token);
+                free(encryptedToken);
+                free(base64Token);
             }
 
             free(token); // Don't forget to free the memory when you're done
