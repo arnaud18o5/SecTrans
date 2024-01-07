@@ -129,13 +129,14 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (getmsg(received_msg) == -1) {
+    char token_msg[1024] = "";
+    if (getmsg(token_msg) == -1) {
         fprintf(stderr, "Error while receiving AES token message\n");
         return EXIT_FAILURE;
     }
 
     // Log received message
-    printf("Message reçu du serveur : %s\n", received_msg);
+    printf("Message reçu du serveur : %s\n", token_msg);
 
     // TODO passer ici à < 3 pour que l'on puisse insérer le token par la suite
     // plus modiifer juste
