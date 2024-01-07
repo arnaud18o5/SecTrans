@@ -128,7 +128,7 @@ void processUpMessage(char *received_msg)
         printf("Uploaded file: %s\n", fullFilename);
 
         // Open file
-        currentOpenedFile = fopen(fullFilename, "w");
+        currentOpenedFile = fopen(fullFilename, "w+");
         if (currentOpenedFile == NULL) {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         }
