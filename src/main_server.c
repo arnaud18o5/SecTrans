@@ -372,14 +372,16 @@ int main()
                     continue;
                 }
 
-                unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role),strlen(clientUsername) + strlen(user->role),tokenKey);
+                size_t tokenSize = strlen(clientUsername) + strlen(role) + 2;
+                unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role),tokenSize,tokenKey);
                 // Print ecrypted token in hexadecimal format
                 printf("Encrypted token: ");
                 for (int i = 0; i < strlen(encryptedToken); i++) {
                     printf("%02x", encryptedToken[i]);
                 }
                 printf("\n");
-                char *base64Token = base64_encode(encryptedToken, sizeof(encryptedToken));
+                size_t encryptedSize = (tokenSize / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
+                char *base64Token = base64_encode(encryptedToken, encryptedSize);
                 printf("Base64 token: %s\n", base64Token);
 
                 sndmsg(base64Token,12346);
