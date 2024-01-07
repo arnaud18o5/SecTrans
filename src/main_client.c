@@ -279,6 +279,7 @@ int main(int argc, char *argv[])
             }
 
             printf("encrypted_message : %s\n", encrypted_message);
+            printf("size encrypted_message : %d\n", strlen(encrypted_message));
 
             // Encode the message to base64
             char *encoded_message = base64_encode(encrypted_message, num_read);
