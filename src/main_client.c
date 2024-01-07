@@ -196,56 +196,9 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-
-
-
-        // // Check public and private pair key are valid
-
-        // // Load the RSA public key
-        // FILE *publicKeyFile2 = fopen("client_public.pem", "r");
-        // if (publicKeyFile2 == NULL)
-        // {
-        //     fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-        //     return EXIT_FAILURE;
-        // }
-        // // Load the public key
-        // EVP_PKEY *publicKeyStruct2 = NULL;
-        // PEM_read_PUBKEY(publicKeyFile2, &publicKeyStruct2, NULL, NULL);
-        // RSA *rsa_pub = EVP_PKEY_get1_RSA(publicKeyStruct2);
-        // const BIGNUM *rsa_pub_n;
-        // RSA_get0_key(rsa_pub, &rsa_pub_n, NULL, NULL);
-
-        // // Load the RSA private key
-        // FILE *privateKeyFile2 = fopen("client_private.pem", "r");
-        // if (privateKeyFile2 == NULL)
-        // {
-        //     fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-        //     return EXIT_FAILURE;
-        // }
-        // // Load the private key
-        // EVP_PKEY *privateKeyStruct2 = NULL;
-        // PEM_read_PrivateKey(privateKeyFile2, &privateKeyStruct2, NULL, NULL);
-        // RSA *rsa_priv = EVP_PKEY_get1_RSA(privateKeyStruct2);
-        // const BIGNUM *rsa_priv_n;
-        // RSA_get0_key(rsa_priv, &rsa_priv_n, NULL, NULL);
-
-        // // Check if the pair is valid
-        // if (BN_cmp(rsa_pub_n, rsa_priv_n) == 0) {
-        //     printf("Public and private key pair is valid!\n");
-        // } else {
-        //     printf("Public and private key pair is not valid!\n");
-        // }
-
-        // // Free the RSA structures
-        // RSA_free(rsa_pub);
-        // RSA_free(rsa_priv);
-
-
-        
-
         // Create signed hash
         unsigned char* hash = calculate_hash(file);
-        // sign the hash with private key
+        // Get the private key to sign the hash
         EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
         if(!mdctx) {
             fprintf(stderr, "Error creating EVP_MD_CTX structure.\n");
@@ -263,7 +216,6 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Error creating EVP_PKEY structure.\n");
             return EXIT_FAILURE;
         }
-
         PEM_read_PrivateKey(privateKeyFile, &privateKey, NULL, NULL);
 
         // Create the signature
@@ -273,31 +225,17 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Error initializing EVP_SignInit_ex.\n");
             return EXIT_FAILURE;
         }
-
         if (EVP_SignUpdate(mdctx, hash, SHA256_DIGEST_LENGTH) != 1) {
             fprintf(stderr, "Error in EVP_SignUpdate.\n");
             return EXIT_FAILURE;
         }
-
         if (EVP_SignFinal(mdctx, signature_encrypted, &signature_length, privateKey) != 1) {
             fprintf(stderr, "Error in EVP_SignFinal.\n");
             return EXIT_FAILURE;
         }
-
         EVP_PKEY_free(privateKey);
         EVP_MD_CTX_free(mdctx);
-        // Log the signature
-        printf("Signature : ");
-        for (int i = 0; i < signature_length; i++) {
-            printf("%02x", signature_encrypted[i]);
-        }
-        printf("\n");
-        // Log the hash of the file
-        printf("Hash : ");
-        for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-            printf("%02x", hash[i]);
-        }
-        printf("\n");
+
         // Encode the signature to base64
         char* encoded_signature = base64_encode(signature_encrypted, signature_length);
         free(signature_encrypted);

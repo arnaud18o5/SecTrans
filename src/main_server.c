@@ -25,9 +25,6 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
         return 0;
     }
 
-    // Log public key
-    printf("Public key: %s\n", publicKey);
-
     // Read public key
     BIO* bio = BIO_new_mem_buf(publicKey, -1);
     RSA* rsa_key = NULL;
@@ -57,14 +54,6 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
 
     // Calculate hash of file
     unsigned char* file_hash = calculate_hash(file);
-    // Modify one byte of the hash to check if verification fails
-    file_hash[0] = 0x00;
-    // Log hash
-    printf("Hash: ");
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        printf("%02x", file_hash[i]);
-    }
-    printf("\n");
     // Check if hash is valid
     if (EVP_DigestVerifyUpdate(ctx, file_hash, SHA256_DIGEST_LENGTH) != 1) {
         EVP_PKEY_free(evp_key);
@@ -151,12 +140,7 @@ void processUpMessage(char *received_msg)
         // Decode signature
         size_t decodedLength;
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
-        // Log decoded signature
-        printf("Decoded signature: ");
-        for (int i = 0; i < decodedLength; i++) {
-            printf("%02x", decodedSignature[i]);
-        }
-        printf("\n");
+
         // Verify signature
         if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey)) {
             printf("Signature verified!\n");
