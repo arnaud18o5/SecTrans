@@ -1,3 +1,5 @@
+#include <openssl/rsa.h>
+
 #ifndef ENCRYPTION_H
 #define ENCRYPTION_H
 
