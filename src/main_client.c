@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
             char *encoded_message = base64_encode(encrypted_message, num_read);
             printf("encoded_message : %s\n", encoded_message);
             printf("size encoded_message : %d\n", strlen(encoded_message));
-            strcat(server_message, encrypted_message);
+            strcat(server_message, encoded_message);
             free(encoded_message);
 
             long long result = sndmsg(server_message, port);
