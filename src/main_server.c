@@ -424,8 +424,8 @@ int main()
                 }
             }
         }
-        stopserver();
-
-        return EXIT_SUCCESS;
     }
+    stopserver();
+
+    return EXIT_SUCCESS;
 }
