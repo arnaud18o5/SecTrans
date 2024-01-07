@@ -5,9 +5,7 @@
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 
-#include "include/encrypt_message.h"
-
-char *decryptMessage(char *pri_key, char *received_msg)
+char *decryptMessage(char *pri_key, char *message)
 {
     RSA *rsa = NULL;
 
@@ -36,7 +34,7 @@ char *decryptMessage(char *pri_key, char *received_msg)
     unsigned char *decrypted_message = (unsigned char *)malloc(rsa_len);
 
     // Déchiffrement RSA
-    int result = RSA_private_decrypt(rsa_len, received_msg, decrypted_message, rsa, RSA_PKCS1_PADDING);
+    int result = RSA_private_decrypt(rsa_len, messag, decrypted_message, rsa, RSA_PKCS1_PADDING);
     if (result == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
@@ -55,7 +53,7 @@ char *encryptMessage(char *pub_key, char *message)
 {
     RSA *rsa = NULL;
     // Charger la clé publique RSA depuis la chaîne PEM
-    BIO *bio = BIO_new_mem_buf(received_msg, -1);
+    BIO *bio = BIO_new_mem_buf(message, -1);
     if (bio == NULL)
     {
         perror("Erreur lors de la création du BIO");
@@ -73,8 +71,6 @@ char *encryptMessage(char *pub_key, char *message)
 
     BIO_free(bio);
 
-    // Message à chiffrer
-    const char *message = "Hello, RSA!";
     size_t message_len = strlen(message);
 
     // Taille du bloc chiffré
