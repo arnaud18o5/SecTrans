@@ -155,7 +155,7 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
     return (char *)decrypted_message;
 }*/
 
-void processUpMessage(char *decoded)
+void processUpMessage(char *received_msg)
 {
 
     printf("received_msg: %s\n", received_msg);
