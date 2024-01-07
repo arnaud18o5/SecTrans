@@ -188,13 +188,13 @@ int main(int argc, char *argv[])
         }
 
         // Get server response
-        char received_msg[1024] = "";
-        if (getmsg(received_msg) == -1)
+        char server_response[1024] = "";
+        if (getmsg(server_response) == -1)
         {
             fprintf(stderr, "Error while receiving message\n");
             return EXIT_FAILURE;
         }
-        printf("%s\n", received_msg);
+        printf("%s\n", server_response);
 
         while (!feof(file))
         {
