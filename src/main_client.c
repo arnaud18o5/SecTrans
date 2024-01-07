@@ -252,7 +252,13 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        printf("Message envoyé avec succès au serveur.\n");
+        char received_msg[1024] = "";
+        if (getmsg(received_msg) == -1)
+        {
+            fprintf(stderr, "Error while receiving message\n");
+            return EXIT_FAILURE;
+        }
+        printf("%s\n", received_msg);
     }
     else if (strcmp(argv[1], "-list") == 0 && argc == 2)
     {

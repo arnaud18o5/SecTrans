@@ -16,6 +16,8 @@
 FILE *currentOpenedFile;
 char *clientPublicKey;
 
+int const CLIENT_PORT = 12346;
+
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
     // Set file to beginning
     fseek(file, 0, SEEK_SET);
@@ -143,17 +145,22 @@ void processUpMessage(char *received_msg)
 
         // Verify signature
         if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey)) {
-            printf("Signature verified!\n");
+            char message[1024] = "File uploaded successfully!";
+            fclose(currentOpenedFile);
+            // Notify client that file was uploaded successfully
+            sndmsg(message, CLIENT_PORT);
         } else {
-            printf("Signature not verified!\n");
+            char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
+            // Close file and delete it
+            fclose(currentOpenedFile);
+            remove(currentOpenedFile);
+            // Notify client that file couldn't be uploaded
+            sndmsg(message, CLIENT_PORT);
         }
 
         // Free memory
         free(decodedSignature);
         free(clientPublicKey);
-
-        // Close file
-        fclose(currentOpenedFile);
 
         printf("File uploaded!\n");
     }
@@ -267,7 +274,7 @@ int main()
             }
             else if (strcmp(token, "list") == 0)
             {
-                processListMessage("12346");
+                processListMessage(CLIENT_PORT);
             }
             else if (strcmp(token, "down") == 0)
             {
