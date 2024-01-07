@@ -151,7 +151,13 @@ void processUpMessage(char *received_msg)
         char *publicKey = strchr(msg, ',') + 1;
         // Decode and store public key
         size_t decodedLength;
-        clientPublicKey = base64_decode(publicKey, &decodedLength);
+        unsigned char *decodedPublicKey = base64_decode(publicKey, &decodedLength);
+        // Log decoded public key
+        printf("decodedPublicKey: %s\n", decodedPublicKey);
+        clientPublicKey = malloc(decodedLength + 1);
+        memcpy(clientPublicKey, decodedPublicKey, decodedLength);
+        clientPublicKey[decodedLength] = '\0';
+        free(decodedPublicKey);
     }
 
     // Write to file
