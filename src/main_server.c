@@ -183,7 +183,7 @@ void processUpMessage(char *received_msg)
 
 typedef struct {
     char username[30];
-    char password[30];
+    char password[64];
     char role[20];
 } User; 
 
