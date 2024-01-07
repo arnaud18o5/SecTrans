@@ -399,15 +399,17 @@ int main()
 
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
 
-                // Print all
-                printf("Username: %s\n", clientUsername);
-                printf("Password: %s\n", clientPassword);
-
                 // Give the token
                 unsigned char key[32];
                 if (RAND_bytes(key, sizeof(key)) != 1) {
                     fprintf(stderr, "Error generating AES key\n");
                     return EXIT_FAILURE;
+                }
+
+                // Print key
+                printf("Key: ");
+                for (int i = 0; i < sizeof(key); i++) {
+                    printf("%02x", key[i]);
                 }
 
                 sndmsg(encryptToken(createSpecialToken(clientUsername, getRole(clientUsername, clientPassword)),strlen(clientUsername) + strlen(getRole(clientUsername, clientPassword)),key),12346);
