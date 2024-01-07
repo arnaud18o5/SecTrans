@@ -16,7 +16,7 @@
 FILE *currentOpenedFile;
 char *clientPublicKey;
 
-const int *CLIENT_PORT = 12346;
+const int CLIENT_PORT = 12346;
 
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
     // Set file to beginning
