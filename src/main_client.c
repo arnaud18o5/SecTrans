@@ -290,6 +290,7 @@ int main(int argc, char *argv[])
 
             // Encode the message to base64
             strcat(server_message, encrypted_message);
+            printf("size server_message : %d\n", strlen(server_message));
             char *encoded_message = base64_encode(server_message, strlen(server_message));
             printf("encoded_message : %s\n", encoded_message);
             printf("size encoded_message : %d\n", strlen(encoded_message));
