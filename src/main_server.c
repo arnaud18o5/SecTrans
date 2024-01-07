@@ -42,21 +42,20 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
         return 0;
     }
 
-    unsigned char buffer[4096];
-    size_t len;
-    while ((len = fread(buffer, 1, sizeof(buffer), file)) > 0) {
-        if (EVP_DigestVerifyUpdate(ctx, buffer, len) != 1) {
-            // handle error
-            EVP_PKEY_free(evp_key);
-            EVP_MD_CTX_free(ctx);
-            return 0;
-        }
+    unsigned char* file_hash = calculate_hash(file);
+    if (EVP_DigestVerifyUpdate(ctx, file_hash, SHA256_DIGEST_LENGTH) != 1) {
+        // handle error
+        EVP_PKEY_free(evp_key);
+        EVP_MD_CTX_free(ctx);
+        free(file_hash);
+        return 0;
     }
 
     int ret = EVP_DigestVerifyFinal(ctx, signature, signature_len);
 
     EVP_PKEY_free(evp_key);
     EVP_MD_CTX_free(ctx);
+    free(file_hash);
 
     return (ret == 1);
 }
