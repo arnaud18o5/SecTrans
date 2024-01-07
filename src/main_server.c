@@ -125,12 +125,12 @@ void processUpMessage(char *received_msg)
         // Get the signature after the comma
         char *signature = strchr(msg, ',') + 1;
 
+        // Log clientPublicKey
+        printf("clientPublicKey: %s\n", clientPublicKey);
+
         // Decode signature
         size_t decodedLength;
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
-
-        // Log clientPublicKey
-        printf("clientPublicKey: %s\n", clientPublicKey);
 
         // Verify signature
         if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey)) {
@@ -150,12 +150,7 @@ void processUpMessage(char *received_msg)
 
     // Check if header contains PUBLIC_KEY
     else if (strstr(msg, publicKey) != NULL) {
-        // Get message after the comma
-        char *publicKey = strchr(msg, ',') + 1;
-        // Log publicKey
-        printf("publicKey: %s\n", publicKey);
-        // Set clientPublicKey
-        clientPublicKey = publicKey;
+        clientPublicKey = strchr(msg, ',') + 1;
     }
 
     // Write to file
