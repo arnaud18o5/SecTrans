@@ -339,6 +339,8 @@ void processDownMessage(char *received_msg)
     strcpy(metadataFilename, "upload/");
     strcpy(metadataFilename, filename);
     strcat(metadataFilename, ".meta");
+    // Log 
+    printf("metadataFilename: %s\n", metadataFilename);
     FILE *metadataFile = fopen(metadataFilename, "r");
     if (metadataFile == NULL) {
         fprintf(stderr, "Error opening metadata file\n");
