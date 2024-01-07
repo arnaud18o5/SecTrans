@@ -1,4 +1,5 @@
 #include "user.h"
+#include "base_encoding.h"
 
 #include <openssl/aes.h>
 #include <openssl/evp.h>

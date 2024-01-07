@@ -65,6 +65,7 @@
     "server.h": "c",
     "base_encoding.h": "c",
     "stddef.h": "c",
-    "signature.h": "c"
+    "signature.h": "c",
+    "user.h": "c"
   }
 }
