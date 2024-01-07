@@ -355,33 +355,6 @@ int main()
         return EXIT_FAILURE;
     }
 
-
-    while (1) {
-        char received_msg[100];
-
-        if (getmsg(received_msg) == -1)
-        {
-            fprintf(stderr, "Error while receiving message\n");
-            break;
-        }
-
-        char clientUsername[30];
-        char clientPassword[30];
-        char clientRole[20];
-
-        getLoginAndPassword(received_msg, clientUsername, clientPassword);
-
-
-        // Give the token
-        unsigned char key[32];
-        if (RAND_bytes(key, sizeof(key)) != 1) {
-            fprintf(stderr, "Error generating AES key\n");
-            return EXIT_FAILURE;
-        }
-
-        sndmsg(encryptToken(createSpecialToken(clientUsername, getRole(clientUsername, clientPassword)),strlen(clientUsername) + strlen(getRole(clientUsername, clientPassword)),key),12346);
-    }
-
     char received_msg[1024];
 
     while (1)
@@ -417,6 +390,23 @@ int main()
                 char *port = strtok(NULL, ",");
                 char *msg = strtok(NULL, ",");
                 processDownMessage(port, msg);
+            }
+            else if (strcmp(token, "auth") == 0)
+            {
+                char clientUsername[30];
+                char clientPassword[30];
+                char clientRole[20];
+
+                getLoginAndPassword(received_msg, clientUsername, clientPassword);
+
+                // Give the token
+                unsigned char key[32];
+                if (RAND_bytes(key, sizeof(key)) != 1) {
+                    fprintf(stderr, "Error generating AES key\n");
+                    return EXIT_FAILURE;
+                }
+
+                sndmsg(encryptToken(createSpecialToken(clientUsername, getRole(clientUsername, clientPassword)),strlen(clientUsername) + strlen(getRole(clientUsername, clientPassword)),key),12346);
             }
 
             free(token); // Don't forget to free the memory when you're done
