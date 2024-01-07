@@ -334,6 +334,28 @@ void processDownMessage(char *received_msg)
     char msg[1024];
     snprintf(msg, 1024, "FILE_START,%s", filename);
 
+    // Check if user has access to file
+    char *metadataFilename = malloc(strlen(filename) + 5 + 8);
+    strcpy(metadataFilename, "upload/");
+    strcpy(metadataFilename, filename);
+    strcat(metadataFilename, ".meta");
+    FILE *metadataFile = fopen(metadataFilename, "r");
+    if (metadataFile == NULL) {
+        fprintf(stderr, "Error opening metadata file\n");
+        return;
+    }
+    char role[20];
+    fscanf(metadataFile, "%s", role);
+    fclose(metadataFile);
+    if (strcmp(user->role, role) != 0) {
+        char message[1024] = "error,You don't have access to this file!";
+        sndmsg(message, user->attribuedPort);
+        printf("ERROR: User doesn't have access to this file!\n");
+        return;
+    }
+
+    // HERE DOWNLOAD
+
     sndmsg(msg, user->attribuedPort);
     // Ajoutez le code nécessaire pour envoyer le contenu du fichier au client
     // ...
