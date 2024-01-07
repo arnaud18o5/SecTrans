@@ -83,8 +83,17 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
 
 void processUpMessage(char *received_msg)
 {
-    // Move the pointer to the first character after the comma
+    // Extract the token
+    strtok(received_msg, ",");
+    char *token = strtok(NULL, ",");
+    // Log token
+    printf("Token: %s\n", token);
+
+    // Get the message after the 2 commas
     char *msg = strchr(received_msg, ',') + 1;
+    msg = strchr(msg, ',') + 1;
+    // Log message
+    printf("Message: %s\n", msg);
 
     // Check if header contains FILE_START
     char *fileStart = "FILE_START";
