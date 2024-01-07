@@ -58,8 +58,6 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
 
     // Calculate hash of file
     unsigned char* file_hash = calculate_hash(file);
-    // Modify hash to fail verification
-    file_hash[0] = 0;
     // Check if hash is valid
     if (EVP_DigestVerifyUpdate(ctx, file_hash, SHA256_DIGEST_LENGTH) != 1) {
         EVP_PKEY_free(evp_key);
@@ -121,7 +119,7 @@ void processUpMessage(char *received_msg)
         char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
         strcpy(fullFilename, uploadDir);
         strcat(fullFilename, filename);
-        printf("Uploaded file: %s\n", fullFilename);
+        printf("Uploading file: %s\n", fullFilename);
         currentUploadFileName = fullFilename;
 
         // Open file
@@ -145,6 +143,7 @@ void processUpMessage(char *received_msg)
             fclose(currentOpenedFile);
             // Notify client that file was uploaded successfully
             sndmsg(message, CLIENT_PORT);
+            printf("File uploaded successfully!\n");
         } else {
             char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
             // Close file and delete it
@@ -152,14 +151,13 @@ void processUpMessage(char *received_msg)
             unlink(currentUploadFileName);
             // Notify client that file couldn't be uploaded
             sndmsg(message, CLIENT_PORT);
+            printf("ERROR: Invalid signature, the file is deleted!\n");
         }
 
         // Free memory
         free(decodedSignature);
         free(clientPublicKey);
         free(currentUploadFileName);
-
-        printf("File uploaded!\n");
     }
 
     // Check if header contains PUBLIC_KEY
