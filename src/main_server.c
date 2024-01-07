@@ -279,11 +279,13 @@ void processListMessage(char *received_msg) {
     while ((entry = readdir(dir)) != NULL) {
         // Get only file finished by .meta
         if (strstr(entry->d_name, ".meta") != NULL) {
-            // log filename
-            printf("Filename: %s\n", entry->d_name);
             // Open file and read first line
             FILE *metadataFile = fopen(entry->d_name, "r");
-            if (metadataFile == NULL) continue;
+            if (metadataFile == NULL) {
+                //log
+                printf("Error opening metadata file\n");
+                continue;
+            }
             char role[20];
             fscanf(metadataFile, "%s", role);
             fclose(metadataFile);
