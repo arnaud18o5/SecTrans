@@ -273,8 +273,11 @@ int main(int argc, char *argv[])
             {
                 printf("Message reçu du serveur : %s\n", received_msg);
                 char *rsa = "Hello les foufous";
+                printf("envoie du message vers serveur : %s\n", rsa);
+
                 char *encrypted_message = encryptMessage(received_msg, rsa);
                 sleep(1);
+                printf("envoie du message vers serveur : %s\n", rsa);
                 printf("envoie du message vers serveur : %s\n", encrypted_message);
                 printf("size : %d\n", strlen(encrypted_message));
                 printf("port : %d\n", port);
