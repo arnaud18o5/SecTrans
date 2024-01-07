@@ -198,12 +198,33 @@ int main(int argc, char *argv[])
 
         // Check public and private pair key are valid
         // Load the public key
-        // EVP_PKEY *publicKeyStruct;
-        // if (!(publicKeyStruct = EVP_PKEY_new())) {
-        //     fprintf(stderr, "Error creating EVP_PKEY structure.\n");
-        //     return EXIT_FAILURE;
-        // }
-        // PEM_read_PUBKEY(publicKeyFile, &publicKeyStruct, NULL, NULL);
+        EVP_PKEY *publicKeyStruct;
+        if (!(publicKeyStruct = EVP_PKEY_new())) {
+            fprintf(stderr, "Error creating EVP_PKEY structure.\n");
+            return EXIT_FAILURE;
+        }
+        PEM_read_PUBKEY(publicKeyFile, &publicKeyStruct, NULL, NULL);
+
+        // Load the private key
+        EVP_PKEY *privateKeyStruct;
+        if (!(privateKeyStruct = EVP_PKEY_new())) {
+            fprintf(stderr, "Error creating EVP_PKEY structure.\n");
+            return EXIT_FAILURE;
+        }
+        FILE *privateKeyFile = fopen("client_private.pem", "r");
+        if (privateKeyFile == NULL)
+        {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            return EXIT_FAILURE;
+        }
+        PEM_read_PrivateKey(privateKeyFile, &privateKeyStruct, NULL, NULL);
+
+        // Check if the pair is valid
+        if (EVP_PKEY_cmp(publicKeyStruct, privateKeyStruct) == 1) {
+            printf("Public and private key pair is valid!\n");
+        } else {
+            printf("Public and private key pair is not valid!\n");
+        }
         
 
         // Create signed hash
@@ -228,9 +249,6 @@ int main(int argc, char *argv[])
         }
 
         PEM_read_PrivateKey(privateKeyFile, &privateKey, NULL, NULL);
-
-        // Log EVP_PKEY_base_id(privateKey)
-        printf("EVP_PKEY_base_id(privateKey) : %d\n", EVP_PKEY_base_id(privateKey));
 
         // Create the signature
         unsigned char *signature_encrypted = malloc(EVP_PKEY_size(privateKey));
