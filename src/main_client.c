@@ -286,13 +286,13 @@ int main(int argc, char *argv[])
             printf("size encrypted_message : %d\n", strlen(encrypted_message));
 
             // Encode the message to base64
-            char *encoded_message = base64_encode(encrypted_message, num_read);
+            strcat(server_message, encrypted_message);
+            char *encoded_message = base64_encode(server_message, num_read);
             printf("encoded_message : %s\n", encoded_message);
             printf("size encoded_message : %d\n", strlen(encoded_message));
-            strcat(server_message, encoded_message);
             free(encoded_message);
 
-            long long result = sndmsg(server_message, port);
+            long long result = sndmsg(encoded_message, port);
             if (result != 0)
             {
                 fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
