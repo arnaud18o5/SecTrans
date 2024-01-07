@@ -288,11 +288,11 @@ void processListMessage(char *received_msg) {
             char role[20];
             fscanf(metadataFile, "%s", role);
             fclose(metadataFile);
-            // Log role
-            printf("Role: %s\n", role);
 
             // Check if user has access to file
             if (strcmp(user->role, role) == 0) {
+                // Log ok
+                printf("User %s has access to file %s\n", user->username, entry->d_name);
                 // Allouer de l'espace pour le nouveau nom de fichier (sans .meta)
                 char *filename = malloc(strlen(entry->d_name) - 4);
                 
