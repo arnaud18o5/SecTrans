@@ -1,6 +1,7 @@
 #include "server.h"
 #include "client.h"
 #include "../include/hash.h"
+#include "encryption.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,13 +12,11 @@
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
-
-#include "encryption.h"
+#include <openssl/sha.h>
+#include <openssl/err.h>
 
 #define KEY_LENGTH 1024
 #define PUB_EXP 65537
-#include <openssl/sha.h>
-#include <openssl/err.h>
 
 FILE *currentOpenedFile;
 char *clientPublicKey;
@@ -187,6 +186,7 @@ void processUpMessage(char *received_msg)
         {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         }
+        printf("File opened successfully!\n");
     }
     // Check if header contains FILE_END
     else if (strstr(msg, fileEnd) != NULL)
