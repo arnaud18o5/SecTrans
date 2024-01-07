@@ -194,19 +194,36 @@ int main()
                         token[length] = '\0'; // Ajouter le caractère nul à la fin
                         int portClient = atoi(token);
                         sndmsg(pub_key, portClient);
+                        if (startserver(port) == -1)
+                        {
+                            fprintf(stderr, "Failed to start the server\n");
+                            return EXIT_FAILURE;
+                        }
+
+                        char received_msg[1024];
+
+                        while (1)
+                        {
+                            if (getmsg(received_msg) == -1)
+                            {
+                                fprintf(stderr, "Error while receiving message\n");
+                                break;
+                            }
+
+                            printf("Message reçu : %s\n", received_msg);
+                        }
                     }
+
+                    free(token); // Don't forget to free the memory when you're done
                 }
+                else
+                {
+                    fprintf(stderr, "No comma found in message\n");
+                }
+            }
 
-                free(token); // Don't forget to free the memory when you're done
-            }
-            else
-            {
-                fprintf(stderr, "No comma found in message\n");
-            }
+            stopserver();
+
+            return EXIT_SUCCESS;
         }
-
-        stopserver();
-
-        return EXIT_SUCCESS;
     }
-}

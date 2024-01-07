@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
                     printf("%02x", encrypted_message[i]);
                 }
                 printf("\n");
-
+                sndmsg(encrypted_message, port);
                 // Libérer la mémoire
                 free(encrypted_message);
                 RSA_free(rsa);
