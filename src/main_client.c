@@ -179,16 +179,13 @@ int main(int argc, char *argv[])
         }
         // Get the public key
         char publicKey[1024];
-        // Read all the file content and remove all the newlines
+        // Read all the file content
         char c;
         int i = 0;
         while ((c = fgetc(publicKeyFile)) != EOF)
         {
-            if (c != '\n')
-            {
-                publicKey[i] = c;
-                i++;
-            }
+            publicKey[i] = c;
+            i++;
         }
         publicKey[i] = '\0';
         strcat(server_message1, publicKey);
