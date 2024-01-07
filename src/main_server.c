@@ -373,7 +373,7 @@ int main()
                 }
 
                 unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role),strlen(clientUsername) + strlen(user->role),tokenKey);
-                char *base64Token = base64_encode(encryptedToken, strlen(encryptedToken));
+                char *base64Token = base64_encode(encryptedToken, sizeof(encryptedToken));
 
                 sndmsg(base64Token,12346);
             }
