@@ -373,7 +373,11 @@ int main()
                 }
 
                 unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role),strlen(clientUsername) + strlen(user->role),tokenKey);
-                printf("Encrypted token: %s\n", encryptedToken);
+                // Print ecrypted token in hexadecimal format
+                printf("Encrypted token: ");
+                for (int i = 0; i < strlen(encryptedToken); i++) {
+                    printf("%02x", encryptedToken[i]);
+                }
                 char *base64Token = base64_encode(encryptedToken, sizeof(encryptedToken));
                 printf("Base64 token: %s\n", base64Token);
 
