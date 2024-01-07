@@ -15,6 +15,7 @@
 
 FILE *currentOpenedFile;
 char *clientPublicKey;
+char *currentUploadFileName;
 
 const int CLIENT_PORT = 12346;
 
@@ -127,6 +128,7 @@ void processUpMessage(char *received_msg)
         strcpy(fullFilename, uploadDir);
         strcat(fullFilename, filename);
         printf("Uploaded file: %s\n", fullFilename);
+        currentUploadFileName = fullFilename;
 
         // Open file
         currentOpenedFile = fopen(fullFilename, "w+");
@@ -153,7 +155,7 @@ void processUpMessage(char *received_msg)
             char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
             // Close file and delete it
             fclose(currentOpenedFile);
-            remove(currentOpenedFile);
+            unlink(currentUploadFileName);
             // Notify client that file couldn't be uploaded
             sndmsg(message, CLIENT_PORT);
         }
@@ -161,6 +163,7 @@ void processUpMessage(char *received_msg)
         // Free memory
         free(decodedSignature);
         free(clientPublicKey);
+        free(currentUploadFileName);
 
         printf("File uploaded!\n");
     }
