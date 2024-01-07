@@ -280,7 +280,7 @@ void processDownMessage(char *port, char *msg)
 
 char* createSpecialToken(const char *username, const char *role) {
     size_t tokenSize = strlen(username) + strlen(role) + 1;
-
+    printf("Token size: %ld\n", tokenSize);
     char *specialToken = (char *)malloc(tokenSize);
     if (specialToken == NULL) {
         fprintf(stderr, "Error during allocation for the token\n");
