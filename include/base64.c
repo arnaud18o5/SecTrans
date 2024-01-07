@@ -4,6 +4,9 @@
 #include <openssl/buffer.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+
 
 // Function to decode Base64 to data
 unsigned char* base64_decode(const char* buffer, size_t* length) {
