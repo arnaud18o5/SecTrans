@@ -5,7 +5,7 @@
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 
-#include "encrypt_message.h"
+#include "encryption.h"
 
 char *decryptMessage(char *pri_key, char *message)
 {
