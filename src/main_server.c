@@ -193,7 +193,7 @@ User users[] = {
     {"julian", "pwd4", "Admin"} // pwd4
 };
 
-User* authenticateUser(const User *users, const char *username, const char *password) {
+const User* authenticateUser(const User *users, const char *username, const char *password) {
     for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
         if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
             return &(users[i]);
