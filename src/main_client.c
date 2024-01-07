@@ -111,12 +111,18 @@ int main(int argc, char *argv[])
     int port = 12345;
     int portClient = 12346;
 
-    char auth_message[50];
+    printf("Veuillez entrez votre nom d'utilisateur : \n");
+    char username[100];
+    scanf("%s", username);
 
-    printf("Veuillez entrer votre nom d'utilisateur sous la forme 'login,password' : ");
-    scanf("%29s", auth_message);
+    printf("Veuillez entrez votre mot de passe : \n");
+    char password[100];
+    scanf("%s", password);
 
-    char auth_message[1024];
+    char auth_message[1024] = "auth,";
+    strcat(auth_message, username);
+    strcat(auth_message, ",");
+    strcat(auth_message, password);
     if (sndmsg(auth_message, port) != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
