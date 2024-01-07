@@ -148,10 +148,9 @@ void processUpMessage(char *received_msg)
 
     // Check if header contains PUBLIC_KEY
     else if (strstr(msg, publicKey) != NULL) {
+        clientPublicKey = malloc(strlen(msg) + 1);
         // Get the public key after the comma
         clientPublicKey = strchr(msg, ',') + 1;
-        // Log public key
-        printf("FIRST publicKey: %s\n", clientPublicKey);
     }
 
     // Write to file
