@@ -280,6 +280,8 @@ int main(int argc, char *argv[])
                 // add encrypted packet to encrypted message
                 strcat(encrypted_message, encryptedPacket);
 
+                printf("encryptedPacket : %s\n", encryptedPacket);
+
                 printf("size packet : %d\n", strlen(encryptedPacket));
             }
 
