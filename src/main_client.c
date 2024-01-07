@@ -25,6 +25,8 @@ int generate_rsa_keypair()
     BIGNUM *bne = NULL;
     unsigned long e = RSA_F4;
 
+    char *server_public_key = NULL;
+
     int bits = 2048;
     unsigned long exponent = RSA_F4; // 65537
     FILE *privateKeyFile, *publicKeyFile;
@@ -237,7 +239,7 @@ int main(int argc, char *argv[])
             unsigned char message[max_retreive_size];
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
-
+            unsigned char encrypted_message[max_retreive_size];
             // Split the message into packets of 128
             int packet_size = 128 - 11;
             int num_packets = (num_read + packet_size - 1) / packet_size;
@@ -247,10 +249,32 @@ int main(int argc, char *argv[])
                 strncpy(packet, message + i * packet_size, packet_size);
                 packet[packet_size] = '\0'; // Null-terminate the packet
 
+                // Open the public key file
+                FILE *public_key_file = fopen("server_public_key.pem", "r");
+                if (public_key_file == NULL)
+                {
+                    fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
+                    return EXIT_FAILURE;
+                }
+
+                // Read the public key
+                RSA *public_key = RSA_new();
+                if (PEM_read_RSA_PUBKEY(public_key_file, &public_key, NULL, NULL) == NULL)
+                {
+                    fprintf(stderr, "Erreur lors de la lecture de la clé publique\n");
+                    return EXIT_FAILURE;
+                }
+
+                char *encryptedPacket = encryptMessage(public_key, packet);
+                printf("encryptedPacket : %s\n", encryptedPacket);
+
+                // Encrypt the packet
+                strcat(encrypted_message, encryptedPacket);
                 // Encode the packet to base64
                 /*char *encoded_packet = base64_encode(packet, strlen(packet));
                 strcat(server_message, encoded_packet);
                 free(encoded_packet);*/
+
                 printf("size packet : %d\n", strlen(packet));
             }
 
@@ -463,7 +487,16 @@ int main(int argc, char *argv[])
             }
             if (strcmp(received_msg, ""))
             {
-                printf("Message reçu du serveur : %s\n", received_msg);
+                // sauvegarde de la clef publique du serveur
+                FILE *file = fopen("server_public_key.pem", "w");
+                if (file == NULL)
+                {
+                    fprintf(stderr, "Failed to open the file\n");
+                    return EXIT_FAILURE;
+                }
+                fprintf(file, "%s", received_msg);
+                fclose(file);
+                /*printf("Message reçu du serveur : %s\n", received_msg);
                 char *rsa = "Hello les foufous les foufous ca va les foufous de foufous ???";
                 printf("envoie du message vers serveur : %s\n", rsa);
 
@@ -478,7 +511,7 @@ int main(int argc, char *argv[])
                 printf("Message envoyé avec succès au serveur.\n");
                 messageReceived = 1;
                 // Libérer la mémoire
-                free(encrypted_message);
+                free(encrypted_message);*/
             }
         }
     }
