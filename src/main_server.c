@@ -247,16 +247,16 @@ int main()
                             return EXIT_FAILURE;
                         }
 
-                        char 2received_msg [1024];
+                        char msg_to_decrypt[1024];
 
                         while (1)
                         {
-                            if (getmsg(2received_msg) == -1)
+                            if (getmsg(msg_to_decrypt) == -1)
                             {
                                 fprintf(stderr, "Error while receiving message\n");
                                 break;
                             }
-                            printf("Message reçu : %s\n", 2received_msg);
+                            printf("Message reçu : %s\n", msg_to_decrypt);
                             RSA *rsa = NULL;
                             // Charger la clé publique RSA depuis la chaîne PEM
                             /*BIO *bio_pub = BIO_new_mem_buf(pub_key, -1);
@@ -318,7 +318,7 @@ int main()
 
                             RSA_free(rsa);*/
                             printf('%s \n', pri_key);
-                            char *decryptedMessage = decryptMessage(pri_key, 2received_msg);
+                            char *decryptedMessage = decryptMessage(pri_key, msg_to_decrypt);
                             printf("Message déchiffré : %s\n", decryptedMessage);
                         }
                     }
