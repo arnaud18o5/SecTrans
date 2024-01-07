@@ -58,6 +58,8 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
 
     // Calculate hash of file
     unsigned char* file_hash = calculate_hash(file);
+    // Modify hash to fail verification
+    file_hash[0] = 0;
     // Check if hash is valid
     if (EVP_DigestVerifyUpdate(ctx, file_hash, SHA256_DIGEST_LENGTH) != 1) {
         EVP_PKEY_free(evp_key);
