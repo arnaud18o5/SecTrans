@@ -240,7 +240,10 @@ int main(int argc, char *argv[])
 
         EVP_PKEY_free(privateKey);
         EVP_MD_CTX_free(mdctx);
-
+        // Log the signature
+        printf("Signature: %s\n", signature_encrypted);
+        // Log the hash of the file
+        printf("Hash: %s\n", hash);
         // Encode the signature to base64
         char* encoded_signature = base64_encode(signature_encrypted, signature_length);
         free(signature_encrypted);
