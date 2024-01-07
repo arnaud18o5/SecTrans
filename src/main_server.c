@@ -323,7 +323,7 @@ void decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const u
 
 void getLoginAndPassword(char message[], char login[], char password[]) {
     char *token = strtok(message, ",");
-    
+    printf("Token: %s\n", token);
     if (token != NULL) {
         strncpy(login, token, 19);
         login[19] = '\0';
@@ -375,9 +375,6 @@ int main()
             }
             strncpy(token, received_msg, tokenLength);
             token[tokenLength] = '\0'; // Null-terminate the string
-
-            // print the token
-            printf("Token: %s\n", token);
 
             // TODO: decrypedToken
             if (strcmp(token, "up") == 0)
