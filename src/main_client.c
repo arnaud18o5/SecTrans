@@ -116,6 +116,13 @@ int main(int argc, char *argv[])
     {
         // Exemple d'utilisation : ./client -up <nom du fichier>
 
+        // Start server to receive server messages
+        if (startserver(portClient) == -1)
+        {
+            fprintf(stderr, "Failed to start the server client\n");
+            return EXIT_FAILURE;
+        }
+
         // Open the file, read its content in 999 chars; store it in server_message and send it
         FILE *file = fopen(argv[2], "r");
         if (file == NULL)
@@ -259,6 +266,9 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
         printf("%s\n", received_msg);
+
+        fclose(file);
+        stopserver();
     }
     else if (strcmp(argv[1], "-list") == 0 && argc == 2)
     {

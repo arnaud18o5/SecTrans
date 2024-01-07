@@ -68,15 +68,6 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
 
     // Verify signature
     int ret = EVP_DigestVerifyFinal(ctx, signature, signature_len);
-    printf("debug 5 %i\n", ret);
-    if (ret != 1) {
-        unsigned long err = ERR_get_error();
-        char *err_str = ERR_error_string(err, NULL);
-        printf("Error verifying signature: %s\n", err_str);
-    } else {
-        printf("Signature verified successfully\n");
-    }
-
     EVP_PKEY_free(evp_key);
     EVP_MD_CTX_free(ctx);
     free(file_hash);
