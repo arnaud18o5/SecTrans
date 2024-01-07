@@ -62,7 +62,7 @@ char *decryptMessage(char *pri_key, char *received_msg)
     unsigned char *decrypted_message = (unsigned char *)malloc(rsa_len);
 
     // Déchiffrement RSA
-    int result = RSA_private_decrypt(strlen(received_msg), received_msg, decrypted_message, rsa, RSA_PKCS1_PADDING);
+    int result = RSA_private_decrypt(rsa_len - 11, received_msg, decrypted_message, rsa, RSA_PKCS1_PADDING);
     if (result == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
@@ -180,6 +180,8 @@ int main()
     pri_key[pri_len] = '\0';
     pub_key[pub_len] = '\0';
 
+    printf("\n%s\n%s\n", pri_key, pub_key);
+
     if (startserver(port) == -1)
     {
         fprintf(stderr, "Failed to start the server\n");
@@ -238,22 +240,23 @@ int main()
                         token[length] = '\0'; // Ajouter le caractère nul à la fin
                         int portClient = atoi(token);
                         sndmsg(pub_key, portClient);
+
                         if (startserver(port) == -1)
                         {
                             fprintf(stderr, "Failed to start the server\n");
                             return EXIT_FAILURE;
                         }
 
-                        char received_msg[1024];
+                        char 2received_msg [1024];
 
                         while (1)
                         {
-                            if (getmsg(received_msg) == -1)
+                            if (getmsg(2received_msg) == -1)
                             {
                                 fprintf(stderr, "Error while receiving message\n");
                                 break;
                             }
-                            printf("Message reçu : %s\n", received_msg);
+                            printf("Message reçu : %s\n", 2received_msg);
                             RSA *rsa = NULL;
                             // Charger la clé publique RSA depuis la chaîne PEM
                             /*BIO *bio_pub = BIO_new_mem_buf(pub_key, -1);
@@ -314,8 +317,8 @@ int main()
                             printf("Message déchiffré : %s\n", decrypted_message);
 
                             RSA_free(rsa);*/
-
-                            char *decryptedMessage = decryptMessage(received_msg, pri_key);
+                            printf('%s \n', pri_key);
+                            char *decryptedMessage = decryptMessage(pri_key, 2received_msg);
                             printf("Message déchiffré : %s\n", decryptedMessage);
                         }
                     }
