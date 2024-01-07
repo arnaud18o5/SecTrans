@@ -1,13 +1,80 @@
-    #include "server.h"
-    #include "client.h"
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-    #include <openssl/bio.h>
-    #include <openssl/evp.h>
-    #include <openssl/buffer.h>
 
-    FILE *currentOpenedFile;
+#include "server.h"
+#include "client.h"
+#include "../include/hash.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/buffer.h>
+#include <openssl/pem.h>
+#include <openssl/sha.h>
+#include <openssl/err.h>
+
+FILE *currentOpenedFile;
+char *clientPublicKey;
+char *currentUploadFileName;
+
+const int CLIENT_PORT = 12346;
+
+int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
+    // Set file to beginning
+    fseek(file, 0, SEEK_SET);
+
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    if (!ctx) {
+        return 0;
+    }
+
+    // Read public key
+    BIO* bio = BIO_new_mem_buf(publicKey, -1);
+    RSA* rsa_key = NULL;
+    PEM_read_bio_RSAPublicKey(bio, &rsa_key, NULL, NULL);
+    BIO_free(bio);
+
+    // Check if public key is valid
+    if (!rsa_key) {
+        EVP_MD_CTX_free(ctx);
+        return 0;
+    }
+
+    // Create EVP_PKEY from RSA key
+    EVP_PKEY* evp_key = EVP_PKEY_new();
+    if (!EVP_PKEY_assign_RSA(evp_key, rsa_key)) {
+        EVP_PKEY_free(evp_key);
+        EVP_MD_CTX_free(ctx);
+        return 0;
+    }
+
+    // Initialize verification
+    if (EVP_DigestVerifyInit(ctx, NULL, EVP_sha256(), NULL, evp_key) != 1) {
+        EVP_PKEY_free(evp_key);
+        EVP_MD_CTX_free(ctx);
+        return 0;
+    }
+
+    // Calculate hash of file
+    unsigned char* file_hash = calculate_hash(file);
+    // Check if hash is valid
+    if (EVP_DigestVerifyUpdate(ctx, file_hash, SHA256_DIGEST_LENGTH) != 1) {
+        EVP_PKEY_free(evp_key);
+        EVP_MD_CTX_free(ctx);
+        free(file_hash);
+        return 0;
+    }
+
+    // Verify signature
+    int ret = EVP_DigestVerifyFinal(ctx, signature, signature_len);
+    EVP_PKEY_free(evp_key);
+    EVP_MD_CTX_free(ctx);
+    free(file_hash);
+
+    return (ret == 1);
+}
 
     // Function to decode Base64 to data
     unsigned char* base64_decode(const char* buffer, size_t* length) {
@@ -28,73 +95,89 @@
         return decode;
     }
 
-    void processUpMessage(char *received_msg)
-    {
-        // Move the pointer to the first character after the comma
-        char *msg = strchr(received_msg, ',') + 1;
+void processUpMessage(char *received_msg)
+{
+    // Move the pointer to the first character after the comma
+    char *msg = strchr(received_msg, ',') + 1;
 
-        // Check if header contains FILE_START
-        char *fileStart = "FILE_START";
-        char *fileEnd = "FILE_END";
+    // Check if header contains FILE_START
+    char *fileStart = "FILE_START";
+    char *publicKey = "PUBLIC_KEY";
+    char *fileEnd = "FILE_END";
 
-        if (strstr(msg, fileStart) != NULL) {
-            // Get filename
-            char *filename = strchr(msg, ',') + 1;
+    if (strstr(msg, fileStart) != NULL) {
+        // Get filename
+        char *filename = strchr(msg, ',') + 1;
 
-            // Get only the filename without the path
-            char *filenameWithoutPath = strrchr(filename, '/');
-            if (filenameWithoutPath != NULL) {
-                filename = filenameWithoutPath + 1;
-            }
-
-            // Create file in the directory upload
-            char *uploadDir = "upload/";
-            char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
-            strcpy(fullFilename, uploadDir);
-            strcat(fullFilename, filename);
-            printf("Uploaded file: %s\n", fullFilename);
-
-            // Open file
-            currentOpenedFile = fopen(fullFilename, "w");
-            if (currentOpenedFile == NULL) {
-                fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-            }
+        // Get only the filename without the path
+        char *filenameWithoutPath = strrchr(filename, '/');
+        if (filenameWithoutPath != NULL) {
+            filename = filenameWithoutPath + 1;
         }
-        // Check if header contains FILE_END
-        else if (strstr(msg, fileEnd) != NULL) {
-            // Close file
+
+        // Create file in the directory upload
+        char *uploadDir = "upload/";
+        char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
+        strcpy(fullFilename, uploadDir);
+        strcat(fullFilename, filename);
+        printf("Uploading file: %s\n", fullFilename);
+        currentUploadFileName = fullFilename;
+
+        // Open file
+        currentOpenedFile = fopen(fullFilename, "w+");
+        if (currentOpenedFile == NULL) {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        }
+    }
+    // Check if header contains FILE_END
+    else if (strstr(msg, fileEnd) != NULL) {
+        // Get the signature after the comma
+        char *signature = strchr(msg, ',') + 1;
+
+        // Decode signature
+        size_t decodedLength;
+        unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
+
+        // Verify signature
+        if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey)) {
+            char message[1024] = "File uploaded successfully!";
             fclose(currentOpenedFile);
-
-            printf("File uploaded!\n");
+            // Notify client that file was uploaded successfully
+            sndmsg(message, CLIENT_PORT);
+            printf("File uploaded successfully!\n");
+        } else {
+            char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
+            // Close file and delete it
+            fclose(currentOpenedFile);
+            unlink(currentUploadFileName);
+            // Notify client that file couldn't be uploaded
+            sndmsg(message, CLIENT_PORT);
+            printf("ERROR: Invalid signature, the file is deleted!\n");
         }
 
-        // Write to file
-        else {
-            // Decode and write to file
-            size_t decodedLength;
-            unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
-            fwrite(decodedMessage, 1, decodedLength, currentOpenedFile);
-            free(decodedMessage);
-        }
-    } 
-
-
-    void processListMessage(char *port)
-    {
-        printf("envoyer la liste des fichiers au client au port %s\n", port);
-        // Ajoutez le code nécessaire pour envoyer la liste des fichiers au client
-        // ...
+        // Free memory
+        free(decodedSignature);
+        free(clientPublicKey);
+        free(currentUploadFileName);
     }
 
-    void processDownMessage(char *port, char *msg)
-    {
-        printf("Envoyer le contenu du fichier au client\n");
-        printf("Message à télécharger : %s\n", msg);
-        int portClient = atoi(port);
-        sndmsg(msg, portClient);
-        // Ajoutez le code nécessaire pour envoyer le contenu du fichier au client
-        // ...
+    // Check if header contains PUBLIC_KEY
+    else if (strstr(msg, publicKey) != NULL) {
+        // Get the public key after the comma and copy it in new memory location
+        char *publicKey = strchr(msg, ',') + 1;
+        clientPublicKey = malloc(strlen(publicKey) + 1);
+        strncpy(clientPublicKey, publicKey, strlen(publicKey) + 1);
     }
+
+    // Write to file
+    else {
+        // Decode and write to file
+        size_t decodedLength;
+        unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
+        fwrite(decodedMessage, 1, decodedLength, currentOpenedFile);
+        free(decodedMessage);
+    }
+} 
 
     typedef struct {
         char username[30];
@@ -139,6 +222,57 @@
         }
     }
     return NULL; 
+
+
+void processListMessage() {
+    // Ouvrir le répertoire /upload
+    DIR *dir;
+    struct dirent *entry;
+
+    dir = opendir("upload/");
+
+    if (dir == NULL) {
+        perror("Erreur lors de l'ouverture du répertoire");
+        exit(EXIT_FAILURE);
+    }
+
+    // Utiliser une chaîne dynamique pour stocker les noms de fichiers
+    char *res = malloc(1); // Allocation initiale d'un octet
+    res[0] = '\0'; // Chaîne vide
+
+    // Parcourir les fichiers du répertoire
+    while ((entry = readdir(dir)) != NULL) {
+        // Ignorer les entrées spéciales "." et ".."
+        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {            
+            // Allouer de l'espace pour le nouveau nom de fichier
+            res = realloc(res, strlen(res) + strlen(entry->d_name) + 2);
+            
+            // Concaténer le nouveau nom de fichier à la chaîne résultante
+            strcat(res, entry->d_name);
+            strcat(res, "\n");
+        }
+    }
+
+    sndmsg(res, CLIENT_PORT);
+
+    // Libérer la mémoire allouée pour la chaîne résultante
+    free(res);
+
+    // Fermer le répertoire
+    closedir(dir);
+
+    printf("Liste de fichier envoyée au client\n");
+}
+
+
+void processDownMessage(char *port, char *msg)
+{
+    printf("Envoyer le contenu du fichier au client\n");
+    printf("Message à télécharger : %s\n", msg);
+    int portClient = atoi(port);
+    sndmsg(msg, portClient);
+    // Ajoutez le code nécessaire pour envoyer le contenu du fichier au client
+    // ...
 }
 
     unsigned char* createSpecialToken(const char *username, const char *role) {
@@ -155,116 +289,114 @@
         return specialToken;
     }
 
-    unsigned char* encryptToken(const unsigned char *token, size_t tokenSize, const unsigned char *key) {
-        AES_KEY aesKey;
-        AES_set_encrypt_key(key, 256, &aesKey);
+unsigned char* encryptToken(const unsigned char *token, size_t tokenSize, const unsigned char *key) {
+    AES_KEY aesKey;
+    AES_set_encrypt_key(key, 256, &aesKey);
 
-        size_t encryptedSize = (tokenSize / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
+    size_t encryptedSize = (tokenSize / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
 
-        unsigned char *encryptedToken = (unsigned char *)malloc(encryptedSize);
-        if (encryptedToken == NULL) {
-            fprintf(stderr, "Error allocating memory for encrypted token\n");
-            return NULL;
-        }
-
-        memset(encryptedToken, 0, encryptedSize);
-
-        AES_encrypt(token, encryptedToken, &aesKey);
-
-        return encryptedToken;
+    unsigned char *encryptedToken = (unsigned char *)malloc(encryptedSize);
+    if (encryptedToken == NULL) {
+        fprintf(stderr, "Error allocating memory for encrypted token\n");
+        return NULL;
     }
 
-    void decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const unsigned char *key) {
-        AES_KEY aesKey;
-        AES_set_decrypt_key(key, 256, &aesKey);
+    memset(encryptedToken, 0, encryptedSize);
 
-        unsigned char decryptedToken[tokenSize];
-        memset(decryptedToken, 0, sizeof(decryptedToken));
+    AES_encrypt(token, encryptedToken, &aesKey);
 
-        AES_decrypt(encryptedToken, decryptedToken, &aesKey);
-    }
+    return encryptedToken;
+}
 
-    int main()
+void decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const unsigned char *key) {
+    AES_KEY aesKey;
+    AES_set_decrypt_key(key, 256, &aesKey);
+
+    unsigned char decryptedToken[tokenSize];
+    memset(decryptedToken, 0, sizeof(decryptedToken));
+
+    AES_decrypt(encryptedToken, decryptedToken, &aesKey);
+}
+
+int main()
+{
+    int port = 12345; // Choisissez le port que vous souhaitez utiliser
+
+    if (startserver(port) == -1)
     {
-        int port = 12345; // Choisissez le port que vous souhaitez utiliser
+        fprintf(stderr, "Failed to start the server\n");
+        return EXIT_FAILURE;
+    }
 
-        if (startserver(port) == -1)
-        {
-            fprintf(stderr, "Failed to start the server\n");
-            return EXIT_FAILURE;
-        }
+    char received_msg[1024];
 
-        char received_msg[1024];
+    if (getmsg(received_msg) == -1)
+    {
+        fprintf(stderr, "Error while receiving message\n");
+        break;
+    }
 
+    char clientUsername[30];
+    char clientPassword[30];
+    char clientRole[20];
+
+    clientUsername = getmsg(received_msg);
+    clientPassword = getmsg(received_msg);
+
+        unsigned char key[32];
+    if (RAND_bytes(key, sizeof(key)) != 1) {
+        fprintf(stderr, "Error generating AES key\n");
+        return EXIT_FAILURE;
+    }
+
+    sndmsg(encryptToken(createSpecialToken(clientUsername, getRole(clientUsername, clientPassword))), 12346);
+
+    char decryptedToken[256];
+
+    char received_msg[1024];
+
+    while (1)
+    {
         if (getmsg(received_msg) == -1)
         {
             fprintf(stderr, "Error while receiving message\n");
             break;
         }
 
-        char clientUsername[30];
-        char clientPassword[30];
-        char clientRole[20];
+        char *commaPos = strchr(received_msg, ',');
+        if (commaPos != NULL) {
+            int tokenLength = commaPos - received_msg;
+            char *token = malloc(tokenLength + 1); // +1 for the null-terminator
+            if (token == NULL) {
+                fprintf(stderr, "Failed to allocate memory for token\n");
+                return EXIT_FAILURE;
+            }
+            strncpy(token, received_msg, tokenLength);
+            token[tokenLength] = '\0'; // Null-terminate the string
 
-        clientUsername = getmsg(received_msg);
-        clientPassword = getmsg(received_msg);
+            // TODO : voir ici commencer implémenter la décryption du token (par rapport troisième paramètre)
 
-        
-
-        unsigned char key[32];
-        if (RAND_bytes(key, sizeof(key)) != 1) {
-            fprintf(stderr, "Error generating AES key\n");
-            return EXIT_FAILURE;
-        }
-
-        sndmsg(encryptToken(createSpecialToken(clientUsername, getRole(clientUsername, clientPassword))), 12346);
-
-
-
-        char received_msg[1024];
-
-        while (1)
-        {
-            if (getmsg(received_msg) == -1)
+            if (strcmp(token, "up") == 0 && decrypedToken )
             {
-                fprintf(stderr, "Error while receiving message\n");
-                break;
+                processUpMessage(received_msg);
+            }
+            else if (strcmp(token, "list") == 0)
+            {
+                processListMessage();
+            }
+            else if (strcmp(token, "down") == 0)
+            {
+                char *port = strtok(NULL, ",");
+                char *msg = strtok(NULL, ",");
+                processDownMessage(port, msg);
             }
 
-            char *commaPos = strchr(received_msg, ',');
-            if (commaPos != NULL) {
-                int tokenLength = commaPos - received_msg;
-                char *token = malloc(tokenLength + 1); // +1 for the null-terminator
-                if (token == NULL) {
-                    fprintf(stderr, "Failed to allocate memory for token\n");
-                    return EXIT_FAILURE;
-                }
-                strncpy(token, received_msg, tokenLength);
-                token[tokenLength] = '\0'; // Null-terminate the string
-
-                if ((strcmp(token, "up") ==   0) && isReader(authenticatedUser))
-                {
-                    processUpMessage(received_msg);
-                }
-                else if (strcmp(token, "list") == 0 && isAdmin(authenticatedUser))
-                {
-                    char *port = strtok(NULL, ",");
-                    processListMessage(port);
-                }
-                else if (strcmp(token, "down") == 0 && isWriter(authenticatedUser))
-                {
-                    char *port = strtok(NULL, ",");
-                    char *msg = strtok(NULL, ",");
-                    processDownMessage(port, msg);
-                }
-
-                free(token); // Don't forget to free the memory when you're done
-            } else {
-                fprintf(stderr, "No comma found in message\n");
-            }
+            free(token); // Don't forget to free the memory when you're done
+        } else {
+            fprintf(stderr, "No comma found in message\n");
         }
-
-        stopserver();
-
-        return EXIT_SUCCESS;
     }
+    stopserver();
+
+    return EXIT_SUCCESS;
+}

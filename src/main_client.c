@@ -1,5 +1,6 @@
 #include "../include/client.h"
 #include "../include/server.h"
+#include "../include/hash.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,61 @@
 #include <openssl/buffer.h>
 #include <openssl/aes.h>
 #include <openssl/rand.h>
+#include <openssl/sha.h>
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
+
+int generate_rsa_keypair() {
+    int ret = 0;
+    RSA *r = NULL;
+    BIGNUM *bne = NULL;
+    unsigned long e = RSA_F4;
+
+    int bits = 2048;
+    unsigned long exponent = RSA_F4; // 65537
+    FILE *privateKeyFile, *publicKeyFile;
+
+    // 1. generate rsa key
+    bne = BN_new();
+    ret = BN_set_word(bne,e);
+    if(ret != 1){
+        goto free_stuff;
+    }
+
+    r = RSA_new();
+    ret = RSA_generate_key_ex(r, bits, bne, NULL);
+    if(ret != 1){
+        goto free_stuff;
+    }
+
+    // 2. save private key
+    privateKeyFile = fopen("client_private.pem", "w");
+    if(privateKeyFile == NULL){
+        goto free_stuff;
+    }
+    ret = PEM_write_RSAPrivateKey(privateKeyFile, r, NULL, NULL, 0, NULL, NULL);
+    if(ret != 1){
+        goto free_stuff;
+    }
+
+    // 3. save public key
+    publicKeyFile = fopen("client_public.pem", "w");
+    if(publicKeyFile == NULL){
+        goto free_stuff;
+    }
+    ret = PEM_write_RSAPublicKey(publicKeyFile, r);
+    if(ret != 1){
+        goto free_stuff;
+    }
+
+free_stuff:
+    RSA_free(r);
+    BN_free(bne);
+    if(privateKeyFile) fclose(privateKeyFile);
+    if(publicKeyFile) fclose(publicKeyFile);
+
+    return (ret == 1) ? 0 : 1;
+}
 
 // Function to encode data to Base64
 char* base64_encode(const unsigned char* buffer, size_t length) {
@@ -65,7 +121,6 @@ void processUpMessage(char *received_msg)
             filename = filenameWithoutPath + 1;
         }
 
-
         char *uploadDir = "upload/";
         char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
         strcpy(fullFilename, uploadDir);
@@ -100,6 +155,9 @@ void processUpMessage(char *received_msg)
 
 int main(int argc, char *argv[])
 {
+    // TO BE MOVED WHEN LOGIN ??
+    generate_rsa_keypair();
+
     int port = 12345;
     int portClient = 12346;
 
@@ -127,6 +185,7 @@ int main(int argc, char *argv[])
     
     processUpMessage(received_msg);
 
+    // TODO passer ici à < 3 pour que l'on puisse insérer le token par la suite
 
     if (argc < 2) return print_usage();
 
@@ -134,6 +193,13 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "-up") == 0 && argc >= 3)
     {
         // Exemple d'utilisation : ./client -up <nom du fichier>
+
+        // Start server to receive server messages
+        if (startserver(portClient) == -1)
+        {
+            fprintf(stderr, "Failed to start the server client\n");
+            return EXIT_FAILURE;
+        }
 
         // Open the file, read its content in 999 chars; store it in server_message and send it
         FILE *file = fopen(argv[2], "r");
@@ -168,7 +234,7 @@ int main(int argc, char *argv[])
             // Take in account the base64 encoding
             max_retreive_size = (int)floor(max_retreive_size / 1.37);
 
-            char message[max_retreive_size];
+            unsigned char message[max_retreive_size];
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
 
@@ -188,8 +254,82 @@ int main(int argc, char *argv[])
             printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
         }
 
-        // Send to the server a last message containing an end hint
+        // Send the public key to the server
+        char server_message1[1024] = "up,PUBLIC_KEY,";
+        FILE *publicKeyFile = fopen("client_public.pem", "r");
+        if (publicKeyFile == NULL)
+        {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            return EXIT_FAILURE;
+        }
+        // Get the public key
+        char publicKey[1024];
+        // Read all the file content
+        char c;
+        int i = 0;
+        while ((c = fgetc(publicKeyFile)) != EOF)
+        {
+            publicKey[i] = c;
+            i++;
+        }
+        publicKey[i] = '\0';
+        strcat(server_message1, publicKey);
+        long long result1 = sndmsg(server_message1, port);
+        if (result1 != 0)
+        {
+            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+            return EXIT_FAILURE;
+        }
+
+        // Create signed hash
+        unsigned char* hash = calculate_hash(file);
+        // Get the private key to sign the hash
+        EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+        if(!mdctx) {
+            fprintf(stderr, "Error creating EVP_MD_CTX structure.\n");
+            return EXIT_FAILURE;
+        }
+        FILE *privateKeyFile = fopen("client_private.pem", "r");
+        if (privateKeyFile == NULL)
+        {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            return EXIT_FAILURE;
+        }
+        // Load the private key
+        EVP_PKEY *privateKey;
+        if (!(privateKey = EVP_PKEY_new())) {
+            fprintf(stderr, "Error creating EVP_PKEY structure.\n");
+            return EXIT_FAILURE;
+        }
+        PEM_read_PrivateKey(privateKeyFile, &privateKey, NULL, NULL);
+
+        // Create the signature
+        unsigned char *signature_encrypted = malloc(EVP_PKEY_size(privateKey));
+        unsigned int signature_length;
+        if (EVP_SignInit_ex(mdctx, EVP_sha256(), NULL) != 1) {
+            fprintf(stderr, "Error initializing EVP_SignInit_ex.\n");
+            return EXIT_FAILURE;
+        }
+        if (EVP_SignUpdate(mdctx, hash, SHA256_DIGEST_LENGTH) != 1) {
+            fprintf(stderr, "Error in EVP_SignUpdate.\n");
+            return EXIT_FAILURE;
+        }
+        if (EVP_SignFinal(mdctx, signature_encrypted, &signature_length, privateKey) != 1) {
+            fprintf(stderr, "Error in EVP_SignFinal.\n");
+            return EXIT_FAILURE;
+        }
+        EVP_PKEY_free(privateKey);
+        EVP_MD_CTX_free(mdctx);
+
+        // Encode the signature to base64
+        char* encoded_signature = base64_encode(signature_encrypted, signature_length);
+        free(signature_encrypted);
+
+        // Send to the server a last message containing an end hint with signed hash
         char server_message2[1024] = "up,FILE_END";
+        strcat(server_message2, ",");
+        strcat(server_message2, encoded_signature);
+        free(encoded_signature);
         long long result2 = sndmsg(server_message2, port);
         if (result2 != 0)
         {
@@ -197,20 +337,46 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        printf("Message envoyé avec succès au serveur.\n");
+        char received_msg[1024] = "";
+        if (getmsg(received_msg) == -1)
+        {
+            fprintf(stderr, "Error while receiving message\n");
+            return EXIT_FAILURE;
+        }
+        printf("%s\n", received_msg);
+
+        fclose(file);
+        stopserver();
     }
     else if (strcmp(argv[1], "-list") == 0 && argc == 2)
     {
         // Exemple d'utilisation : ./client -list
-        // Ajoutez le code nécessaire pour demander la liste des fichiers au serveur
-        // ...
-        printf("Liste des fichiers stockés sur le serveur :\n");
         char server_message[1024] = "list,";
         char portStr[10];                   // Crée une chaîne pour stocker la représentation en chaîne de l'entier
         sprintf(portStr, "%d", portClient); // Convertit l'entier en chaîne de caractères
         strcat(server_message, portStr);    // Concatène la chaîne représentant l'entier à server_message
         sndmsg(server_message, port);
         // Affichez la liste des fichiers reçue du serveur
+        if (startserver(portClient) == -1)
+        {
+            fprintf(stderr, "Failed to start the server client\n");
+            return EXIT_FAILURE;
+        }
+        int messageReceived = 0;
+        char received_msg[1024] = "";
+        while (messageReceived == 0)
+        {
+            if (getmsg(received_msg) == -1)
+            {
+                fprintf(stderr, "Error while receiving message\n");
+                break;
+            }
+            if (strcmp(received_msg, ""))
+            {
+                printf("Liste des fichiers stockés sur le serveur :\n%s\n", received_msg);
+                messageReceived = 1;
+            }
+        }
     }
     else if (strcmp(argv[1], "-down") == 0 && argc == 3)
     {
