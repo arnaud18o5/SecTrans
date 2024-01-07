@@ -1,9 +1,13 @@
 CC = gcc
 CFLAGS = -I./include
 LDFLAGS = -L./lib
-LDLIBS = -lserver -lclient -lssl -lcrypto -lm
+LDLIBS = -lserver -lclient -lencryption -lssl -lcrypto -lm
 
 all: server client
+
+lib_encryption: src/encrypt_message.c
+	$(CC) -c -fPIC $< -o lib.o
+	$(CC) -shared -o libencryption.so lib.o
 
 server: src/main_server.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $< $(LDLIBS)
