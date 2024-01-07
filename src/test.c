@@ -2,73 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/buffer.h>
-#include <openssl/pem.h>
+
+#include "../include/encryption.h"
 
 #define KEY_LENGTH 512
 #define PUB_EXP 65537
 #define PRINT_KEYS
 #define WRITE_TO_FILE
 
-RSA *load_public_key_from_string(const char *public_key_str)
-{
-    BIO *key_bio = BIO_new_mem_buf((void *)public_key_str, -1);
-    RSA *rsa = PEM_read_bio_RSA_PUBKEY(key_bio, NULL, NULL, NULL);
-    BIO_free(key_bio);
-    return rsa;
-}
-
-unsigned char *encrypt_message(const unsigned char *message, int message_len, RSA *public_key, int *encrypted_len)
-{
-    printf("1");
-    char *err;
-    unsigned char *encrypted = (unsigned char *)malloc(RSA_size(public_key));
-    *encrypted_len = RSA_public_encrypt(message_len, message, encrypted, public_key, RSA_PKCS1_PADDING);
-    printf("2");
-    if (*encrypted_len == -1)
-    {
-        // ERR_load_crypto_strings();
-        // ERR_error_string(ERR_get_error(), err);
-        fprintf(stderr, "Error encrypting message: %s\n", err);
-        return NULL;
-    }
-    return encrypted;
-}
-
-void removeBeginPublicKey(char *str)
-{
-    char *start_ptr = strstr(str, "-----BEGIN RSA PUBLIC KEY-----");
-    if (start_ptr != NULL)
-    {
-        size_t prefix_len = strlen("-----BEGIN RSA PUBLIC KEY-----");
-        memmove(start_ptr, start_ptr + prefix_len, strlen(start_ptr + prefix_len) + 1);
-    }
-}
-
-void removeNewlines(char *str)
-{
-    char *pos;
-    while ((pos = strchr(str, '\n')) != NULL)
-    {
-        memmove(pos, pos + 1, strlen(pos));
-    }
-}
-
-void removeEndPublicKey(char *str)
-{
-    char *end_ptr = strstr(str, "-----END RSA PUBLIC KEY-----");
-    if (end_ptr != NULL)
-    {
-        size_t suffix_len = strlen("-----END RSA PUBLIC KEY-----");
-        *end_ptr = '\0';
-    }
-}
-
 int main(void)
 {
-    size_t pri_len; // Length of private key
+    /*size_t pri_len; // Length of private key
     size_t pub_len; // Length of public key
     char *pri_key;  // Private key
     char *pub_key;  // Public key
@@ -80,7 +24,7 @@ int main(void)
     //  Generate key pair
     // printf("Generating RSA (%d bits) keypair...", KEY_LENGTH);
     //  fflush(stdout);
-    RSA *keypair = RSA_generate_key(KEY_LENGTH, PUB_EXP, NULL, NULL);
+    /*RSA *keypair = RSA_generate_key(KEY_LENGTH, PUB_EXP, NULL, NULL);
 
     // To get the C-string PEM form:
     BIO *pri = BIO_new(BIO_s_mem());
@@ -165,7 +109,7 @@ int main(void)
     free(encrypted_message);
     RSA_free(rsa);
 
-    return 0;
+    return 0;*/
     /*removeBeginPublicKey(str);
     removeNewlines(str);
     removeEndPublicKey(str);
@@ -177,4 +121,7 @@ int main(void)
     int encrypted_size;
     char *encrypted = encrypt_message((const unsigned char *)message, sizeof(message), pubKey, &encrypted_size);
     printf("message encrypté: %s\n", encrypted);*/
+
+    encryptMessage("keyyy", "salut les foufous");
+    decryptMessage("keyyy", "salut les foufous");
 }

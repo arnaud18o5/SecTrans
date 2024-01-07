@@ -53,7 +53,7 @@ char *encryptMessage(char *pub_key, char *message)
 {
     RSA *rsa = NULL;
     // Charger la clé publique RSA depuis la chaîne PEM
-    BIO *bio = BIO_new_mem_buf(message, -1);
+    BIO *bio = BIO_new_mem_buf(pub_key, -1);
     if (bio == NULL)
     {
         perror("Erreur lors de la création du BIO");
