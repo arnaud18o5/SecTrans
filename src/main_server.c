@@ -423,10 +423,9 @@ int main()
                     fprintf(stderr, "No comma found in message\n");
                 }
             }
-
-            stopserver();
-
-            return EXIT_SUCCESS;
         }
+        stopserver();
+
+        return EXIT_SUCCESS;
     }
 }
