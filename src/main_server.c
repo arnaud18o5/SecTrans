@@ -198,6 +198,8 @@ void processUpMessage(char *received_msg)
         size_t decodedLength;
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
 
+        printf("decoded signature: %s\n", decodedSignature);
+
         // decoupe decodedSignature tous les 128 char
         int nbBlocks = decodedLength / 128;
 
