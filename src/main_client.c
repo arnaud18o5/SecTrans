@@ -122,24 +122,28 @@ int main(int argc, char *argv[])
 
     free(password_hash_hexa);
 
-    char token_msg[1024] = "";
-    if (getmsg(token_msg) == -1) {
+    char response[1024] = "";
+    if (getmsg(response) == -1) {
         fprintf(stderr, "Error while receiving AES token message\n");
         return EXIT_FAILURE;
     }
     stopserver();
 
     // Check if token_msg contains "error", if so, show message and exit
-    if (strstr(token_msg, "error") != NULL) {
+    if (strstr(response, "error") != NULL) {
         // Get message after comma
-        char* error_msg = strchr(token_msg, ',') + 1;
+        char* error_msg = strchr(response, ',') + 1;
         printf("Error while authenticating: %s\n", error_msg);
         return EXIT_FAILURE;
     }
 
     // Save token
-    token = malloc(strlen(token_msg));
-    strcpy(token, token_msg);
+    char *attribuedToken = strtok(response, ",");
+    token = malloc(strlen(attribuedToken));
+    strcpy(token, attribuedToken);
+    // Save port
+    char *attribuedPortStr = strtok(NULL, ",");
+    attribuedPort = atoi(attribuedPortStr);
 
     if (argc < 2) return print_usage();
 
@@ -372,6 +376,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Option non reconnue ou nombre incorrect d'arguments.\n");
         return EXIT_FAILURE;
     }
+
+    free(token);
 
     return EXIT_SUCCESS;
 }
