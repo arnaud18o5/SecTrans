@@ -118,18 +118,26 @@ int main(int argc, char *argv[])
     printf("Veuillez entrez votre mot de passe : \n");
     char password[100];
     scanf("%s", password);
+    unsigned char* password_hash = calculate_hash_from_string(password);
+    char* password_hash_hexa = malloc(SHA256_DIGEST_LENGTH * 2 + 1);
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        sprintf(password_hash_hexa + (i * 2), "%02x", password_hash[i]);
+    }
+    free(password_hash);
 
     startserver(portClient);
 
     char auth_message[1024] = "auth,";
     strcat(auth_message, username);
     strcat(auth_message, ",");
-    strcat(auth_message, password);
+    strcat(auth_message, password_hash_hexa);
     if (sndmsg(auth_message, port) != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
         return EXIT_FAILURE;
     }
+    
+    free(password_hash_hexa);
 
     char token_msg[1024] = "";
     if (getmsg(token_msg) == -1) {
@@ -141,7 +149,7 @@ int main(int argc, char *argv[])
     // Check if token_msg contains "error", if so, show message and exit
     if (strstr(token_msg, "error") != NULL) {
         // Get message after comma
-        char* error_msg = strchr(token_msg, ',');
+        char* error_msg = strchr(token_msg, ',') + 1;
         printf("Error while authenticating: %s\n", error_msg);
         return EXIT_FAILURE;
     }
