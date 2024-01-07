@@ -239,6 +239,8 @@ int main(int argc, char *argv[])
             unsigned char message[max_retreive_size];
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
+
+            printf("max retreive size : %d\n", max_retreive_size);
             unsigned char encrypted_message[max_retreive_size];
             // Split the message into packets of 128
             int packet_size = 128 - 11;
