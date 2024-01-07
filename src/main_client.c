@@ -196,6 +196,15 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
+        // Check public and private pair key are valid
+        // Load the public key
+        // EVP_PKEY *publicKeyStruct;
+        // if (!(publicKeyStruct = EVP_PKEY_new())) {
+        //     fprintf(stderr, "Error creating EVP_PKEY structure.\n");
+        //     return EXIT_FAILURE;
+        // }
+        // PEM_read_PUBKEY(publicKeyFile, &publicKeyStruct, NULL, NULL);
+        
 
         // Create signed hash
         unsigned char* hash = calculate_hash(file);
@@ -220,6 +229,9 @@ int main(int argc, char *argv[])
 
         PEM_read_PrivateKey(privateKeyFile, &privateKey, NULL, NULL);
 
+        // Log EVP_PKEY_base_id(privateKey)
+        printf("EVP_PKEY_base_id(privateKey) : %d\n", EVP_PKEY_base_id(privateKey));
+
         // Create the signature
         unsigned char *signature_encrypted = malloc(EVP_PKEY_size(privateKey));
         unsigned int signature_length;
@@ -241,11 +253,13 @@ int main(int argc, char *argv[])
         EVP_PKEY_free(privateKey);
         EVP_MD_CTX_free(mdctx);
         // Log the signature
+        printf("Signature : ");
         for (int i = 0; i < signature_length; i++) {
             printf("%02x", signature_encrypted[i]);
         }
         printf("\n");
         // Log the hash of the file
+        printf("Hash : ");
         for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
             printf("%02x", hash[i]);
         }
