@@ -194,6 +194,13 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Error while receiving message\n");
             return EXIT_FAILURE;
         }
+        // Check if server response contains "error", if so, show message and exit
+        if (strstr(server_response, "error") != NULL) {
+            // Get message after comma
+            char* error_msg = strchr(server_response, ',') + 1;
+            printf("%s\n", error_msg);
+            return EXIT_FAILURE;
+        }
         printf("%s\n", server_response);
 
         while (!feof(file))

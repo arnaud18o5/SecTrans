@@ -179,7 +179,7 @@ void processUpMessage(char *received_msg)
 
         // Check if file exists, if so send error
         if (access(fullFilename, F_OK) != -1) {
-            char message[1024] = "File already exists, please choose another name!";
+            char message[1024] = "error,File already exists, please choose another name!";
             sndmsg(message, user->attribuedPort);
             printf("ERROR: File already exists!\n");
             return;
