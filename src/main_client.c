@@ -231,13 +231,28 @@ int main(int argc, char *argv[])
         {
             char server_message[1024] = "up,";
             // Calculate the max num of chars to read
-            int max_retreive_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
+            int max_retreive_size = (1024 - 1024 / 128 * 11) - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
             // Take in account the base64 encoding
             max_retreive_size = (int)floor(max_retreive_size / 1.37);
-
-            unsigned char message[max_retreive_size];
+            max_retreive_size = max_retreive_size / 128 - 11 unsigned char message[max_retreive_size];
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
+
+            // Split the message into packets of 128
+            int packet_size = 128;
+            int num_packets = (num_read + packet_size - 1) / packet_size;
+            for (int i = 0; i < num_packets; i++)
+            {
+                char packet[packet_size + 1];
+                strncpy(packet, message + i * packet_size, packet_size);
+                packet[packet_size] = '\0'; // Null-terminate the packet
+
+                // Encode the packet to base64
+                /*char *encoded_packet = base64_encode(packet, strlen(packet));
+                strcat(server_message, encoded_packet);
+                free(encoded_packet);*/
+                printf("packet : %s\n", packet);
+            }
 
             // Encode the message to base64
             char *encoded_message = base64_encode(message, num_read);
