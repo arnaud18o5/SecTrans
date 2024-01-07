@@ -28,16 +28,25 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
     // Log the public key
     printf("Public key: %s\n", publicKey);
 
-    EVP_PKEY* evp_key = NULL;
     BIO* bio = BIO_new_mem_buf(publicKey, -1);
-    PEM_read_bio_RSAPublicKey(bio, &evp_key, NULL, NULL);
+    RSA* rsa_key = NULL;
+    PEM_read_bio_RSAPublicKey(bio, &rsa_key, NULL, NULL);
     BIO_free(bio);
     printf("debug 1\n");
 
-    if (!evp_key) {
+    if (!rsa_key) {
         // handle error
         EVP_MD_CTX_free(ctx);
         printf("debug 2\n");
+        return 0;
+    }
+
+    EVP_PKEY* evp_key = EVP_PKEY_new();
+    if (!EVP_PKEY_assign_RSA(evp_key, rsa_key)) {
+        // handle error
+        EVP_PKEY_free(evp_key);
+        EVP_MD_CTX_free(ctx);
+        printf("debug 3\n");
         return 0;
     }
 
@@ -45,7 +54,7 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
         // handle error
         EVP_PKEY_free(evp_key);
         EVP_MD_CTX_free(ctx);
-        printf("debug 3\n");
+        printf("debug 3.5\n");
         return 0;
     }
 
