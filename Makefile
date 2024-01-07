@@ -8,11 +8,14 @@ all: server client
 encryption.o: include/encryption.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o encryption.o $< $(LDLIBS)
 
-server: src/main_server.c encryption.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o server $< $(LDLIBS) include/encryption.c
+hash.o: include/hash.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o hash.o $< $(LDLIBS)
 
-client: src/main_client.c encryption.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o client $< $(LDLIBS) include/encryption.c
+server: src/main_server.c hash.o encryption.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
+
+client: src/main_client.c hash.o encryption.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o client $^ $(LDLIBS)
 
 run_server: server
 	@echo "Running server..."
