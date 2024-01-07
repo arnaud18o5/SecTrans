@@ -198,6 +198,46 @@ void processUpMessage(char *received_msg)
         size_t decodedLength;
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
 
+        // decoupe decodedSignature tous les 128 char
+        int nbBlocks = decodedLength / 128;
+
+        FILE *privateKeyFile = fopen("private.pem", "r");
+        if (publicKeyFile == NULL)
+        {
+            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            return EXIT_FAILURE;
+        }
+        // Get the public key
+        char privateKey[1024];
+        // Read all the file content
+        char c;
+        int i = 0;
+        while ((c = fgetc(privateKeyFile)) != EOF)
+        {
+            privateKey[i] = c;
+            i++;
+        }
+        privateKey[i] = '\0';
+
+        char *decryptedSignature = malloc(decodedLength);
+
+        // decouper decodedSignature en pakcet de 128 char
+        char *packet = malloc(128);
+        int j = 0;
+        int k = 0;
+        for (j = 0; j < nbBlocks; j++)
+        {
+            for (k = 0; k < 128; k++)
+            {
+                packet[k] = decodedSignature[k + (j * 128)];
+            }
+            // decrypter packet
+            char *decryptedPacket = decryptMessage(privateKey, packet);
+            // concat decryptedPacket dans decryptedSignature
+            strcat(decryptedSignature, decryptedPacket);
+        }
+
+        printf("decryptedSignature: %s\n", decryptedSignature);
         // Verify signature
         if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey))
         {
@@ -326,6 +366,20 @@ int main()
     BIO_read(pub, pub_key, pub_len);
 
     pri_key[pri_len] = '\0';
+
+    // save private key
+
+    FILE *file;
+    file = fopen("private.pem", "w");
+    if (file == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+
+    fprintf(file, "%s", pri_key);
+    fclose(file);
+
     pub_key[pub_len] = '\0';
 
     printf("\n%s\n%s\n", pri_key, pub_key);
