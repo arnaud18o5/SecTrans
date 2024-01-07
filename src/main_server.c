@@ -97,9 +97,6 @@ void processUpMessage(char *received_msg)
     char *publicKey = "PUBLIC_KEY";
     char *fileEnd = "FILE_END";
 
-    // Log message
-    printf("Message: %s\n", msg);
-
     if (strstr(msg, fileStart) != NULL) {
         // Get filename
         char *filename = strchr(msg, ',') + 1;
@@ -125,9 +122,6 @@ void processUpMessage(char *received_msg)
     }
     // Check if header contains FILE_END
     else if (strstr(msg, fileEnd) != NULL) {
-        // Log clientPublicKey
-        printf("clientPublicKey: %s\n", clientPublicKey);
-
         // Get the signature after the comma
         char *signature = strchr(msg, ',') + 1;
 
@@ -144,6 +138,7 @@ void processUpMessage(char *received_msg)
 
         // Free memory
         free(decodedSignature);
+        free(clientPublicKey);
 
         // Close file
         fclose(currentOpenedFile);
@@ -153,7 +148,10 @@ void processUpMessage(char *received_msg)
 
     // Check if header contains PUBLIC_KEY
     else if (strstr(msg, publicKey) != NULL) {
-        clientPublicKey = strchr(msg, ',') + 1;
+        // Get the public key after the comma and copy it in new memory location
+        char *publicKey = strchr(msg, ',') + 1;
+        clientPublicKey = malloc(strlen(publicKey) + 1);
+        strncpy(clientPublicKey, publicKey, strlen(publicKey) + 1);
     }
 
     // Write to file
