@@ -210,7 +210,7 @@ const User* getUserFromToken(const char *token) {
         fprintf(stderr, "Error parsing token\n");
         return NULL;
     }
-    printf("Username: %s\n", username);
+
     for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
         if (strcmp(username, users[i].username) == 0) {
             return &(users[i]);
@@ -408,7 +408,14 @@ int main()
                 printf("Base64 token: %s\n", base64Token);
 
                 sndmsg(base64Token,12346);
-                getUserFromToken(base64Token);
+                
+                // TEst
+                const User *test = getUserFromToken(base64Token);
+                // print all
+                printf("Username: %s\n", test->username);
+                printf("Role: %s\n", test->role);
+                printf("Password: %s\n", test->password);
+
                 free(encryptedToken);
                 free(base64Token);
             }
