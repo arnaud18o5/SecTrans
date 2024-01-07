@@ -420,7 +420,7 @@ int main()
         unsigned char *decoded = base64_decode(received_msg, &decodedLength);
         printf("Decoded message: %s\n", decoded);
 
-        char *commaPos = strchr(received_msg, ',');
+        char *commaPos = strchr(decoded, ',');
         if (commaPos != NULL)
         {
             int tokenLength = (unsigned char *)commaPos - (unsigned char *)decoded;
