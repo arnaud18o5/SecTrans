@@ -249,7 +249,9 @@ int main()
 
                         char msg_to_decrypt[1024];
 
-                        while (1)
+                        int msg_received = 0;
+
+                        while (msg_received == 0)
                         {
                             if (getmsg(msg_to_decrypt) == -1)
                             {
@@ -260,6 +262,7 @@ int main()
                             RSA *rsa = NULL;
                             char *decryptedMessage = decryptMessage(pri_key, msg_to_decrypt);
                             printf("Message déchiffré : %s\n", decryptedMessage);
+                            msg_received = 1;
                         }
                     }
 
