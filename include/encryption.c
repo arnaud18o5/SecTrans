@@ -96,4 +96,7 @@ char *encryptMessage(char *pub_key, char *message)
         RSA_free(rsa);
         exit(EXIT_FAILURE);
     }
+
+    RSA_free(rsa);
+    return (char *)encrypted_message;
 }
