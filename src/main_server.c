@@ -83,9 +83,13 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
 
 void processUpMessage(char *received_msg)
 {
-    // Extract the token
-    strtok(received_msg, ",");
+    // Copy received message
+    char *received_msg_copy = malloc(strlen(received_msg) + 1);
+    strcpy(received_msg_copy, received_msg);
+    // Get token after the first comma
+    strtok(received_msg_copy, ",");
     char *token = strtok(NULL, ",");
+    free(received_msg_copy);
     // Log token
     printf("Token: %s\n", token);
 
