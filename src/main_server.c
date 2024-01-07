@@ -174,11 +174,12 @@ typedef struct {
 
 // The passwords are written in the hexadecimal format
 User users[] = {
-    {"samuel", "6eac1114aa783f6549327e7d01f63752995da7b31f1f37092b7dcb9f49cf5651", "Reader", 0}, // pwd1
-    {"arnaud", "149d2937d1bce53fa683ae652291bd54cc8754444216a9e278b45776b76375af", "Writer", 0}, // pwd2
-    {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin", 0}, // pwd3
-    {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin", 0} // pwd4
+    {"samuel", "6eac1114aa783f6549327e7d01f63752995da7b31f1f37092b7dcb9f49cf5651", "Reader", 0}, // Mot de passe : pwd1
+    {"arnaud", "149d2937d1bce53fa683ae652291bd54cc8754444216a9e278b45776b76375af", "Writer", 0}, // Mot de passe : pwd2
+    {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin", 0}, // Mot de passe : pwd3
+    {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin", 0} // Mot de passe : pwd4
 };
+
 User* authenticateUser(const char *username, const char *password) {
     for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
         if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
@@ -267,12 +268,26 @@ void processListMessage(char *received_msg) {
 }
 
 
-void processDownMessage(char *port, char *msg)
+void processDownMessage(char *received_msg)
 {
     printf("Envoyer le contenu du fichier au client\n");
-    printf("Message à télécharger : %s\n", msg);
-    int portClient = atoi(port);
-    sndmsg(msg, portClient);
+
+    // Get data
+    char *token = strtok(received_msg, ",");
+    char *filename = strtok(NULL, ",");
+
+    // Get user
+    User *user = getUserFromToken(token);
+
+    // print all info
+    printf("Token: %s\n", token);
+    printf("Filename: %s\n", filename);
+    printf("User: %s\n", user->username);
+
+    char msg[1024];
+    snprintf(msg, 1024, "FILE_START,%s", filename);
+
+    sndmsg(msg, user->attribuedPort);
     // Ajoutez le code nécessaire pour envoyer le contenu du fichier au client
     // ...
 }
@@ -383,9 +398,7 @@ int main()
             }
             else if (strcmp(token, "down") == 0)
             {
-                char *port = strtok(NULL, ",");
-                char *msg = strtok(NULL, ",");
-                processDownMessage(port, msg);
+                processDownMessage(received_msg);
             }
             else if (strcmp(token, "auth") == 0)
             {
