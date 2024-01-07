@@ -277,6 +277,7 @@ int main(int argc, char *argv[])
                 sleep(1);
                 printf("envoie du message vers serveur : %s\n", encrypted_message);
                 printf("size : %d\n", strlen(encrypted_message));
+                printf("port : %d\n", port);
                 sndmsg(encrypted_message, port);
 
                 printf("Message envoyé avec succès au serveur.\n");
