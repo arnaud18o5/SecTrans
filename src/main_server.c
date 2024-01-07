@@ -258,6 +258,7 @@ int main()
                             printf("Entrée boucle\n");
                             if (getmsg(msg_to_decrypt) == -1)
                             {
+                                printf("Erreur\n");
                                 fprintf(stderr, "Error while receiving message\n");
                                 break;
                             }
