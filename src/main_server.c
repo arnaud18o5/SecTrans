@@ -147,14 +147,11 @@ void processUpMessage(char *received_msg)
 
     // Check if header contains PUBLIC_KEY
     else if (strstr(msg, publicKey) != NULL) {
-        // Decode public key after comma
+        // Get message after the comma
+        char *publicKey = strchr(msg, ',') + 1;
+        // Decode and store public key
         size_t decodedLength;
-        unsigned char *decodedPublicKey = base64_decode(msg, &decodedLength);
-
-        // Set clientPublicKey
-        clientPublicKey = malloc(decodedLength + 1);
-        memcpy(clientPublicKey, decodedPublicKey, decodedLength);
-        clientPublicKey[decodedLength] = '\0';
+        clientPublicKey = base64_decode(publicKey, &decodedLength);
     }
 
     // Write to file
