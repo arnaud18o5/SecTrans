@@ -392,15 +392,8 @@ int main()
             return EXIT_FAILURE;
         }
 
-        sndmsg(encryptToken
-                    (createSpecialToken(clientUsername, getRole(clientUsername, clientPassword))
-                    ,strlen(clientUsername) + strlen(getRole(clientUsername, clientPassword)),
-                    ,key
-                    )
-            ,12346);
+        sndmsg(encryptToken(createSpecialToken(clientUsername, getRole(clientUsername, clientPassword)),strlen(clientUsername) + strlen(getRole(clientUsername, clientPassword)),key),12346);
     }
-
-
 
     char received_msg[1024];
 
