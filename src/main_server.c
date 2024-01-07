@@ -34,9 +34,9 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
     printf("\nFile size: %ld\n", fileSize);
     // Log the first 10 bytes
     fseek(file, 0, SEEK_SET);
-    unsigned char testtest[10];
-    fread(testtest, 1, 10, file);
-    for (int i = 0; i < 10; i++) {
+    unsigned char testtest[100];
+    fread(testtest, 1, 100, file);
+    for (int i = 0; i < 100; i++) {
         printf("%02x", testtest[i]);
     }
     printf("\n");
