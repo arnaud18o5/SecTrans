@@ -63,6 +63,7 @@
     "hash.h": "c",
     "__node_handle": "c",
     "server.h": "c",
-    "base_encoding.h": "c"
+    "base_encoding.h": "c",
+    "stddef.h": "c"
   }
 }
