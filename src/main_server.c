@@ -262,6 +262,7 @@ int main()
                                 fprintf(stderr, "Error while receiving message\n");
                                 break;
                             }
+                            printf("Message reçu !!!\n");
                             printf("Message reçu : %s\n", msg_to_decrypt);
                             RSA *rsa = NULL;
                             char *decryptedMessage = decryptMessage(pri_key, msg_to_decrypt);
