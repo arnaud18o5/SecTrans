@@ -21,55 +21,49 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
 
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
     if (!ctx) {
-        // handle error
         return 0;
     }
 
-    // Log the public key
-    printf("Public key: %s\n", publicKey);
-
+    // Read public key
     BIO* bio = BIO_new_mem_buf(publicKey, -1);
     RSA* rsa_key = NULL;
     PEM_read_bio_RSAPublicKey(bio, &rsa_key, NULL, NULL);
     BIO_free(bio);
-    printf("debug 1\n");
 
+    // Check if public key is valid
     if (!rsa_key) {
-        // handle error
         EVP_MD_CTX_free(ctx);
-        printf("debug 2\n");
         return 0;
     }
 
+    // Create EVP_PKEY from RSA key
     EVP_PKEY* evp_key = EVP_PKEY_new();
     if (!EVP_PKEY_assign_RSA(evp_key, rsa_key)) {
-        // handle error
         EVP_PKEY_free(evp_key);
         EVP_MD_CTX_free(ctx);
-        printf("debug 3\n");
         return 0;
     }
 
+    // Initialize verification
     if (EVP_DigestVerifyInit(ctx, NULL, EVP_sha256(), NULL, evp_key) != 1) {
-        // handle error
         EVP_PKEY_free(evp_key);
         EVP_MD_CTX_free(ctx);
-        printf("debug 3.5\n");
         return 0;
     }
 
+    // Calculate hash of file
     unsigned char* file_hash = calculate_hash(file);
+    // Check if hash is valid
     if (EVP_DigestVerifyUpdate(ctx, file_hash, SHA256_DIGEST_LENGTH) != 1) {
-        // handle error
         EVP_PKEY_free(evp_key);
         EVP_MD_CTX_free(ctx);
         free(file_hash);
-        printf("debug 4\n");
         return 0;
     }
 
+    // Verify signature
     int ret = EVP_DigestVerifyFinal(ctx, signature, signature_len);
-    printf("debug 5\n");
+    printf("debug 5 %i\n", ret);
     EVP_PKEY_free(evp_key);
     EVP_MD_CTX_free(ctx);
     free(file_hash);
