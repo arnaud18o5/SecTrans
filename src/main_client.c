@@ -234,7 +234,11 @@ int main(int argc, char *argv[])
             int max_retreive_size = (1024 - 1024 / 128 * 11) - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
             // Take in account the base64 encoding
             max_retreive_size = (int)floor(max_retreive_size / 1.37);
+<<<<<<< HEAD
             unsigned char message[max_retreive_size];
+=======
+            max_retreive_size = max_retreive_size / 128 - 11 unsigned char message[max_retreive_size];
+>>>>>>> 61a38b59425eb0bc5cf5126889aec41a8bf05099
             size_t num_read = fread(message, 1, max_retreive_size - 1, file);
             message[num_read] = '\0'; // Null-terminate the string
 
