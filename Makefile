@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -I./include
-LDFLAGS = -L./lib --static
+LDFLAGS = -L./lib
 LDLIBS = -lserver -lclient -lssl -lcrypto -lm
 
 all: server client
