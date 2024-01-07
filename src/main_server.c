@@ -277,6 +277,8 @@ void processListMessage(char *received_msg) {
 
     // Parcourir les fichiers du répertoire
     while ((entry = readdir(dir)) != NULL) {
+        // Log filename
+        printf("Filename: %s\n", entry->d_name);
         // Get only file finished by .meta
         if (strstr(entry->d_name, ".meta") != NULL) {
             // Open file and read first line
