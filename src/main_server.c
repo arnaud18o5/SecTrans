@@ -111,7 +111,7 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
     return decode;
 }
 
-/*char *decryptMessage(char *pri_key, char *received_msg)
+/*char *decryptMessage(char *pri_key, char *decoded)
 {
     RSA *rsa = NULL;
 
@@ -140,7 +140,7 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
     unsigned char *decrypted_message = (unsigned char *)malloc(rsa_len);
 
     // Déchiffrement RSA
-    int result = RSA_private_decrypt(rsa_len, received_msg, decrypted_message, rsa, RSA_PKCS1_PADDING);
+    int result = RSA_private_decrypt(rsa_len, decoded, decrypted_message, rsa, RSA_PKCS1_PADDING);
     if (result == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
@@ -155,7 +155,7 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
     return (char *)decrypted_message;
 }*/
 
-void processUpMessage(char *received_msg)
+void processUpMessage(char *decoded)
 {
 
     printf("received_msg: %s\n", received_msg);
@@ -423,19 +423,19 @@ int main()
         char *commaPos = strchr(received_msg, ',');
         if (commaPos != NULL)
         {
-            int tokenLength = commaPos - received_msg;
+            int tokenLength = commaPos - decoded;
             char *token = malloc(tokenLength + 1); // +1 for the null-terminator
             if (token == NULL)
             {
                 fprintf(stderr, "Failed to allocate memory for token\n");
                 return EXIT_FAILURE;
             }
-            strncpy(token, received_msg, tokenLength);
+            strncpy(token, decoded, tokenLength);
             token[tokenLength] = '\0'; // Null-terminate the string
 
             if (strcmp(token, "up") == 0)
             {
-                processUpMessage(received_msg);
+                processUpMessage(decoded);
             }
             else if (strcmp(token, "list") == 0)
             {
