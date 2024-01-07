@@ -185,15 +185,15 @@ typedef struct {
     char username[30];
     char password[30];
     char role[20];
-} User;
+} User; 
 
+// The passwords are written in the hexadecimal format
 User users[] = {
-    {"samuel", "pwd1", "Reader"}, // pwd1
-    {"arnaud", "pwd2", "Writer"}, // pwd2
-    {"alexis", "pwd3", "Admin"}, // pwd3
-    {"julian", "pwd4", "Admin"} // pwd4
+    {"samuel", "6eac1114aa783f6549327e7d01f63752995da7b31f1f37092b7dcb9f49cf5651", "Reader"}, // pwd1
+    {"arnaud", "149d2937d1bce53fa683ae652291bd54cc8754444216a9e278b45776b76375af", "Writer"}, // pwd2
+    {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin"}, // pwd3
+    {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin"} // pwd4
 };
-
 const User* authenticateUser(const User *users, const char *username, const char *password) {
     for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
         if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
@@ -348,19 +348,6 @@ void getLoginAndPassword(char message[], char login[], char password[]) {
 int main()
 {
     int port = 12345; // Choisissez le port que vous souhaitez utiliser
-
-    // Log every password hashed
-    for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
-        unsigned char* hash = calculate_hash_from_string(users[i].password);
-        printf("Hash for password %s: ", users[i].password);
-        // Log the hash in the hexadecmal format to then copy paste it in the users array
-        for (int j = 0; j < SHA256_DIGEST_LENGTH; j++) {
-            printf("%02x", hash[j]);
-        }
-
-        printf("\n");
-        free(hash);
-    }
 
     if (startserver(port) == -1)
     {
