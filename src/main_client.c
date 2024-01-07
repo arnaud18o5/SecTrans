@@ -273,11 +273,8 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Error initializing EVP_SignInit_ex.\n");
             return EXIT_FAILURE;
         }
-        // Log len of hash
-        printf("Hash len : %ld\n", strlen((char*)hash));
-        // Log SHA256_DIGEST_LENGTH
-        printf("SHA256_DIGEST_LENGTH : %d\n", SHA256_DIGEST_LENGTH);
-        if (EVP_SignUpdate(mdctx, hash, strlen((char*)hash)) != 1) {
+
+        if (EVP_SignUpdate(mdctx, hash, SHA256_DIGEST_LENGTH) != 1) {
             fprintf(stderr, "Error in EVP_SignUpdate.\n");
             return EXIT_FAILURE;
         }
