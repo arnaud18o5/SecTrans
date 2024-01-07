@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
             message[num_read] = '\0'; // Null-terminate the string
 
             // Split the message into packets of 128
-            int packet_size = 128;
+            int packet_size = 128 - 11;
             int num_packets = (num_read + packet_size - 1) / packet_size;
             for (int i = 0; i < num_packets; i++)
             {
