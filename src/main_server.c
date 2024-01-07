@@ -376,6 +376,9 @@ int main()
             strncpy(token, received_msg, tokenLength);
             token[tokenLength] = '\0'; // Null-terminate the string
 
+            // print the token
+            printf("Token: %s\n", token);
+
             // TODO: decrypedToken
             if (strcmp(token, "up") == 0)
             {
