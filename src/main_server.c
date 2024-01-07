@@ -97,6 +97,9 @@ void processUpMessage(char *received_msg)
     char *publicKey = "PUBLIC_KEY";
     char *fileEnd = "FILE_END";
 
+    // Log message
+    printf("Message: %s\n", msg);
+
     if (strstr(msg, fileStart) != NULL) {
         // Get filename
         char *filename = strchr(msg, ',') + 1;
