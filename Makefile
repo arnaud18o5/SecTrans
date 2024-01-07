@@ -8,7 +8,7 @@ all: server client
 hash.o: include/hash.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o hash.o $< $(LDLIBS)
 
-server: src/main_server.c
+server: src/main_server.c hash.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
 client: src/main_client.c hash.o
