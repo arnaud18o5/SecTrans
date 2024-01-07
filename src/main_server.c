@@ -1,7 +1,6 @@
 
 #include "server.h"
 #include "client.h"
-#include "hash.h"
 #include "base_encoding.h"
 #include "signature.h"
 

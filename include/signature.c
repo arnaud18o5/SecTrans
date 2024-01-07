@@ -1,4 +1,5 @@
 #include "signature.h"
+#include "hash.h"
 
 #include <openssl/evp.h>
 #include <openssl/pem.h>
