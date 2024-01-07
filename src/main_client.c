@@ -272,6 +272,7 @@ int main(int argc, char *argv[])
             if (strcmp(received_msg, ""))
             {
                 printf("Message reçu du serveur : %s\n", received_msg);
+                char *rsa = "Hello les foufous";
                 char *encrypted_message = encrypt_message(received_msg, rsa);
 
                 // Afficher le message chiffré (en hexadécimal)
