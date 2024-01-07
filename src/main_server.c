@@ -192,7 +192,8 @@ void processListMessage(char *received_msg) {
             }
         }
     }
-
+    // Log res size
+    printf("res size: %ld\n", strlen(res));
     sndmsg(res, user->attribuedPort);
 
     // Libérer la mémoire allouée pour la chaîne résultante
