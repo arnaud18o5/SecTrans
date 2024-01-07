@@ -34,7 +34,7 @@ char *decryptMessage(char *pri_key, char *message)
     unsigned char *decrypted_message = (unsigned char *)malloc(rsa_len);
 
     // Déchiffrement RSA
-    int result = RSA_private_decrypt(rsa_len, messag, decrypted_message, rsa, RSA_PKCS1_PADDING);
+    int result = RSA_private_decrypt(rsa_len, message, decrypted_message, rsa, RSA_PKCS1_PADDING);
     if (result == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
