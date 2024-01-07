@@ -339,6 +339,9 @@ int main(int argc, char *argv[])
     {
         // Exemple d'utilisation : ./client -down "filename"
         char server_message[1024] = "down,";
+        // Add token
+        strcat(server_message, token);
+        strcat(server_message, ",");
         strcat(server_message, argv[2]);
 
         sndmsg(server_message, SERVER_PORT);
