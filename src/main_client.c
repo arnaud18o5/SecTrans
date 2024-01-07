@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
             }
             publicKey[i] = '\0';
 
-            printf("publicKey : %s\n", publicKey);
+            // printf("publicKey : %s\n", publicKey);
             for (int i = 0; i < num_packets; i++)
             {
                 char packet[packet_size + 1];
@@ -282,8 +282,8 @@ int main(int argc, char *argv[])
 
             close(public_key_file);
 
-            printf("encrypted_message : %s\n", encrypted_message);
-            printf("size encrypted_message : %d\n", strlen(encrypted_message));
+            // printf("encrypted_message : %s\n", encrypted_message);
+            // printf("size encrypted_message : %d\n", strlen(encrypted_message));
 
             // Encode the message to base64
             strcat(server_message, encrypted_message);
