@@ -194,7 +194,7 @@ User users[] = {
     {"alexis", "ffc169417b4146cebe09a3e9ffbca33db82e3e593b4d04c0959a89c05b87e15d", "Admin"}, // pwd3
     {"julian", "54775a53a76ae02141d920fd2a4682f6e7d3aef1f35210b9e4d253ad3db7e3a8", "Admin"} // pwd4
 };
-const User* authenticateUser(const User *users, const char *username, const char *password) {
+const User* authenticateUser(const char *username, const char *password) {
     for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
         if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
             return &(users[i]);
@@ -215,16 +215,6 @@ int isReader(User user) {
 
 int isAdmin(User user) {
     return (strcmp(user.role, "Admin") == 0);
-}
-
-char* getRole(const char *username, const char *password) {
-    for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
-        printf("Username: %s\n", users[i].username);
-        if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
-            return users[i].role;
-        }
-    }
-    return NULL; 
 }
 
 
@@ -399,6 +389,13 @@ int main()
                 char clientPassword[65];
 
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
+
+                User *user = authenticateUser(clientUsername, clientPassword);
+                if (user == NULL) {
+                    sndmsg("error,Bad credentials", CLIENT_PORT);
+                    fprintf(stderr, "Bad credentials\n");
+                    continue;
+                }
 
                 // Give the token
                 unsigned char key[32];
