@@ -62,6 +62,7 @@
     "unistd.h": "c",
     "hash.h": "c",
     "__node_handle": "c",
-    "server.h": "c"
+    "server.h": "c",
+    "base_encoding.h": "c"
   }
 }

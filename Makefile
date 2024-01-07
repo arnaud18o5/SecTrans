@@ -5,16 +5,16 @@ LDLIBS = -lserver -lclient -lssl -lcrypto -lm
 
 all: server client
 
-base64.o: include/base64.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -c -o base64.o $< $(LDLIBS)
+base_encoding.o: include/base_encoding.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o base_encoding.o $< $(LDLIBS)
 
 hash.o: include/hash.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o hash.o $< $(LDLIBS)
 
-server: src/main_server.c hash.o base64.o
+server: src/main_server.c hash.o base_encoding.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
-client: src/main_client.c hash.o base64.o
+client: src/main_client.c hash.o base_encoding.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o client $^ $(LDLIBS)
 
 run_server: server

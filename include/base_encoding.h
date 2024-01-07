@@ -1,5 +1,7 @@
-#ifndef BASE64_H
-#define BASE64_H
+#ifndef BASE_ENCODING_H
+#define BASE_ENCODING_H
+
+#include <stddef.h>
 
 char* base64_encode(const unsigned char* buffer, size_t length);
 
