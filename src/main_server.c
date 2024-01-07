@@ -321,7 +321,7 @@ void decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const u
 }
 
 void getLoginAndPassword(char message[], char login[], char password[]) {
-    char *token = strtok(received_msg, ",");
+    char *token = strtok(message, ",");
     
     if (token != NULL) {
         strncpy(login, token, 19);
