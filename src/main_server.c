@@ -399,12 +399,14 @@ int main()
 
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
 
+                printf("debug 1");
                 // Give the token
                 unsigned char key[32];
                 if (RAND_bytes(key, sizeof(key)) != 1) {
                     fprintf(stderr, "Error generating AES key\n");
                     return EXIT_FAILURE;
                 }
+                printf("debug 2");
 
                 // Print key
                 printf("Key: ");
