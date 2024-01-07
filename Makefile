@@ -9,10 +9,10 @@ encryption.o: include/encryption.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o encryption.o $< $(LDLIBS)
 
 server: src/main_server.c encryption.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o server $< $(LDLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o server $< $(LDLIBS) include/encryption.c
 
 client: src/main_client.c encryption.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o client $< $(LDLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o client $< $(LDLIBS) include/encryption.c
 
 run_server: server
 	@echo "Running server..."
