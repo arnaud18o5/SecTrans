@@ -255,6 +255,7 @@ int main()
                         printf("En attente de message du client...\n");
                         while (msg_received == 0)
                         {
+                            printf("Entrée boucle\n");
                             if (getmsg(msg_to_decrypt) == -1)
                             {
                                 fprintf(stderr, "Error while receiving message\n");
