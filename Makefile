@@ -8,10 +8,10 @@ all: server client
 encryption.o: include/encryption.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o encryption.o $< $(LDLIBS)
 
-server: src/main_server.c
+server: src/main_server.c encryption.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $< $(LDLIBS)
 
-client: src/main_client.c
+client: src/main_client.c encryption.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o client $< $(LDLIBS)
 
 run_server: server
