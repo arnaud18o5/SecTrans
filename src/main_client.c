@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
             printf("encoded_message : %s\n", encoded_message);
             printf("size encoded_message : %d\n", strlen(encoded_message));
             long long result = sndmsg(encoded_message, port);
-            free(encoded_message);
+            // free(encoded_message);
             if (result != 0)
             {
                 fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
