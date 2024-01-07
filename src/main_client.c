@@ -280,7 +280,6 @@ int main(int argc, char *argv[])
                 free(encoded_packet);*/
 
                 printf("size packet : %d\n", strlen(packet));
-                free(publicKey);
             }
 
             // Encode the message to base64
