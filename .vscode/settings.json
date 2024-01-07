@@ -60,6 +60,12 @@
     "*.ejs": "html",
     "types.h": "c",
     "unistd.h": "c",
-    "hash.h": "c"
+    "hash.h": "c",
+    "__node_handle": "c",
+    "server.h": "c",
+    "base_encoding.h": "c",
+    "stddef.h": "c",
+    "signature.h": "c",
+    "user.h": "c"
   }
 }

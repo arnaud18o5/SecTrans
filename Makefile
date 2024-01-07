@@ -5,13 +5,22 @@ LDLIBS = -lserver -lclient -lssl -lcrypto -lm
 
 all: server client
 
+base_encoding.o: include/base_encoding.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o base_encoding.o $< $(LDLIBS)
+
 hash.o: include/hash.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o hash.o $< $(LDLIBS)
 
-server: src/main_server.c hash.o
+signature.o: include/signature.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o signature.o $< $(LDLIBS)
+
+user.o: include/user.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o user.o $< $(LDLIBS)
+
+server: src/main_server.c hash.o base_encoding.o signature.o user.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
-client: src/main_client.c hash.o
+client: src/main_client.c hash.o base_encoding.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o client $^ $(LDLIBS)
 
 run_server: server
