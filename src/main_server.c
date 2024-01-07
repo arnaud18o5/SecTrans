@@ -323,10 +323,11 @@ void decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const u
 
 void getLoginAndPassword(char message[], char login[], char password[]) {
     char *token = strtok(message, ",");
-    printf("Token: %s\n", token);
+    token = strtok(NULL, ",");
+
     if (token != NULL) {
-        strncpy(login, token, 19);
-        login[19] = '\0';
+        strcpy(login, token);
+        login[strlen(token)] = '\0';
     }
     else {
         fprintf(stderr, "Bad credentials\n");
@@ -336,8 +337,8 @@ void getLoginAndPassword(char message[], char login[], char password[]) {
     token = strtok(NULL, ",");
 
     if (token != NULL) {
-        strncpy(password, token, 19);
-        password[19] = '\0'; 
+        strcpy(password, token);
+        password[strlen(token)] = '\0';
     }
     else {
         fprintf(stderr, "Bad credentials\n");
