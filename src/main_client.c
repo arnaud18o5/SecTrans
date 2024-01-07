@@ -323,8 +323,11 @@ int main(int argc, char *argv[])
                 {
                     printf("%02x", encrypted_message[i]);
                 }
-                printf("\n");
+                printf("envoie du message vers serveur : %s\n", encrypted_message);
                 sndmsg(encrypted_message, port);
+
+                printf("Message envoyé avec succès au serveur.\n");
+                messageReceived = 1;
                 // Libérer la mémoire
                 free(encrypted_message);
                 RSA_free(rsa);
