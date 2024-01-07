@@ -222,7 +222,10 @@ int main(int argc, char *argv[])
         // Send to the server a first message containing a start hint and the filename
         char server_message[1024] = "up,FILE_START,";
         strcat(server_message, argv[2]);
-        long long result = sndmsg(server_message, port);
+
+        // Encode the server message in base64
+        char *base64_server_message = base64_encode(server_message, strlen(server_message));
+        long long result = sndmsg(base64_server_message, port);
         if (result != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
