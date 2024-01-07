@@ -187,6 +187,15 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
+        // Get server response
+        char received_msg[1024] = "";
+        if (getmsg(received_msg) == -1)
+        {
+            fprintf(stderr, "Error while receiving message\n");
+            return EXIT_FAILURE;
+        }
+        printf("%s\n", received_msg);
+
         while (!feof(file))
         {
             char server_message[1024] = "up,";

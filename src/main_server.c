@@ -183,6 +183,9 @@ void processUpMessage(char *received_msg)
             sndmsg(message, user->attribuedPort);
             printf("ERROR: File already exists!\n");
             return;
+        } else {
+            char message[1024] = "Uploading started!";
+            sndmsg(message, user->attribuedPort);
         }
 
         // Open file
