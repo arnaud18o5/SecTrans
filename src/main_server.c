@@ -15,6 +15,7 @@
 #include <openssl/sha.h>
 #include <openssl/err.h>
 #include <openssl/aes.h>
+#include <openssl/rand.h>
 
 FILE *currentOpenedFile;
 char *clientPublicKey;
