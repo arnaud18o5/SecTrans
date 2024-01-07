@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
         // Log len of hash
-        printf("Hash len : %d\n", strlen((char*)hash));
+        printf("Hash len : %ld\n", strlen((char*)hash));
         if (EVP_SignUpdate(mdctx, hash, strlen((char*)hash)) != 1) {
             fprintf(stderr, "Error in EVP_SignUpdate.\n");
             return EXIT_FAILURE;
