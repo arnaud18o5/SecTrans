@@ -179,49 +179,50 @@ void processUpMessage(char *received_msg)
     }
 } 
 
-    typedef struct {
-        char username[30];
-        char password[30];
-        char role[20];
-    } User;
+typedef struct {
+    char username[30];
+    char password[30];
+    char role[20];
+} User;
 
-    User users[] = {
-        {"samuel", "pwd1", "Reader"},
-        {"arnaud", "pwd2", "Writer"},
-        {"alexis", "pwd3", "Admin"},
-        {"julian", "pwd4", "Admin"}
-    };
+User users[] = {
+    {"samuel", "pwd1", "Reader"},
+    {"arnaud", "pwd2", "Writer"},
+    {"alexis", "pwd3", "Admin"},
+    {"julian", "pwd4", "Admin"}
+};
 
-    User* authenticateUser(const User *users, const char *username, const char *password) {
-        for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
-            if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
-                return &(users[i]);
-            }
+User* authenticateUser(const User *users, const char *username, const char *password) {
+    for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
+        if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
+            return &(users[i]);
         }
-        return NULL;
     }
+    return NULL;
+}
 
-    int isWriter(User user) {
-        return (strcmp(user.role, "Writer") == 0 || strcmp(user.role, "Admin") == 0);
+int isWriter(User user) {
+    return (strcmp(user.role, "Writer") == 0 || strcmp(user.role, "Admin") == 0);
 
-    }
+}
 
-    int isReader(User user) {
-        return (strcmp(user.role, "Reader") == 0 || strcmp(user.role, "Admin") == 0);
-    }
+int isReader(User user) {
+    return (strcmp(user.role, "Reader") == 0 || strcmp(user.role, "Admin") == 0);
+}
 
 
-    int isAdmin(User user) {
-        return (strcmp(user.role, "Admin") == 0);
-    }
+int isAdmin(User user) {
+    return (strcmp(user.role, "Admin") == 0);
+}
 
-    char* getRole(const char *username, const char *password) {
+char* getRole(const char *username, const char *password) {
     for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
         if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
             return users[i].role;
         }
     }
     return NULL; 
+}
 
 
 void processListMessage() {
@@ -275,19 +276,19 @@ void processDownMessage(char *port, char *msg)
     // ...
 }
 
-    unsigned char* createSpecialToken(const char *username, const char *role) {
-        size_t tokenSize = strlen(username) + strlen(role) + 1;
+unsigned char* createSpecialToken(const char *username, const char *role) {
+    size_t tokenSize = strlen(username) + strlen(role) + 1;
 
-        char *specialToken = (char *)malloc(tokenSize);
-        if (specialToken == NULL) {
-            fprintf(stderr, "Error during allocation for the token\n");
-            return NULL;
-        }
-
-        snprintf(specialToken, tokenSize, "%s%s", username, role);
-
-        return specialToken;
+    char *specialToken = (char *)malloc(tokenSize);
+    if (specialToken == NULL) {
+        fprintf(stderr, "Error during allocation for the token\n");
+        return NULL;
     }
+
+    snprintf(specialToken, tokenSize, "%s%s", username, role);
+
+    return specialToken;
+}
 
 unsigned char* encryptToken(const unsigned char *token, size_t tokenSize, const unsigned char *key) {
     AES_KEY aesKey;
@@ -318,6 +319,30 @@ void decryptToken(const unsigned char *encryptedToken, size_t tokenSize, const u
     AES_decrypt(encryptedToken, decryptedToken, &aesKey);
 }
 
+void getLoginAndPassword(char message[], char login[], char password[]) {
+    char *token = strtok(received_msg, ",");
+    
+    if (token != NULL) {
+        strncpy(login, token, 19);
+        login[19] = '\0';
+    }
+    else {
+        fprintf(stderr, "Bad credentials\n");
+        break;
+    }
+
+    token = strtok(NULL, ",");
+
+    if (token != NULL) {
+        strncpy(password, token, 19);
+        password[19] = '\0'; 
+    }
+    else {
+        fprintf(stderr, "Bad credentials\n");
+        break;
+    }
+}
+
 int main()
 {
     int port = 12345; // Choisissez le port que vous souhaitez utiliser
@@ -328,30 +353,39 @@ int main()
         return EXIT_FAILURE;
     }
 
-    char received_msg[1024];
 
-    if (getmsg(received_msg) == -1)
-    {
-        fprintf(stderr, "Error while receiving message\n");
-        break;
-    }
+    while (1) {
+        char received_msg[100];
 
-    char clientUsername[30];
-    char clientPassword[30];
-    char clientRole[20];
+        if (getmsg(received_msg) == -1)
+        {
+            fprintf(stderr, "Error while receiving message\n");
+            break;
+        }
 
-    clientUsername = getmsg(received_msg);
-    clientPassword = getmsg(received_msg);
+        char clientUsername[30];
+        char clientPassword[30];
+        char clientRole[20];
 
+        getLoginAndPassword(received_msg, clientUsername, clientPassword);
+
+
+        // Give the token
         unsigned char key[32];
-    if (RAND_bytes(key, sizeof(key)) != 1) {
-        fprintf(stderr, "Error generating AES key\n");
-        return EXIT_FAILURE;
+        if (RAND_bytes(key, sizeof(key)) != 1) {
+            fprintf(stderr, "Error generating AES key\n");
+            return EXIT_FAILURE;
+        }
+
+        sndmsg(encryptToken
+                    (createSpecialToken(clientUsername, getRole(clientUsername, clientPassword))
+                    ,strlen(clientUsername) + strlen(getRole(clientUsername, clientPassword)),
+                    ,key
+                    )
+            ,12346);
     }
 
-    sndmsg(encryptToken(createSpecialToken(clientUsername, getRole(clientUsername, clientPassword))), 12346);
 
-    char decryptedToken[256];
 
     char received_msg[1024];
 
