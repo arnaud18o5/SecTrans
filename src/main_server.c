@@ -16,7 +16,7 @@
 FILE *currentOpenedFile;
 char *clientPublicKey;
 
-const char *CLIENT_PORT = "12346";
+const unsigned long *CLIENT_PORT = 12346;
 
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
     // Set file to beginning
@@ -184,9 +184,8 @@ void processUpMessage(char *received_msg)
 } 
 
 
-void processListMessage(char *port) {
+void processListMessage() {
     printf("Envoyer la liste de fichier au client\n");
-    int portClient = atoi(port);
     // Ouvrir le répertoire /upload
     DIR *dir;
     struct dirent *entry;
@@ -217,7 +216,7 @@ void processListMessage(char *port) {
         }
     }
 
-    sndmsg(res, portClient);
+    sndmsg(res, CLIENT_PORT);
 
     // Libérer la mémoire allouée pour la chaîne résultante
     free(res);
@@ -274,7 +273,7 @@ int main()
             }
             else if (strcmp(token, "list") == 0)
             {
-                processListMessage(CLIENT_PORT);
+                processListMessage();
             }
             else if (strcmp(token, "down") == 0)
             {
