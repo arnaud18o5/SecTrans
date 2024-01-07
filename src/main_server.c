@@ -372,7 +372,10 @@ int main()
                     continue;
                 }
 
-                sndmsg(base64_encode((createSpecialToken(clientUsername, user->role),strlen(clientUsername) + strlen(user->role),token)),12346);
+                unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role),strlen(clientUsername) + strlen(user->role),tokenKey);
+                char *base64Token = base64_encode(encryptedToken, strlen(encryptedToken));
+
+                sndmsg(base64Token,12346);
             }
 
             free(token); // Don't forget to free the memory when you're done
