@@ -1,11 +1,10 @@
 #include "./base64.h"
 
-#include <openssl/bio.h>
-#include <openssl/buffer.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
+#include <string.h>
+#include <openssl/bio.h>
+#include <openssl/buffer.h>
 
 
 // Function to decode Base64 to data
