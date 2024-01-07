@@ -284,14 +284,12 @@ void processListMessage(char *received_msg) {
             strcpy(metadateFullFilename, "upload/");
             strcat(metadateFullFilename, entry->d_name);
             FILE *metadataFile = fopen(metadateFullFilename, "r");
-            if (metadataFile == NULL) {
-                //log
-                printf("Error opening metadata file\n");
-                continue;
-            }
+            if (metadataFile == NULL) continue;
             char role[20];
             fscanf(metadataFile, "%s", role);
             fclose(metadataFile);
+            // Log role
+            printf("Role: %s\n", role);
 
             // Check if user has access to file
             if (strcmp(user->role, role) == 0) {
