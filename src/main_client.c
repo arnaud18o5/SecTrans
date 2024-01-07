@@ -250,23 +250,24 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
                 return EXIT_FAILURE;
             }
+            // Get the public key
+            char publicKey[1024];
+            // Read all the file content
+            char c;
+            int i = 0;
+            while ((c = fgetc(public_key_file)) != EOF)
+            {
+                publicKey[i] = c;
+                i++;
+            }
+            publicKey[i] = '\0';
+
+            printf("publicKey : %s\n", publicKey);
             for (int i = 0; i < num_packets; i++)
             {
                 char packet[packet_size + 1];
                 strncpy(packet, message + i * packet_size, packet_size);
                 packet[packet_size] = '\0'; // Null-terminate the packet
-
-                // Get the public key
-                char publicKey[1024];
-                // Read all the file content
-                char c;
-                int i = 0;
-                while ((c = fgetc(public_key_file)) != EOF)
-                {
-                    publicKey[i] = c;
-                    i++;
-                }
-                publicKey[i] = '\0';
 
                 char *encryptedPacket = encryptMessage(publicKey, packet);
                 // printf("encryptedPacket : %s\n", encryptedPacket);
