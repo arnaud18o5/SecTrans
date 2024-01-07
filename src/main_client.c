@@ -90,7 +90,7 @@ void reformatKey(char *str)
 // public_key : la clé publique RSA
 // encrypted_len : la longueur du message chiffré
 // Retourne le message chiffré
-unsigned char *encrypt_message(const unsigned char *message, int message_len, RSA *public_key, int *encrypted_len)
+/*unsigned char *encrypt_message(const unsigned char *message, int message_len, RSA *public_key, int *encrypted_len)
 {
     char *err;
     unsigned char *encrypted = (unsigned char *)malloc(RSA_size(public_key));
@@ -105,7 +105,7 @@ unsigned char *encrypt_message(const unsigned char *message, int message_len, RS
         return NULL;
     }
     return encrypted;
-}
+}*/
 
 int print_usage()
 {
@@ -275,12 +275,6 @@ int main(int argc, char *argv[])
                 char *rsa = "Hello les foufous";
                 char *encrypted_message = encrypt_message(received_msg, rsa);
 
-                // Afficher le message chiffré (en hexadécimal)
-                printf("Message chiffré (hex) : ");
-                for (int i = 0; i < rsa_len; i++)
-                {
-                    printf("%02x", encrypted_message[i]);
-                }
                 printf("envoie du message vers serveur : %s\n", encrypted_message);
                 sndmsg(encrypted_message, port);
 
