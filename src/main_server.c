@@ -282,8 +282,8 @@ void processUpMessage(char *received_msg)
                 packet[k] = received_msg[k + (j * 128)];
             }
 
-            printf("packet: %s\n", packet);
-            // decrypter packet
+            // printf("packet: %s\n", packet);
+            //  decrypter packet
             char *decryptedPacket = decryptMessage(privateKey, packet);
 
             printf("decryptedPacket: %s\n", decryptedPacket);
