@@ -242,7 +242,7 @@ int main()
                         token[length] = '\0'; // Ajouter le caractère nul à la fin
                         int portClient = atoi(token);
                         sndmsg(pub_key, portClient);
-
+                        printf("Clé publique envoyée au client\n");
                         if (startserver(port) == -1)
                         {
                             fprintf(stderr, "Failed to start the server\n");
