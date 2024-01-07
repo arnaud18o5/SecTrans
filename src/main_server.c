@@ -274,6 +274,7 @@ void processDownMessage(char *received_msg)
 
     // Get data
     char *token = strtok(received_msg, ",");
+    token = strtok(NULL, ",");
     char *filename = strtok(NULL, ",");
 
     // Get user
