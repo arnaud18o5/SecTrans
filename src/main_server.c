@@ -13,6 +13,7 @@
 #include <openssl/sha.h>
 
 FILE *currentOpenedFile;
+char *clientPublicKey;
 
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
     // Set file to beginning
@@ -95,8 +96,6 @@ void processUpMessage(char *received_msg)
     char *fileStart = "FILE_START";
     char *publicKey = "PUBLIC_KEY";
     char *fileEnd = "FILE_END";
-    
-    char *clientPublicKey;
 
     if (strstr(msg, fileStart) != NULL) {
         // Get filename
@@ -148,7 +147,6 @@ void processUpMessage(char *received_msg)
 
     // Check if header contains PUBLIC_KEY
     else if (strstr(msg, publicKey) != NULL) {
-        clientPublicKey = malloc(strlen(msg) + 1);
         // Get the public key after the comma
         clientPublicKey = strchr(msg, ',') + 1;
     }
