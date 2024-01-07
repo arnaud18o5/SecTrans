@@ -50,3 +50,52 @@ char *decryptMessage(char *pri_key, char *received_msg)
 
     return (char *)decrypted_message;
 }
+
+char *encryptMessage(char *pub_key, char *message)
+{
+    RSA *rsa = NULL;
+    // Charger la clé publique RSA depuis la chaîne PEM
+    BIO *bio = BIO_new_mem_buf(received_msg, -1);
+    if (bio == NULL)
+    {
+        perror("Erreur lors de la création du BIO");
+        exit(EXIT_FAILURE);
+    }
+
+    rsa = PEM_read_bio_RSAPublicKey(bio, NULL, NULL, NULL);
+    if (rsa == NULL)
+    {
+        // ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
+        perror("Erreur lors de la lecture de la clé publique");
+        BIO_free(bio);
+        exit(EXIT_FAILURE);
+    }
+
+    BIO_free(bio);
+
+    // Message à chiffrer
+    const char *message = "Hello, RSA!";
+    size_t message_len = strlen(message);
+
+    // Taille du bloc chiffré
+    int rsa_len = RSA_size(rsa);
+
+    // Buffers pour le message chiffré et le message original
+    unsigned char *encrypted_message = (unsigned char *)malloc(rsa_len);
+    if (encrypted_message == NULL)
+    {
+        perror("Erreur d'allocation de mémoire");
+        RSA_free(rsa);
+        exit(EXIT_FAILURE);
+    }
+
+    // Chiffrement RSA
+    int result = RSA_public_encrypt(message_len, (const unsigned char *)message, encrypted_message, rsa, RSA_PKCS1_PADDING);
+    if (result == -1)
+    {
+        perror("Erreur lors du chiffrement RSA");
+        free(encrypted_message);
+        RSA_free(rsa);
+        exit(EXIT_FAILURE);
+    }
+}
