@@ -88,18 +88,24 @@ int verifySignature(FILE *file, unsigned char *signature, size_t signature_len, 
 // Function to decode Base64 to data
 unsigned char *base64_decode(const char *buffer, size_t *length)
 {
+
     BIO *bio, *b64;
 
     int decodeLen = strlen(buffer);
     unsigned char *decode = (unsigned char *)malloc(decodeLen);
+
+    printf("here \n");
     memset(decode, 0, decodeLen);
+    printf("here \n");
 
     bio = BIO_new_mem_buf(buffer, -1);
+    printf("here \n");
     b64 = BIO_new(BIO_f_base64());
+    printf("here \n");
     bio = BIO_push(b64, bio);
-
+    printf("here \n");
     *length = BIO_read(bio, decode, decodeLen);
-
+    printf("here \n");
     BIO_free_all(bio);
 
     return decode;
