@@ -1,6 +1,7 @@
-#include "../include/client.h"
-#include "../include/server.h"
-#include "../include/hash.h"
+#include "client.h"
+#include "server.h"
+#include "hash.h"
+#include "base64.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,28 +72,6 @@ free_stuff:
     return (ret == 1) ? 0 : 1;
 }
 
-// Function to encode data to Base64
-char* base64_encode(const unsigned char* buffer, size_t length) {
-    BIO *bio, *b64;
-    BUF_MEM *bufferPtr;
-
-    b64 = BIO_new(BIO_f_base64());
-    bio = BIO_new(BIO_s_mem());
-    bio = BIO_push(b64, bio);
-
-    BIO_write(bio, buffer, length);
-    BIO_flush(bio);
-    BIO_get_mem_ptr(bio, &bufferPtr);
-    BIO_set_close(bio, BIO_NOCLOSE);
-    BIO_free_all(bio);
-
-    char* ret = (char*)malloc((bufferPtr->length + 1) * sizeof(char));
-    memcpy(ret, bufferPtr->data, bufferPtr->length);
-    ret[bufferPtr->length] = '\0';
-
-    return ret;
-}
-
 int print_usage()
 {
     fprintf(stderr, "Usage: ./client <option>\n");
@@ -136,7 +115,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
         return EXIT_FAILURE;
     }
-    
+
     free(password_hash_hexa);
 
     char token_msg[1024] = "";

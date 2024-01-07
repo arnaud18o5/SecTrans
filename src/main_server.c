@@ -1,7 +1,8 @@
 
 #include "server.h"
 #include "client.h"
-#include "../include/hash.h"
+#include "hash.h"
+#include "base64.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +21,7 @@
 FILE *currentOpenedFile;
 char *clientPublicKey;
 char *currentUploadFileName;
+unsigned char tokenKey[32];
 
 const int CLIENT_PORT = 12346;
 
@@ -77,25 +79,6 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
 
     return (ret == 1);
 }
-
-    // Function to decode Base64 to data
-    unsigned char* base64_decode(const char* buffer, size_t* length) {
-        BIO *bio, *b64;
-
-        int decodeLen = strlen(buffer);
-        unsigned char* decode = (unsigned char*)malloc(decodeLen);
-        memset(decode, 0, decodeLen);
-
-        bio = BIO_new_mem_buf(buffer, -1);
-        b64 = BIO_new(BIO_f_base64());
-        bio = BIO_push(b64, bio);
-
-        *length = BIO_read(bio, decode, decodeLen);
-
-        BIO_free_all(bio);
-
-        return decode;
-    }
 
 void processUpMessage(char *received_msg)
 {
@@ -203,20 +186,6 @@ const User* authenticateUser(const char *username, const char *password) {
     return NULL;
 }
 
-int isWriter(User user) {
-    return (strcmp(user.role, "Writer") == 0 || strcmp(user.role, "Admin") == 0);
-
-}
-
-int isReader(User user) {
-    return (strcmp(user.role, "Reader") == 0 || strcmp(user.role, "Admin") == 0);
-}
-
-
-int isAdmin(User user) {
-    return (strcmp(user.role, "Admin") == 0);
-}
-
 
 void processListMessage() {
     // Ouvrir le répertoire /upload
@@ -270,16 +239,16 @@ void processDownMessage(char *port, char *msg)
 }
 
 char* createSpecialToken(const char *username, const char *role) {
-    size_t tokenSize = strlen(username) + strlen(role) + 1;
-    printf("Token size: %ld\n", tokenSize);
+    size_t tokenSize = strlen(username) + strlen(role) + 2;
+
     char *specialToken = (char *)malloc(tokenSize);
     if (specialToken == NULL) {
         fprintf(stderr, "Error during allocation for the token\n");
         return NULL;
     }
 
-    snprintf(specialToken, tokenSize, "%s%s", username, role);
-    printf("Special token: %s\n", specialToken);
+    snprintf(specialToken, tokenSize, "%s,%s", username, role);
+
     return specialToken;
 }
 
@@ -341,6 +310,12 @@ int main()
 {
     int port = 12345; // Choisissez le port que vous souhaitez utiliser
 
+    // Generate the key for the token
+    if (RAND_bytes(tokenKey, sizeof(tokenKey)) != 1) {
+        fprintf(stderr, "Error generating AES key\n");
+        return EXIT_FAILURE;
+    }
+
     if (startserver(port) == -1)
     {
         fprintf(stderr, "Failed to start the server\n");
@@ -397,14 +372,7 @@ int main()
                     continue;
                 }
 
-                // Give the token
-                unsigned char key[32];
-                if (RAND_bytes(key, sizeof(key)) != 1) {
-                    fprintf(stderr, "Error generating AES key\n");
-                    return EXIT_FAILURE;
-                }
-
-                sndmsg(encryptToken(createSpecialToken(clientUsername, user->role),strlen(clientUsername) + strlen(user->role),key),12346);
+                sndmsg(encryptToken(createSpecialToken(clientUsername, user->role),strlen(clientUsername) + strlen(user->role),token),12346);
             }
 
             free(token); // Don't forget to free the memory when you're done
