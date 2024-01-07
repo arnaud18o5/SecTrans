@@ -290,9 +290,9 @@ int main(int argc, char *argv[])
             char *encoded_message = base64_encode(server_message, num_read);
             printf("encoded_message : %s\n", encoded_message);
             printf("size encoded_message : %d\n", strlen(encoded_message));
-            free(encoded_message);
 
             long long result = sndmsg(encoded_message, port);
+            free(encoded_message);
             if (result != 0)
             {
                 fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
