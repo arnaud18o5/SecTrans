@@ -23,7 +23,7 @@ char *clientPublicKey;
 char *currentUploadFileName;
 unsigned char tokenKey[32];
 
-const int CLIENT_PORT = 12346;
+const int DEFAULT_CLIENT_PORT = 12346;
 int lastAttribuedClientPort = 12347;
 
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
@@ -129,7 +129,7 @@ void processUpMessage(char *received_msg)
             char message[1024] = "File uploaded successfully!";
             fclose(currentOpenedFile);
             // Notify client that file was uploaded successfully
-            sndmsg(message, CLIENT_PORT);
+            sndmsg(message, DEFAULT_CLIENT_PORT);
             printf("File uploaded successfully!\n");
         } else {
             char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
@@ -137,7 +137,7 @@ void processUpMessage(char *received_msg)
             fclose(currentOpenedFile);
             unlink(currentUploadFileName);
             // Notify client that file couldn't be uploaded
-            sndmsg(message, CLIENT_PORT);
+            sndmsg(message, DEFAULT_CLIENT_PORT);
             printf("ERROR: Invalid signature, the file is deleted!\n");
         }
 
@@ -225,9 +225,7 @@ User* getUserFromToken(const char *token) {
 void processListMessage(char *received_msg) {
     // Get token after the first comma
     char *token = strchr(received_msg, ',') + 1;
-    printf("Token: %s\n", token);
-    const User *user = getUserFromToken(token);
-    printf("User: %s\n", user->username);
+    User *user = getUserFromToken(token);
 
     // Ouvrir le répertoire /upload
     DIR *dir;
@@ -257,7 +255,7 @@ void processListMessage(char *received_msg) {
         }
     }
 
-    sndmsg(res, CLIENT_PORT);
+    sndmsg(res, user->attribuedPort);
 
     // Libérer la mémoire allouée pour la chaîne résultante
     free(res);
@@ -399,7 +397,7 @@ int main()
                 // Authenticate user
                 User *user = authenticateUser(clientUsername, clientPassword);
                 if (user == NULL) {
-                    sndmsg("error,Bad credentials", CLIENT_PORT);
+                    sndmsg("error,Bad credentials", DEFAULT_CLIENT_PORT);
                     fprintf(stderr, "Error when authenticating: bad credentials\n");
                     continue;
                 }
