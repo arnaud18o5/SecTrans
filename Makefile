@@ -11,10 +11,13 @@ base_encoding.o: include/base_encoding.c
 hash.o: include/hash.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o hash.o $< $(LDLIBS)
 
-signature.o: include/signature.c hash.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -c -o signature.o $^ $(LDLIBS)
+signature.o: include/signature.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o signature.o $< $(LDLIBS)
 
-server: src/main_server.c hash.o base_encoding.o signature.o
+user.o: include/user.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o user.o $< $(LDLIBS)
+
+server: src/main_server.c hash.o base_encoding.o signature.o user.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
 client: src/main_client.c hash.o base_encoding.o

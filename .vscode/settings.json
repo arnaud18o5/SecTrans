@@ -64,6 +64,7 @@
     "__node_handle": "c",
     "server.h": "c",
     "base_encoding.h": "c",
-    "stddef.h": "c"
+    "stddef.h": "c",
+    "signature.h": "c"
   }
 }
