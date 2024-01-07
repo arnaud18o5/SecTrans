@@ -55,11 +55,12 @@ char *decryptMessage(char *pri_key, char *message)
 
     return (char *)decrypted_message;
 }
-char *encryptMessage(RSA *rsa, char *message)
+
+char *encryptMessage(char *pub_key, char *message)
 {
 
     // Charger la clé publique RSA depuis la chaîne PEM
-    /*BIO *bio = BIO_new_mem_buf(pub_key, -1);
+    BIO *bio = BIO_new_mem_buf(pub_key, -1);
     if (bio == NULL)
     {
         perror("Erreur lors de la création du BIO");
@@ -75,7 +76,7 @@ char *encryptMessage(RSA *rsa, char *message)
         exit(EXIT_FAILURE);
     }
 
-    BIO_free(bio);*/
+    BIO_free(bio);
 
     size_t message_len = strlen(message);
 

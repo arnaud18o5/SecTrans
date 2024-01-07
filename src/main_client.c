@@ -257,18 +257,17 @@ int main(int argc, char *argv[])
                     return EXIT_FAILURE;
                 }
 
-                // print public key as char*
-                char *public_key_str = malloc(1024);
-                fgets(public_key_str, 1024, public_key_file);
-                printf("public_key_str : %s\n", public_key_str);
-
-                // Read the public key
-                RSA *public_key = RSA_new();
-                if (PEM_read_RSA_PUBKEY(public_key_file, &public_key, NULL, NULL) == NULL)
+                // Get the public key
+                char publicKey[1024];
+                // Read all the file content
+                char c;
+                int i = 0;
+                while ((c = fgetc(public_key_file)) != EOF)
                 {
-                    fprintf(stderr, "Erreur lors de la lecture de la clé publique\n");
-                    return EXIT_FAILURE;
+                    publicKey[i] = c;
+                    i++;
                 }
+                publicKey[i] = '\0';
 
                 char *encryptedPacket = encryptMessage(public_key, packet);
                 printf("encryptedPacket : %s\n", encryptedPacket);
