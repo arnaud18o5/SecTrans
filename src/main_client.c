@@ -158,6 +158,10 @@ int main(int argc, char *argv[])
             strcat(server_message, encoded_message);
             free(encoded_message);
 
+            // Send the message to the server
+            // print the message
+            printf("Message envoyé au serveur : %s\n", server_message);
+
             long long result = sndmsg(server_message, port);
             if (result != 0)
             {
