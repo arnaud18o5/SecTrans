@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
             unsigned char encrypted_message[max_retreive_size];
             // Split the message into packets of 128
             int packet_size = 128 - 11;
-            int num_packets = (num_read + packet_size - 1) / packet_size;
+            int num_packets = (num_read) / packet_size;
             // Open the public key file
             FILE *public_key_file = fopen("server_public_key.pem", "r");
             if (public_key_file == NULL)
