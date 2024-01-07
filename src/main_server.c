@@ -219,6 +219,7 @@ int isAdmin(User user) {
 
 char* getRole(const char *username, const char *password) {
     for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
+        printf("Username: %s\n", users[i].username);
         if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
             return users[i].role;
         }
