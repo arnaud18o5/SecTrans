@@ -89,7 +89,6 @@ void processUpMessage(char *received_msg)
     // Get token after the first comma
     strtok(received_msg_copy, ",");
     char *token = strtok(NULL, ",");
-    free(received_msg_copy);
     // Log token
     printf("Token: %s\n", token);
 
@@ -176,6 +175,8 @@ void processUpMessage(char *received_msg)
         fwrite(decodedMessage, 1, decodedLength, currentOpenedFile);
         free(decodedMessage);
     }
+
+    free(received_msg_copy);
 } 
 
 typedef struct {
