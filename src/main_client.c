@@ -210,11 +210,16 @@ int main(int argc, char *argv[])
         // LOg the file size
         printf("\nFile size: %lld\n", file_size);
         // Log the first 10 bytes of the file
+        // Log the first 10 bytes
         fseek(file, 0, SEEK_SET);
-        char first_bytes[10];
-        fread(first_bytes, 1, 10, file);
-        printf("First 10 bytes: %s", first_bytes);
+        unsigned char testtest[10];
+        fread(testtest, 1, 10, file);
+        for (int i = 0; i < 10; i++) {
+            printf("%02x", testtest[i]);
+        }
+        printf("\n");
         fseek(file, 0, SEEK_SET);
+
         // sign the hash with private key
         EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
         if(!mdctx) {

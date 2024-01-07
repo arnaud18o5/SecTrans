@@ -34,9 +34,12 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
     printf("\nFile size: %ld\n", fileSize);
     // Log the first 10 bytes
     fseek(file, 0, SEEK_SET);
-    char testtest[10];
+    unsigned char testtest[10];
     fread(testtest, 1, 10, file);
-    printf("First 10 bytes: %s", testtest);
+    for (int i = 0; i < 10; i++) {
+        printf("%02x", testtest[i]);
+    }
+    printf("\n");
     fseek(file, 0, SEEK_SET);
 
     EVP_PKEY* evp_key = NULL;
