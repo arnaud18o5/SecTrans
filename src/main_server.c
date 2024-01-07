@@ -107,7 +107,7 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
     *length = BIO_read(bio, decode, decodeLen);
     printf("here \n");
     BIO_free_all(bio);
-
+    printf("here \n");
     return decode;
 }
 
@@ -417,7 +417,7 @@ int main()
         printf("Received message: %s\n", received_msg);
 
         size_t decodedLength;
-        unsigned char decoded = base64_decode(received_msg, &decodedLength);
+        unsigned char *decoded = base64_decode(received_msg, &decodedLength);
         printf("Decoded message: %s\n", decoded);
 
         char *commaPos = strchr(received_msg, ',');
