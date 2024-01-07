@@ -33,7 +33,7 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
     return decode;
 }
 
-char *decryptMessage(char *pri_key, char *received_msg)
+/*char *decryptMessage(char *pri_key, char *received_msg)
 {
     RSA *rsa = NULL;
 
@@ -75,7 +75,7 @@ char *decryptMessage(char *pri_key, char *received_msg)
     RSA_free(rsa);
 
     return (char *)decrypted_message;
-}
+}*/
 
 void processUpMessage(char *received_msg)
 {
