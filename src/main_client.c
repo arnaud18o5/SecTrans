@@ -272,15 +272,13 @@ int main(int argc, char *argv[])
                 char *encryptedPacket = encryptMessage(publicKey, packet);
                 printf("encryptedPacket : %s\n", encryptedPacket);
 
-                // Encrypt the packet
+                // add encrypted packet to encrypted message
                 strcat(encrypted_message, encryptedPacket);
-                // Encode the packet to base64
-                /*char *encoded_packet = base64_encode(packet, strlen(packet));
-                strcat(server_message, encoded_packet);
-                free(encoded_packet);*/
 
                 printf("size packet : %d\n", strlen(packet));
             }
+
+            printf("encrypted_message : %s\n", encrypted_message);
 
             // Encode the message to base64
             char *encoded_message = base64_encode(encrypted_message, num_read);
