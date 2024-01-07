@@ -80,8 +80,6 @@ User* getUserFromToken(const char *token) {
             return &(users[i]);
         }
     }
-
-    return NULL;
 }
 
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
@@ -150,6 +148,7 @@ void processUpMessage(char *received_msg)
 
     // Get user
     User *user = getUserFromToken(token);
+    if (user == NULL) return;
 
     // Get the message after the 2 commas
     char *msg = strchr(received_msg, ',') + 1;
@@ -170,13 +169,21 @@ void processUpMessage(char *received_msg)
             filename = filenameWithoutPath + 1;
         }
 
-        // Create file in the directory upload
+        // Create full filename
         char *uploadDir = "upload/";
         char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
         strcpy(fullFilename, uploadDir);
         strcat(fullFilename, filename);
         printf("Uploading file: %s\n", fullFilename);
         currentUploadFileName = fullFilename;
+
+        // Check if file exists, if so send error
+        if (access(fullFilename, F_OK) != -1) {
+            char message[1024] = "File already exists, please choose another name!";
+            sndmsg(message, user->attribuedPort);
+            printf("ERROR: File already exists!\n");
+            return;
+        }
 
         // Open file
         currentOpenedFile = fopen(fullFilename, "w+");
@@ -240,6 +247,7 @@ void processListMessage(char *received_msg) {
     // Get token after the first comma
     char *token = strchr(received_msg, ',') + 1;
     User *user = getUserFromToken(token);
+    if (user == NULL) return;
 
     // Ouvrir le répertoire /upload
     DIR *dir;
@@ -292,6 +300,7 @@ void processDownMessage(char *received_msg)
 
     // Get user
     User *user = getUserFromToken(token);
+    if (user == NULL) return;
 
     char msg[1024];
     snprintf(msg, 1024, "FILE_START,%s", filename);
