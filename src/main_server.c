@@ -24,6 +24,9 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
         return 0;
     }
 
+    // Log publicKey
+    printf("publicKey: %s\n", publicKey);
+
     EVP_PKEY* evp_key = NULL;
     BIO* bio = BIO_new_mem_buf(publicKey, -1);
     PEM_read_bio_PUBKEY(bio, &evp_key, NULL, NULL);
