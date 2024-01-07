@@ -273,9 +273,6 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[1], "-list") == 0 && argc == 2)
     {
         // Exemple d'utilisation : ./client -list
-        // Ajoutez le code nécessaire pour demander la liste des fichiers au serveur
-        // ...
-        printf("Liste des fichiers stockés sur le serveur :\n");
         char server_message[1024] = "list,";
         char portStr[10];                   // Crée une chaîne pour stocker la représentation en chaîne de l'entier
         sprintf(portStr, "%d", portClient); // Convertit l'entier en chaîne de caractères

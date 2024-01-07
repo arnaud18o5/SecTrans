@@ -180,7 +180,6 @@ void processUpMessage(char *received_msg)
 
 
 void processListMessage() {
-    printf("Envoyer la liste de fichier au client\n");
     // Ouvrir le répertoire /upload
     DIR *dir;
     struct dirent *entry;
