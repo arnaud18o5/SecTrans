@@ -57,6 +57,8 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
 
     // Calculate hash of file
     unsigned char* file_hash = calculate_hash(file);
+    // Modify one byte of the hash to check if verification fails
+    file_hash[0] = 0x00;
     // Log hash
     printf("Hash: ");
     for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
