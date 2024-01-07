@@ -243,11 +243,11 @@ int main()
                         int portClient = atoi(token);
                         sndmsg(pub_key, portClient);
                         printf("Clé publique envoyée au client\n");
-                        if (startserver(port) == -1)
+                        /*if (startserver(port) == -1)
                         {
                             fprintf(stderr, "Failed to start the server\n");
                             return EXIT_FAILURE;
-                        }
+                        }*/
 
                         char msg_to_decrypt[1024];
 
