@@ -38,3 +38,19 @@ unsigned char* calculate_hash(FILE* file) {
 
     return buffer;
 }
+
+unsigned char* calculate_hash_from_string(char* string) {
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    unsigned char* buffer = malloc(SHA256_DIGEST_LENGTH * sizeof(unsigned char));
+    if (!buffer) return NULL;
+
+    SHA256_Update(&sha256, string, strlen(string));
+
+    SHA256_Final(hash, &sha256);
+
+    memcpy(buffer, hash, SHA256_DIGEST_LENGTH);
+
+    return buffer;
+}

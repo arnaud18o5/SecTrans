@@ -186,10 +186,10 @@ typedef struct {
 } User;
 
 User users[] = {
-    {"samuel", "pwd1", "Reader"},
-    {"arnaud", "pwd2", "Writer"},
-    {"alexis", "pwd3", "Admin"},
-    {"julian", "pwd4", "Admin"}
+    {"samuel", "pwd1", "Reader"}, // pwd1
+    {"arnaud", "pwd2", "Writer"}, // pwd2
+    {"alexis", "pwd3", "Admin"}, // pwd3
+    {"julian", "pwd4", "Admin"} // pwd4
 };
 
 User* authenticateUser(const User *users, const char *username, const char *password) {
@@ -346,6 +346,19 @@ void getLoginAndPassword(char message[], char login[], char password[]) {
 int main()
 {
     int port = 12345; // Choisissez le port que vous souhaitez utiliser
+
+    // Log every password hashed
+    for (int i = 0; i < sizeof(users) / sizeof(User); i++) {
+        unsigned char* hash = calculate_hash_from_string(users[i].password);
+        printf("Hash for password %s: ", users[i].password);
+        // Log the hash in the hexadecmal format to then copy paste it in the users array
+        for (int j = 0; j < SHA256_DIGEST_LENGTH; j++) {
+            printf("%02x", hash[j]);
+        }
+
+        printf("\n");
+        free(hash);
+    }
 
     if (startserver(port) == -1)
     {

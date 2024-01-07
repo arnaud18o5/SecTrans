@@ -5,4 +5,6 @@
 
 unsigned char* calculate_hash(FILE* file);
 
+unsigned char* calculate_hash_from_string(char* string);
+
 #endif // HASH_H
