@@ -151,7 +151,7 @@ unsigned char *base64_decode(const char *buffer, size_t *length)
 void processUpMessage(char *received_msg)
 {
 
-    printf("received_msg: %s\n", received_msg);
+    // printf("received_msg: %s\n", received_msg);
 
     // printf("decryptedSignature: %s\n", decryptedSignature);
     //  Move the pointer to the first character after the comma
