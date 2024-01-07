@@ -127,8 +127,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error while receiving AES token message\n");
         return EXIT_FAILURE;
     }
-    
-    processUpMessage(received_msg);
+
+    // Log received message
+    printf("Message reçu du serveur : %s\n", received_msg);
 
     // TODO passer ici à < 3 pour que l'on puisse insérer le token par la suite
     // plus modiifer juste
