@@ -394,7 +394,7 @@ int main()
                             return EXIT_FAILURE;
                         }*/
 
-                        char msg_to_decrypt[1024];
+                        /*char msg_to_decrypt[1024];
 
                         int msg_received = 0;
                         printf("En attente de message du client...\n");
@@ -413,7 +413,7 @@ int main()
                             char *decryptedMessage = decryptMessage(pri_key, msg_to_decrypt);
                             printf("Message déchiffré : %s\n", decryptedMessage);
                             msg_received = 1;
-                        }
+                        }*/
                     }
 
                     free(token); // Don't forget to free the memory when you're done
