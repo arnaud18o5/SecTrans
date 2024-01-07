@@ -195,6 +195,53 @@ void processUpMessage(char *received_msg)
     else if (strstr(msg, fileEnd) != NULL)
     {
 
+                // Get the signature after the comma
+        char *signature = strchr(msg, ',') + 1;
+
+        // Decode signature
+        size_t decodedLength;
+        unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
+
+        printf("decoded signature: %s\n", decodedSignature);
+
+        // Verify signature
+        if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey))
+        {
+            char message[1024] = "File uploaded successfully!";
+            fclose(currentOpenedFile);
+            // Notify client that file was uploaded successfully
+            sndmsg(message, CLIENT_PORT);
+            printf("File uploaded successfully!\n");
+        }
+        else
+        {
+            char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
+            // Close file and delete it
+            fclose(currentOpenedFile);
+            unlink(currentUploadFileName);
+            // Notify client that file couldn't be uploaded
+            sndmsg(message, CLIENT_PORT);
+            printf("ERROR: Invalid signature, the file is deleted!\n");
+        }
+
+        // Free memory
+        free(decodedSignature);
+        free(clientPublicKey);
+        free(currentUploadFileName);
+    }
+
+    // Check if header contains PUBLIC_KEY
+    else if (strstr(msg, publicKey) != NULL)
+    {
+        // Get the public key after the comma and copy it in new memory location
+        char *publicKey = strchr(msg, ',') + 1;
+        clientPublicKey = malloc(strlen(publicKey) + 1);
+        strncpy(clientPublicKey, publicKey, strlen(publicKey) + 1);
+    }
+
+    // Write to file
+    else
+    {
         // Remove "up," at the beginning of msg
         memmove(msg, msg + 3, strlen(msg));
         // decoupe decodedSignature tous les 128 char
@@ -243,58 +290,6 @@ void processUpMessage(char *received_msg)
             // concat decryptedPacket dans decryptedSignature
             strcat(decryptedSignature, decryptedPacket);
         }
-        // Get the signature after the comma
-        char *signature = strchr(msg, ',') + 1;
-
-        // Decode signature
-        size_t decodedLength;
-        unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
-
-        printf("decoded signature: %s\n", decodedSignature);
-
-        // Verify signature
-        if (verifySignature(currentOpenedFile, decodedSignature, decodedLength, clientPublicKey))
-        {
-            char message[1024] = "File uploaded successfully!";
-            fclose(currentOpenedFile);
-            // Notify client that file was uploaded successfully
-            sndmsg(message, CLIENT_PORT);
-            printf("File uploaded successfully!\n");
-        }
-        else
-        {
-            char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
-            // Close file and delete it
-            fclose(currentOpenedFile);
-            unlink(currentUploadFileName);
-            // Notify client that file couldn't be uploaded
-            sndmsg(message, CLIENT_PORT);
-            printf("ERROR: Invalid signature, the file is deleted!\n");
-        }
-
-        // Free memory
-        free(decodedSignature);
-        free(clientPublicKey);
-        free(currentUploadFileName);
-    }
-
-    // Check if header contains PUBLIC_KEY
-    else if (strstr(msg, publicKey) != NULL)
-    {
-        // Get the public key after the comma and copy it in new memory location
-        char *publicKey = strchr(msg, ',') + 1;
-        clientPublicKey = malloc(strlen(publicKey) + 1);
-        strncpy(clientPublicKey, publicKey, strlen(publicKey) + 1);
-    }
-
-    // Write to file
-    else
-    {
-        // Decode and write to file
-        size_t decodedLength;
-        unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
-        fwrite(decodedMessage, 1, decodedLength, currentOpenedFile);
-        free(decodedMessage);
     }
 }
 
