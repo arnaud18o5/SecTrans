@@ -250,15 +250,13 @@ int main()
 
                             BIO_free(bio_priv);
 
-                            // Message chiffré (remplacez ceci par votre message chiffré obtenu lors du chiffrement)
-                            unsigned char encrypted_message[256] = {/* Remplacez avec votre message chiffré */};
                             int rsa_len = RSA_size(rsa);
 
                             // Buffer pour le message déchiffré
                             unsigned char decrypted_message[rsa_len];
 
                             // Déchiffrement RSA
-                            int result = RSA_private_decrypt(rsa_len, encrypted_message, decrypted_message, rsa, RSA_PKCS1_PADDING);
+                            int result = RSA_private_decrypt(rsa_len, received_msg, decrypted_message, rsa, RSA_PKCS1_PADDING);
                             if (result == -1)
                             {
                                 ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
