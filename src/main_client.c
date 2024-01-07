@@ -24,7 +24,7 @@
 const int SERVER_PORT = 12345;
 const int DEFAULT_CLIENT_PORT = 12346;
 
-const char *token;
+char *token;
 int attribuedPort;
 
 int generate_rsa_keypair() {
