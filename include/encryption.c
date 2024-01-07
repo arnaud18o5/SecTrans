@@ -58,6 +58,7 @@ char *decryptMessage(char *pri_key, char *message)
 
 char *encryptMessage(char *pub_key, char *message)
 {
+    RSA *rsa = NULL;
 
     // Charger la clé publique RSA depuis la chaîne PEM
     BIO *bio = BIO_new_mem_buf(pub_key, -1);
