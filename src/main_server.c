@@ -410,6 +410,9 @@ int main()
 
         printf("Received message: %s\n", received_msg);
 
+        unsigned char decoded = base64_decode(received_msg, strlen(received_msg));
+        printf("Decoded message: %s\n", decoded);
+
         char *commaPos = strchr(received_msg, ',');
         if (commaPos != NULL)
         {
