@@ -408,6 +408,8 @@ int main()
             break;
         }
 
+        printf("Received message: %s\n", received_msg);
+
         char *commaPos = strchr(received_msg, ',');
         if (commaPos != NULL)
         {
