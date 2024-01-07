@@ -190,7 +190,7 @@ unsigned char *decryptToken(const unsigned char *encryptedToken, size_t tokenSiz
     AES_KEY aesKey;
     AES_set_decrypt_key(key, 256, &aesKey);
 
-    unsigned char decryptedToken = (unsigned char *)malloc(tokenSize);
+    unsigned char *decryptedToken = (unsigned char *)malloc(tokenSize);
     memset(decryptedToken, 0, sizeof(decryptedToken));
 
     AES_decrypt(encryptedToken, decryptedToken, &aesKey);
