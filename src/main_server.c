@@ -278,7 +278,7 @@ void processDownMessage(char *port, char *msg)
     // ...
 }
 
-unsigned char* createSpecialToken(const char *username, const char *role) {
+char* createSpecialToken(const char *username, const char *role) {
     size_t tokenSize = strlen(username) + strlen(role) + 1;
 
     char *specialToken = (char *)malloc(tokenSize);
@@ -288,7 +288,7 @@ unsigned char* createSpecialToken(const char *username, const char *role) {
     }
 
     snprintf(specialToken, tokenSize, "%s%s", username, role);
-
+    printf("Special token: %s\n", specialToken);
     return specialToken;
 }
 
@@ -399,21 +399,12 @@ int main()
 
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
 
-                printf("debug 1\n");
                 // Give the token
                 unsigned char key[32];
                 if (RAND_bytes(key, sizeof(key)) != 1) {
                     fprintf(stderr, "Error generating AES key\n");
                     return EXIT_FAILURE;
                 }
-                printf("debug 2\n");
-
-                // Print key
-                printf("Key: ");
-                for (int i = 0; i < sizeof(key); i++) {
-                    printf("%02x", key[i]);
-                }
-                printf("\n");
 
                 sndmsg(encryptToken(createSpecialToken(clientUsername, getRole(clientUsername, clientPassword)),strlen(clientUsername) + strlen(getRole(clientUsername, clientPassword)),key),12346);
             }
