@@ -192,9 +192,12 @@ void processListMessage(char *received_msg) {
             }
         }
     }
-    // Log res size
-    printf("res size: %ld\n", strlen(res));
-    sndmsg(res, user->attribuedPort);
+    // If res size is 0, no file was found
+    if (strlen(res) == 0) {
+        sndmsg("No file found!", user->attribuedPort);
+    } else {
+        sndmsg(res, user->attribuedPort);
+    }
 
     // Libérer la mémoire allouée pour la chaîne résultante
     free(res);
