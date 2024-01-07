@@ -280,7 +280,10 @@ void processListMessage(char *received_msg) {
         // Get only file finished by .meta
         if (strstr(entry->d_name, ".meta") != NULL) {
             // Open file and read first line
-            FILE *metadataFile = fopen(entry->d_name, "r");
+            char *metadateFullFilename = malloc(strlen(entry->d_name) + 8);
+            strcpy(metadateFullFilename, "upload/");
+            strcat(metadateFullFilename, entry->d_name);
+            FILE *metadataFile = fopen(metadateFullFilename, "r");
             if (metadataFile == NULL) {
                 //log
                 printf("Error opening metadata file\n");
