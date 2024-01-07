@@ -253,9 +253,8 @@ int main(int argc, char *argv[])
         sprintf(portStr, "%d,", portClient); // Convertit l'entier en chaîne de caractères
         strcat(server_message, portStr);
         sndmsg(server_message, port);
-        login, 13442, username, password
 
-            if (startserver(portClient) == -1)
+        if (startserver(portClient) == -1)
         {
             fprintf(stderr, "Failed to start the server client\n");
             return EXIT_FAILURE;
