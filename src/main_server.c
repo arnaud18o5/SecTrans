@@ -277,18 +277,16 @@ void processListMessage(char *received_msg) {
 
     // Parcourir les fichiers du répertoire
     while ((entry = readdir(dir)) != NULL) {
-        // Log filename
-        printf("Filename: %s\n", entry->d_name);
         // Get only file finished by .meta
         if (strstr(entry->d_name, ".meta") != NULL) {
+            // log filename
+            printf("Filename: %s\n", entry->d_name);
             // Open file and read first line
             FILE *metadataFile = fopen(entry->d_name, "r");
             if (metadataFile == NULL) continue;
             char role[20];
             fscanf(metadataFile, "%s", role);
             fclose(metadataFile);
-            // log filename
-            printf("Filename: %s\n", entry->d_name);
 
             // Check if user has access to file
             if (strcmp(user->role, role) == 0) {
