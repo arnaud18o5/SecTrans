@@ -31,7 +31,7 @@ unsigned char* base64_decode(const char* buffer, size_t* length) {
 char* base64_encode(const unsigned char* buffer, size_t length) {
     BIO *bio, *b64;
     BUF_MEM *bufferPtr;
-    printf("Length: %d\n", length);
+    printf("Length: %ld\n", length);
     b64 = BIO_new(BIO_f_base64());
     bio = BIO_new(BIO_s_mem());
     bio = BIO_push(b64, bio);
