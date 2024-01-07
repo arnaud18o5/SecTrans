@@ -154,7 +154,7 @@ void processUpMessage(char *received_msg)
 
     printf("received_msg: %s\n", received_msg);
     // decoupe decodedSignature tous les 128 char
-    int nbBlocks = strlen(received_msg) * sizeog / 128;
+    int nbBlocks = strlen(received_msg) * sizeof / 128;
 
     FILE *privateKeyFile = fopen("private.pem", "r");
     if (privateKeyFile == NULL)
