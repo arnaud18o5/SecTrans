@@ -194,7 +194,7 @@ void processUpMessage(char *received_msg)
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         }
 
-        // Create metadata file with owner in first line and role in second line
+        // Create metadata file with role in first line and owner in second line
         char *metadataFilename = malloc(strlen(fullFilename) + 5);
         strcpy(metadataFilename, fullFilename);
         strcat(metadataFilename, ".meta");
@@ -202,7 +202,7 @@ void processUpMessage(char *received_msg)
         if (metadataFile == NULL) {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         }
-        fprintf(metadataFile, "%s\n%s", user->username, user->role);
+        fprintf(metadataFile, "%s\n%s", user->role, user->username);
         fclose(metadataFile);
     }
     // Check if header contains FILE_END
