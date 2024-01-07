@@ -479,7 +479,8 @@ int main(int argc, char *argv[])
         char portStr[10];                    // Crée une chaîne pour stocker la représentation en chaîne de l'entier
         sprintf(portStr, "%d,", portClient); // Convertit l'entier en chaîne de caractères
         strcat(server_message, portStr);
-        sndmsg(server_message, port);
+        char *base64_server_message = base64_encode(server_message, strlen(server_message));
+        sndmsg(base64_server_message, port);
 
         if (startserver(portClient) == -1)
         {
