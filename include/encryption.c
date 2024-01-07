@@ -41,7 +41,7 @@ char *decryptMessage(char *pri_key, char *message)
         exit(EXIT_FAILURE);
     }
     // Déchiffrement RSA
-    int result = RSA_private_decrypt(rsa_len, (const unsigned char *)message, decrypted_message, rsa, RSA_PKCS1_OAEP_PADDING);
+    int result = RSA_private_decrypt(rsa_len, (const unsigned char *)message, decrypted_message, rsa, RSA_PKCS1_PADDING);
     if (result == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
@@ -96,7 +96,7 @@ char *encryptMessage(char *pub_key, char *message)
     while (strlen(encrypted_message) < 128)
     {
         // Chiffrement RSA
-        int result = RSA_public_encrypt(message_len, (const unsigned char *)message, encrypted_message, rsa, RSA_PKCS1_OAEP_PADDING);
+        int result = RSA_public_encrypt(message_len, (const unsigned char *)message, encrypted_message, rsa, RSA_PKCS1_PADDING);
         if (result == -1)
         {
             ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
