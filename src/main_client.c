@@ -390,6 +390,13 @@ int main(int argc, char *argv[])
             }
             if (strcmp(received_msg, ""))
             {
+                // Check if message contains error
+                if (strstr(received_msg, "error") != NULL) {
+                    // Get message after comma
+                    char* error_msg = strchr(received_msg, ',') + 1;
+                    printf("%s\n", error_msg);
+                    break;
+                }
                 printf("Message reçu du serveur : %s\n", received_msg);
                 messageReceived = 1;
             }

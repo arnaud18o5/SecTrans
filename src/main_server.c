@@ -356,7 +356,7 @@ void processDownMessage(char *received_msg)
         return;
     }
 
-    // HERE DOWNLOAD
+    // HERE DOWNLOAD (check if file exists, if not send message)
 
     sndmsg(msg, user->attribuedPort);
     // Ajoutez le code nécessaire pour envoyer le contenu du fichier au client
