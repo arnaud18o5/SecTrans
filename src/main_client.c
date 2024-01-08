@@ -33,7 +33,7 @@ char *token;
 int attribuedPort;
 
 void authenticate(){
-printf("Veuillez entrez votre nom d'utilisateur : \n");
+    printf("Veuillez entrez votre nom d'utilisateur : \n");
     char username[100];
     scanf("%s", username);
 
