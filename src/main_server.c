@@ -33,6 +33,13 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
 {
 
     unsigned char *decoded = base64_decode(msg, strlen(msg));
+
+    printf("Decoded message: ");
+    for (int i = 0; i < 512; i++)
+    {
+        printf("%02x", decoded[i]);
+    }
+    printf("\n");
     // Log message received and size
     // Load private key
     FILE *privateKeyFile = fopen("server_private.pem", "r");
