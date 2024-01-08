@@ -86,7 +86,7 @@ printf("Veuillez entrez votre nom d'utilisateur : \n");
     attribuedPort = atoi(attribuedPortStr);
 }
 
-void processUploading(char* file){
+void processUploading(char* filename){
     // Start server to receive server messages
     if (startserver(attribuedPort) == -1)
     {
@@ -95,7 +95,7 @@ void processUploading(char* file){
     }
 
     // Open the file, read its content in 999 chars; store it in server_message and send it
-    FILE *file = fopen(file, "r");
+    FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
         fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
@@ -114,7 +114,7 @@ void processUploading(char* file){
     // Add token
     strcat(server_message, token);
     strcat(server_message, ",FILE_START,");
-    strcat(server_message, file);
+    strcat(server_message, filename);
     long long result = sndmsg(server_message, SERVER_PORT);
     if (result != 0)
     {
