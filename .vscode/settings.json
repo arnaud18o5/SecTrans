@@ -55,5 +55,17 @@
   "C_Cpp_Runner.useLeakSanitizer": false,
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
-  "C_Cpp_Runner.msvcSecureNoWarnings": false
+  "C_Cpp_Runner.msvcSecureNoWarnings": false,
+  "files.associations": {
+    "*.ejs": "html",
+    "types.h": "c",
+    "unistd.h": "c",
+    "hash.h": "c",
+    "__node_handle": "c",
+    "server.h": "c",
+    "base_encoding.h": "c",
+    "stddef.h": "c",
+    "signature.h": "c",
+    "user.h": "c"
+  }
 }
