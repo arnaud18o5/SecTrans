@@ -497,7 +497,7 @@ int main()
                 printf("Demande de clé publique\n");
                 if (commaPos != NULL)
                 {
-                    sndmsg(pub_key, portClient);
+                    sndmsg(pub_key, DEFAULT_CLIENT_PORT);
                     printf("Clé publique envoyée au client\n");
                         /*if (startserver(port) == -1)
                         {
