@@ -66,6 +66,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
     for (int i = 0; i < decodedLength; i++) {
         printf("%02x", decoded[i]);
     }
+    printf("\n");
     printf("Decoded message size: %ld\n", decodedLength);
 
     unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
