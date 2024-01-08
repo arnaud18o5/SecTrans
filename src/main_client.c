@@ -198,6 +198,11 @@ void processUploading(char* filename){
     // Get file signature to send to server
     int signature_length;
     unsigned char *signature = getFileSignature(file, &signature_length, "client");
+    if (signature == NULL)
+    {
+        fprintf(stderr, "Error while getting file signature\n");
+        return;
+    }
 
     // Encode the signature to base64
     char* encoded_signature = base64_encode(signature, signature_length);
