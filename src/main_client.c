@@ -27,6 +27,60 @@ const int DEFAULT_CLIENT_PORT = 12346;
 char *token;
 int attribuedPort;
 
+unsigned char *test(char msg[1024]){
+    // Load private key
+    FILE *privateKeyFile = fopen("server_private.pem", "r");
+    if (privateKeyFile == NULL)
+    {
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        return NULL;
+    }
+    // Get the public key
+    char privateKey[2048];
+    // Read all the file content
+    char c;
+    int i = 0;
+    while ((c = fgetc(privateKeyFile)) != EOF)
+    {
+        privateKey[i] = c;
+        i++;
+    }
+    privateKey[i] = '\0';
+
+    unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
+
+    // decouper decodedSignature en pakcet de 128 char
+    int nbBlocks = (strlen(msg) + 127) / 128;  // Round up to the nearest block
+    unsigned char packet[128];
+
+    for (int j = 0; j < nbBlocks; j++)
+    {
+        // Initialize the packet with zeros
+        memset(packet, 0, sizeof(packet));
+
+        // Copy the data into the packet
+        for (int k = 0; k < 128 && msg[k + (j * 128)] != '\0'; k++)
+        {
+            packet[k] = msg[k + (j * 128)];
+        }
+
+        // Decrypt the packet
+        unsigned char *decryptedPacket = decryptMessage(privateKey, packet);
+
+        printf("decryptedPacket: %s\n", decryptedPacket);
+
+        // Concatenate the decrypted packet into the decrypted message
+        strcat(decryptedMessage, decryptedPacket);
+    }
+
+    // Log decrypted message and size
+    printf("Decrypted message: %s\n", decryptedMessage);
+    printf("Decrypted message size: %ld\n", strlen(decryptedMessage));
+
+    free(decryptedMessage);
+    return "";
+}
+
 long sndmsgencrypted(unsigned char msg[585], int port)
 {
     // Log message and size
@@ -82,6 +136,10 @@ long sndmsgencrypted(unsigned char msg[585], int port)
 
     // close public key file
     fclose(public_key_file);
+
+    test(encrypted_message);
+
+    exit();
 
     char *base64_msg = base64_encode(encrypted_message, strlen(encrypted_message));
     // Log base64 message and size
