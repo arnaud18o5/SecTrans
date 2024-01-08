@@ -36,6 +36,7 @@ unsigned char *test(unsigned char msg[1024]){
         fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         return NULL;
     }
+    printf("test1\n");
     // Get the public key
     // char privateKey[2048];
     // // Read all the file content
@@ -54,12 +55,14 @@ unsigned char *test(unsigned char msg[1024]){
         fprintf(stderr, "Erreur lors de la lecture de la clé privée\n");
         return NULL;
     }
+    printf("test2\n");
 
     // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
 
      // Decrypt the message
     // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
     int rsa_len = RSA_size(privateKey);
+    printf("rsa_len : %d\n", rsa_len);
     // Determine the size of the decrypted message
     int decryptedMessageSize = (strlen(msg) / rsa_len + 1) * rsa_len;
     // Log size
