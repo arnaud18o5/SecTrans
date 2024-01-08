@@ -21,6 +21,9 @@
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 
+const int SERVER_PORT = 12345;
+const int DEFAULT_CLIENT_PORT = 12346;
+
 long sndmsgencrypted(unsigned char *msg, int port)
 {
     printf("msg : %s\n", msg);
