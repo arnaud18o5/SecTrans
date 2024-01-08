@@ -48,7 +48,7 @@ unsigned char *test(unsigned char msg[1024])
     // decrypt
     unsigned char *decrypted_message = (unsigned char *)malloc(RSA_size(privateKey));
     printf("msg : %s\n", msg);
-    int decrypted_message_len = RSA_private_decrypt(strlen(msg), msg, decrypted_message, privateKey, RSA_PKCS1_PADDING);
+    int decrypted_message_len = RSA_private_decrypt(strlen(msg) + 1, msg, decrypted_message, privateKey, RSA_PKCS1_PADDING);
     if (decrypted_message_len == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
@@ -68,8 +68,7 @@ long sndmsgencrypted(unsigned char msg[500], int port)
 {
     // Log message and size
     printf("Message envoyé au serveur : %s\n", msg);
-    printf("Taille du message envoyé au serveur : %ld\n", strlen(msg));
-
+    msg[strlen(msg) - 1] = '\0';
     // Open the public key file
     FILE *public_key_file = fopen("server_public.pem", "r");
     if (public_key_file == NULL)
@@ -93,7 +92,7 @@ long sndmsgencrypted(unsigned char msg[500], int port)
     // Encrypt message
     int encrypted_message_len;
     while (encrypted_message_len != RSA_size(publicKey) && encrypted_message_len != -1)
-        encrypted_message_len = RSA_public_encrypt(strlen(msg), msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
+        encrypted_message_len = RSA_public_encrypt(strlen(msg) + 1, msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
     if (encrypted_message_len == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
