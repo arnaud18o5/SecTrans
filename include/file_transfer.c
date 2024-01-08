@@ -1,4 +1,10 @@
 #include "file_transfer.h"
+#include "client.h"
+#include "server.h"
+#include "hash.h"
+#include "base_encoding.h"
+#include "rsa.h"
+#include "signature.h"
 
 #include <math.h>
 #include <stdio.h>
