@@ -116,6 +116,8 @@ long sndmsgencrypted(unsigned char msg[585], int port)
     // Determine the maximum chunk size. If using RSA_PKCS1_PADDING, the maximum size is the size of the key minus 11.
     int max_chunk_size = RSA_size(publicKey) - RSA_PKCS1_PADDING_SIZE;
 
+    // Log RSA Size
+    printf("RSA size: %d\n", RSA_size(publicKey));
     // Allocate memory for the encrypted message
     unsigned char *encrypted_message = (unsigned char *)malloc(strlen(testa) / max_chunk_size * RSA_size(publicKey));
     int encrypted_message_length = 0;
