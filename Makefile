@@ -20,10 +20,13 @@ user.o: include/user.c
 rsa.o: include/rsa.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o rsa.o $< $(LDLIBS)
 
-server: src/main_server.c hash.o base_encoding.o signature.o user.o
+file_transfer.o: include/file_transfer.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o file_transfer.o $< $(LDLIBS)
+
+server: src/main_server.c hash.o base_encoding.o signature.o user.o file_transfer.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
-client: src/main_client.c hash.o base_encoding.o rsa.o signature.o
+client: src/main_client.c hash.o base_encoding.o rsa.o signature.o file_transfer.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o sectrans $^ $(LDLIBS)
 
 run_server: server
