@@ -261,19 +261,21 @@ void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey
     else if (strstr(msg, fileEnd) != NULL) {
         // Get the signature after the comma
         char *signature = strchr(msg, ',') + 1;
-        printf("SIGNATURE: %s\n", signature);
+
         // Decode signature
         size_t decodedLength;
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
-
+        printf("DECODED SIGNATURE: %s\n", decodedSignature);
         // Verify signature
         if (verifySignature(user->currentOpenedFile, decodedSignature, decodedLength, user->publicKey)) {
+            printf("File uploaded successfully!\n");
             char message[1024] = "File uploaded successfully!";
             fclose(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
             // Notify client that file was uploaded successfully
             if (getUser) sndmsg(message, user->attribuedPort);
             printf("File uploaded successfully!\n");
         } else {
+            printf("ERROR: Invalid signature, the file is deleted!\n");
             char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
             // Close file and delete it
             fclose(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
