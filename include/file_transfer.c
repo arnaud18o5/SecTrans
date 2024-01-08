@@ -170,6 +170,7 @@ void processSendFile(char* filename, char* token, int listeningPort, int receive
 
     fclose(file);
     if (waitForReceiverResponse) stopserver();
+    else printf("Fichier envoyé avec succès!\n");
 }
 
 void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey, char* uploadDir)
