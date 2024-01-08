@@ -191,7 +191,10 @@ int main(int argc, char *argv[])
     strcat(auth_message, username);
     strcat(auth_message, ",");
     strcat(auth_message, password_hash_hexa);
-    if (sndmsg(auth_message, SERVER_PORT) != 0)
+
+    char *base64_auth_message = base64_encode(auth_message, strlen(auth_message));
+    
+    if (sndmsg(base64_auth_message, SERVER_PORT) != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
         return EXIT_FAILURE;
