@@ -129,4 +129,9 @@ int main(void)
     // decode base64
     unsigned char *decoded_message = base64_decode(message, strlen(message));
     printf("message décodé: %s\n", decoded_message);
+
+    for (int i = 0; i < 512; i++)
+    {
+        printf("%02x ", decoded_message[i]);
+    }
 }
