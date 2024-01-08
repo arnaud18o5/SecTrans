@@ -65,17 +65,37 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
     printf("Decoded message: %s\n", decoded);
     printf("Decoded message size: %ld\n", decodedLength);
 
-    unsigned char* decryptedMessage = (unsigned char*) malloc(1024);
+    unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
     // chunk message in 128 char packet and decrypt
-    int nbBlocks = strlen(msg) * sizeof(char) / 128;
-    for (int i = 0; i < nbBlocks; i++) {
-        char *block = malloc(129);
-        strncpy(block, decoded + i * 128, 128);
-        block[128] = '\0';
-        char *decryptedBlock = decryptMessage(privateKey, block);
-        strcat(decryptedMessage, decryptedBlock);
-        free(block);
-        free(decryptedBlock);
+    // int nbBlocks = strlen(msg) * sizeof(char) / 128;
+    // for (int i = 0; i < nbBlocks; i++) {
+    //     char *block = malloc(129);
+    //     strncpy(block, decoded + i * 128, 128);
+    //     block[128] = '\0';
+    //     char *decryptedBlock = decryptMessage(privateKey, block);
+    //     strcat(decryptedMessage, decryptedBlock);
+    //     free(block);
+    //     free(decryptedBlock);
+    // }
+    // decouper decodedSignature en pakcet de 128 char
+    int nbBlocks = strlen(decoded) * sizeof(char) / 128;
+    unsigned char packet[128];
+    int j = 0;
+    int k = 0;
+    for (j = 0; j < nbBlocks; j++)
+    {
+        for (k = 0; k < 128; k++)
+        {
+            packet[k] = decoded[k + (j * 128)];
+        }
+
+        // printf("packet: %s\n", packet);
+        //  decrypter packet
+        char *decryptedPacket = decryptMessage(privateKey, packet);
+
+        printf("decryptedPacket: %s\n", decryptedPacket);
+        // concat decryptedPacket dans decryptedSignature
+        strcat(decryptedMessage, decryptedPacket);
     }
 
     // Log decrypted message and size
