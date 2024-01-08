@@ -116,11 +116,35 @@ long sndmsgencrypted(unsigned char msg[585], int port)
         if (chunk_size > max_chunk_size)
             chunk_size = max_chunk_size;
 
-        if (RSA_public_encrypt(chunk_size, testa + i, encrypted_message + offset, publicKey, RSA_PKCS1_PADDING) == -1)
+        // Buffers pour le message chiffré et le message original
+        unsigned char *temp_buff = (unsigned char *)malloc(chunk_size);
+        if (temp_buff == NULL)
         {
-            fprintf(stderr, "Erreur lors de l'encryption\n");
-            return EXIT_FAILURE;
+            perror("Erreur d'allocation de mémoire pour le message chiffré");
+            exit(EXIT_FAILURE);
         }
+
+        while (strlen(temp_buff) != RSA_size(publicKey))
+        {
+            // Chiffrement RSA
+            int result = RSA_public_encrypt(chunk_size, testa + i, temp_buff, publicKey, RSA_PKCS1_PADDING);
+            if (result == -1)
+            {
+                fprintf(stderr, "Erreur lors de l'encryption\n");
+            return EXIT_FAILURE;
+            }
+        }
+
+        // Concat without null-terminator
+        strcat(encrypted_message, temp_buff);
+
+        free(temp_buff);
+
+        // if (RSA_public_encrypt(chunk_size, testa + i, encrypted_message + offset, publicKey, RSA_PKCS1_PADDING) == -1)
+        // {
+        //     fprintf(stderr, "Erreur lors de l'encryption\n");
+        //     return EXIT_FAILURE;
+        // }
 
         offset += RSA_size(publicKey);
     }
