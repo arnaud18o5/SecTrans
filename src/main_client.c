@@ -75,7 +75,7 @@ long sndmsgencrypted(char msg[585], int port)
     // close public key file
     fclose(public_key_file);
 
-    char *base64_msg = base64_encode(msg, strlen(msg));
+    char *base64_msg = base64_encode(encrypted_message, strlen(encrypted_message));
     // Log base64 message and size
     printf("Message en base64 envoyé au serveur : %s\n", base64_msg);
     printf("Taille du message en base64 envoyé au serveur : %ld\n", strlen(base64_msg));
