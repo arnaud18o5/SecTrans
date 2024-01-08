@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
 
         // Encode the server message in base64
         char *base64_server_message = base64_encode(server_message, strlen(server_message));
-        long long result = sndmsg(base64_server_message, SERVER_PORT);
+        long long result = sndmsgencrypted(base64_server_message, SERVER_PORT);
         if (result != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
         }
         publicKey[i] = '\0';
         strcat(server_message1, publicKey);
-        long long result1 = sndmsg(server_message1, SERVER_PORT);
+        long long result1 = sndmsgencrypted(server_message1, SERVER_PORT);
         if (result1 != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
@@ -505,7 +505,7 @@ int main(int argc, char *argv[])
         strcat(server_message2, ",");
         strcat(server_message2, encoded_signature);
         free(encoded_signature);
-        long long result2 = sndmsg(server_message2, SERVER_PORT);
+        long long result2 = sndmsgencrypted(server_message2, SERVER_PORT);
         if (result2 != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
