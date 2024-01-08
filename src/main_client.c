@@ -346,10 +346,10 @@ int main(int argc, char *argv[])
 
             // Encode the message to base64
             strcat(server_message, encrypted_message);
-            printf("size server_message : %d\n", strlen(server_message));
+            printf("size server_message : %ld\n", strlen(server_message));
             char *encoded_message = base64_encode(server_message, strlen(server_message));
             printf("encoded_message : %s\n", encoded_message);
-            printf("size encoded_message : %d\n", strlen(encoded_message));
+            printf("size encoded_message : %ld\n", strlen(encoded_message));
             long long result = sndmsg(encoded_message, SERVER_PORT);
             // free(encoded_message);
             if (result != 0)
@@ -545,9 +545,7 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[1], "-rsa") == 0 && argc == 2)
     {
         char server_message[1024] = "rsa,";
-        char portStr[10];                    // Crée une chaîne pour stocker la représentation en chaîne de l'entier
-        sprintf(portStr, "%d,", portClient); // Convertit l'entier en chaîne de caractères
-        strcat(server_message, portStr);
+
         char *base64_server_message = base64_encode(server_message, strlen(server_message));
         sndmsg(base64_server_message, port);
 
