@@ -122,6 +122,12 @@ int main(void)
     char *encrypted = encrypt_message((const unsigned char *)message, sizeof(message), pubKey, &encrypted_size);
     printf("message encrypté: %s\n", encrypted);*/
 
-    encryptMessage("keyyy", "salut les foufous");
-    decryptMessage("keyyy", "salut les foufous");
+    const unsigned char *message = "salut les foufous";
+    // code base64
+    char *base64_message = base64_encode(message, strlen(message));
+    printf("message en base64: %s\n", base64_message);
+
+    // decode base64
+    unsigned char *decoded_message = base64_decode(base64_message, strlen(base64_message));
+    printf("message décodé: %s\n", decoded_message);
 }

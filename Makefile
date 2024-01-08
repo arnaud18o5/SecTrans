@@ -26,6 +26,9 @@ server: src/main_server.c hash.o encryption.o base_encoding.o signature.o user.o
 client: src/main_client.c hash.o encryption.o base_encoding.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o client $^ $(LDLIBS)
 
+test: src/test.c hash.o encryption.o base_encoding.o signature.o user.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o test $^ $(LDLIBS)
+
 run_server: server
 	@echo "Running server..."
 	@LD_LIBRARY_PATH=./lib ./server
