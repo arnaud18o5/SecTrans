@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
         char *ptr = strchr(server_message, '\n');
         while (ptr != NULL)
         {
-            *ptr = '';
+            *ptr = ' ';
             ptr = strchr(ptr, '\n');
         }
 
