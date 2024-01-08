@@ -62,12 +62,15 @@ unsigned char *test(unsigned char msg[1024]){
     int rsa_len = RSA_size(privateKey);
     // Determine the size of the decrypted message
     int decryptedMessageSize = (strlen(msg) / rsa_len + 1) * rsa_len;
-
+    // Log size
+    printf("Decrypted message size: %d\n", decryptedMessageSize);
     // Allocate memory for the decrypted message
     unsigned char* decryptedMessage = (unsigned char*) malloc(decryptedMessageSize);
 
     for (int i = 0; i < strlen(msg); i += rsa_len)
     {
+        // Log
+        printf("Decryption of packet %d\n", i / rsa_len);
         if (RSA_private_decrypt(rsa_len, msg + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
         {
             fprintf(stderr, "Erreur lors du décryptage\n");
