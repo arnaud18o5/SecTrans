@@ -82,19 +82,19 @@ unsigned char *test(unsigned char msg[1024]){
     }
 
     // Decrypt the message
-    unsigned char *decryptedMessage = (unsigned char *)malloc(1024 * sizeof(char));
-    int rsa_len = RSA_size(privateKey);
+    // unsigned char *decryptedMessage = (unsigned char *)malloc(1024 * sizeof(char));
+    // int rsa_len = RSA_size(privateKey);
 
-    for (int i = 0; i < strlen(msg); i += rsa_len)
-    {
-        if (RSA_private_decrypt(rsa_len, msg + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
-        {
-            ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
-            fprintf(stderr, "Erreur lors du décryptage\n");
-            return NULL;
-        }
-    }
-
+    // for (int i = 0; i < strlen(msg); i += rsa_len)
+    // {
+    //     if (RSA_private_decrypt(rsa_len, msg + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
+    //     {
+    //         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
+    //         fprintf(stderr, "Erreur lors du décryptage\n");
+    //         return NULL;
+    //     }
+    // }
+    unsigned char *decryptedMessage = decryptMessage(privateKey, msg);
     printf("Decrypted message: %s\n", decryptedMessage);
     printf("Decrypted message size: %ld\n", strlen(decryptedMessage));
 
@@ -131,26 +131,27 @@ long sndmsgencrypted(unsigned char msg[585], int port)
     }
     publicKey[i] = '\0';
 
-    unsigned char *encrypted_message = (unsigned char *)malloc(740);
+    // unsigned char *encrypted_message = (unsigned char *)malloc(740);
+    unsigned char *encrypted_message = encryptMessage(publicKey, testa);
 
     // Split the message into packets of 117 (128 - 11) and encrypt each packet
-    int packet_size = 115;
-    int num_packets = (strlen(testa) - 1) / packet_size + 1;
-    for (int i = 0; i < num_packets; i++)
-    {
-        unsigned char packet[packet_size + 1];
-        int index = i * packet_size;
-        int j;
-        for (j = 0; j < packet_size && testa[index + j] != '\0'; j++) {
-            packet[j] = testa[index + j];
-        }
-        packet[j] = '\0'; // Null-terminate the packet
+    // int packet_size = 115;
+    // int num_packets = (strlen(testa) - 1) / packet_size + 1;
+    // for (int i = 0; i < num_packets; i++)
+    // {
+    //     unsigned char packet[packet_size + 1];
+    //     int index = i * packet_size;
+    //     int j;
+    //     for (j = 0; j < packet_size && testa[index + j] != '\0'; j++) {
+    //         packet[j] = testa[index + j];
+    //     }
+    //     packet[j] = '\0'; // Null-terminate the packet
 
-        unsigned char *encryptedPacket = encryptMessage(publicKey, packet);
+    //     unsigned char *encryptedPacket = encryptMessage(publicKey, packet);
 
-        // add encrypted packet to encrypted message
-        strcat(encrypted_message, encryptedPacket);
-    }
+    //     // add encrypted packet to encrypted message
+    //     strcat(encrypted_message, encryptedPacket);
+    // }
 
     // Log encrypted message hexa and size
     printf("Message chiffré envoyé au serveur :");
