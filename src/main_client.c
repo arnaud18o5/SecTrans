@@ -35,17 +35,17 @@ unsigned char *test(unsigned char msg[1024]){
         fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         return NULL;
     }
-    // Get the public key
-    char privateKey[2048];
-    // Read all the file content
-    char c;
-    int i = 0;
-    while ((c = fgetc(privateKeyFile)) != EOF)
-    {
-        privateKey[i] = c;
-        i++;
-    }
-    privateKey[i] = '\0';
+    // // Get the public key
+    // char privateKey[2048];
+    // // Read all the file content
+    // char c;
+    // int i = 0;
+    // while ((c = fgetc(privateKeyFile)) != EOF)
+    // {
+    //     privateKey[i] = c;
+    //     i++;
+    // }
+    // privateKey[i] = '\0';
 
     // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
 
@@ -73,9 +73,33 @@ unsigned char *test(unsigned char msg[1024]){
     //     strcat(decryptedMessage, decryptedPacket);
     // }
 
-    // Log decrypted message and size
-    printf("Decrypted message: %s\n", decryptMessage(privateKey, msg));
-    printf("Decrypted message size: %ld\n", strlen(decryptMessage(privateKey, msg)));
+    // Read the private key
+    RSA *privateKey = PEM_read_RSAPrivateKey(privateKeyFile, NULL, NULL, NULL);
+    if (privateKey == NULL)
+    {
+        fprintf(stderr, "Erreur lors de la lecture de la clé privée\n");
+        return NULL;
+    }
+
+    // Decrypt the message
+    unsigned char *decryptedMessage = (unsigned char *)malloc(1024 * sizeof(char));
+    int rsa_len = RSA_size(privateKey);
+
+    for (int i = 0; i < strlen(msg); i += rsa_len)
+    {
+        if (RSA_private_decrypt(rsa_len, msg + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
+        {
+            fprintf(stderr, "Erreur lors du décryptage\n");
+            return NULL;
+        }
+    }
+
+    printf("Decrypted message: %s\n", decryptedMessage);
+    printf("Decrypted message size: %ld\n", strlen(decryptedMessage));
+
+    // // Log decrypted message and size
+    // printf("Decrypted message: %s\n", decryptedMessage);
+    // printf("Decrypted message size: %ld\n", decryptedMessage);
 
     // free(decryptedMessage);
     return "";
