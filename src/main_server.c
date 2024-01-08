@@ -4,6 +4,7 @@
 #include "base_encoding.h"
 #include "signature.h"
 #include "user.h"
+#include "file_transfer.h"
 
 #include <stdio.h>
 #include <stdlib.h>

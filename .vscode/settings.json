@@ -68,6 +68,8 @@
     "signature.h": "c",
     "user.h": "c",
     "stdio.h": "c",
-    "rsa.h": "c"
+    "rsa.h": "c",
+    "stdlib.h": "c",
+    "file_transfer.h": "c"
   }
 }

@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void checkError(char* message){
     // Check if message contains "error", if so, show message and exit
