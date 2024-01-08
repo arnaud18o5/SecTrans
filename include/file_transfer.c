@@ -223,7 +223,8 @@ void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey
                 sndmsg(message, user->attribuedPort);
             }
             printf("ERROR: File already exists!\n");
-            return;
+            if (getUser) return;
+            else exit(1);
         } else if (getUser) {
             char message[1024] = "Uploading started!";
             sndmsg(message, user->attribuedPort);
