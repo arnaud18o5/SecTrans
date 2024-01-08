@@ -58,7 +58,7 @@ unsigned char *decryptMessage(char *pri_key, unsigned char *message)
     return (unsigned char *)decrypted_message;
 }
 
-unsigned char *encryptMessage(char *pub_key, char *message)
+unsigned char *encryptMessage(char *pub_key, unsigned char *message)
 {
     RSA *rsa = NULL;
 
