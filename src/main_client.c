@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
     // char *base64_auth_message = base64_encode(auth_message, strlen(auth_message));
     
     // if (sndmsg(base64_auth_message, SERVER_PORT) != 0)
-    if (sndmsgencrypted(base64_auth_message, SERVER_PORT) != 0)
+    if (sndmsgencrypted(auth_message, SERVER_PORT) != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
         return EXIT_FAILURE;
