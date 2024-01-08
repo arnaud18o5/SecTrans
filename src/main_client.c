@@ -91,8 +91,8 @@ long sndmsgencrypted(unsigned char *msg, int port)
 
     // Encrypt message
     int encrypted_message_len;
-    while (encrypted_message_len != RSA_size(publicKey) && encrypted_message_len != -1)
-        encrypted_message_len = RSA_public_encrypt(strlen(msg) + 1, msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
+    // while (encrypted_message_len != RSA_size(publicKey) && encrypted_message_len != -1)
+    encrypted_message_len = RSA_public_encrypt(strlen(msg) + 1, msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
     if (encrypted_message_len == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
@@ -107,7 +107,7 @@ long sndmsgencrypted(unsigned char *msg, int port)
         printf("%02x", encrypted_message[i]);
     }
     printf("\n");
-    printf("Taille du message chiffré envoyé au serveur : %d\n", encrypted_message_len);
+    printf("Taille du message chiffré envoyé au serveur : %d\n", strlen(encrypted_message));
 
     // close public key file
     fclose(public_key_file);
