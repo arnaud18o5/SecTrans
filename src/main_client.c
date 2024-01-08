@@ -115,7 +115,7 @@ long sndmsgencrypted(unsigned char msg[585], int port)
     printf("Clé publique du serveur : %s\n", azerty);
     fseek(public_key_file, 0, SEEK_SET);
     // Get the public key
-    RSA *publicKey = PEM_read_RSA_PUBKEY(public_key_file, NULL, NULL, NULL);
+    RSA *publicKey = PEM_read_RSAPublicKey(public_key_file, NULL, NULL, NULL);
     if (publicKey == NULL)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
