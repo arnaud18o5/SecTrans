@@ -60,9 +60,9 @@ unsigned char *test(unsigned char msg[1024]){
     unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
     int rsa_len = RSA_size(privateKey);
 
-    for (int i = 0; i < decodedLength; i += rsa_len)
+    for (int i = 0; i < strlen(msg); i += rsa_len)
     {
-        if (RSA_private_decrypt(rsa_len, decoded + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
+        if (RSA_private_decrypt(rsa_len, msg + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
         {
             fprintf(stderr, "Erreur lors du décryptage\n");
             return NULL;
