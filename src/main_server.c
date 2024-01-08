@@ -32,6 +32,7 @@ int lastAttribuedClientPort = 12347;
 unsigned char *decryptAndDecodeMessage(char msg[1024])
 {
 
+    unsigned char *decoded = base64_decode(msg, strlen(msg));
     // Log message received and size
     printf("BEFORE Message received: %s\n", msg);
     printf("Message size: %ld\n", strlen(msg));
@@ -67,8 +68,6 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
     // Log message received and size
     printf("AFTER Message received: %s\n", msg);
     printf("Message size: %ld\n", strlen(msg));
-
-    unsigned char *decoded = base64_decode(msg, strlen(msg));
 
     // Log decoded message hexa and size
     printf("Decoded message: ");

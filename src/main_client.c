@@ -111,7 +111,7 @@ long sndmsgencrypted(unsigned char *msg, int port)
 
     // test(encrypted_message);
 
-    free(encrypted_message);
+    // free(encrypted_message);
 
     char *base64_msg = base64_encode(encrypted_message, encrypted_message_len);
     // Log base64 message and size
