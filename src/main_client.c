@@ -82,13 +82,13 @@ long sndmsgencrypted(unsigned char msg[585], int port)
     // Log message and size
     printf("Message envoyé au serveur : %s\n", testa);
     printf("Taille du message envoyé au serveur : %ld\n", strlen(testa));
-    // Open the public key file
-    FILE *public_key_file = fopen("server_public.pem", "r");
-    if (public_key_file == NULL)
-    {
-        fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
-        return EXIT_FAILURE;
-    }
+    // // Open the public key file
+    // FILE *public_key_file = fopen("server_public.pem", "r");
+    // if (public_key_file == NULL)
+    // {
+    //     fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
+    //     return EXIT_FAILURE;
+    // }
     // Get the public key
     // char publicKey[1024];
     // // Read all the file content
@@ -101,6 +101,13 @@ long sndmsgencrypted(unsigned char msg[585], int port)
     // }
     // publicKey[i] = '\0';
 
+     // Open the public key file
+    FILE *public_key_file = fopen("server_public.pem", "r");
+    if (public_key_file == NULL)
+    {
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
+        return EXIT_FAILURE;
+    }
     // Get the public key
     RSA *publicKey = PEM_read_RSA_PUBKEY(public_key_file, NULL, NULL, NULL);
     if (publicKey == NULL)
