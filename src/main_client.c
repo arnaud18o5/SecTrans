@@ -100,19 +100,19 @@ long sndmsgencrypted(unsigned char msg[585], int port)
     }
 
     // Get the public key
-    char publicKey[1024];
+    char azerty[1024];
     // Read all the file content
     char c;
     int i = 0;
     while ((c = fgetc(public_key_file)) != EOF)
     {
-        publicKey[i] = c;
+        azerty[i] = c;
         i++;
     }
-    publicKey[i] = '\0';
+    azerty[i] = '\0';
 
     // Log
-    printf("Clé publique du serveur : %s\n", publicKey);
+    printf("Clé publique du serveur : %s\n", azerty);
     fseek(public_key_file, 0, SEEK_SET);
     // Get the public key
     RSA *publicKey = PEM_read_RSA_PUBKEY(public_key_file, NULL, NULL, NULL);
