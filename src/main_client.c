@@ -316,6 +316,14 @@ int main(int argc, char *argv[])
 
         printf("server_message : %s\n", server_message);
 
+        // Remove all newline characters from server_message
+        char *ptr = strchr(server_message, '\n');
+        while (ptr != NULL)
+        {
+            *ptr = '';
+            ptr = strchr(ptr, '\n');
+        }
+
         // Encode the server message in base64
         // char *base64_server_message = base64_encode(server_message, strlen(server_message));
         long long result = sndmsgencrypted(server_message, SERVER_PORT);
