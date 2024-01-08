@@ -132,6 +132,7 @@ void processDownload(char* filename){
             fprintf(stderr, "Error while receiving message\n");
             break;
         }
+        checkError(received_msg);
         processReceiveFile(received_msg, 0, "", "download/");
     }
 }
