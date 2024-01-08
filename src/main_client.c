@@ -58,8 +58,13 @@ unsigned char *test(unsigned char msg[1024]){
     // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
 
      // Decrypt the message
-    unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
+    // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
     int rsa_len = RSA_size(privateKey);
+    // Determine the size of the decrypted message
+    int decryptedMessageSize = (strlen(msg) / rsa_len + 1) * rsa_len;
+
+    // Allocate memory for the decrypted message
+    unsigned char* decryptedMessage = (unsigned char*) malloc(decryptedMessageSize);
 
     for (int i = 0; i < strlen(msg); i += rsa_len)
     {
