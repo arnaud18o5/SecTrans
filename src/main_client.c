@@ -92,6 +92,8 @@ long sndmsgencrypted(unsigned char *msg, int port)
     // Encrypt message
     int encrypted_message_len;
     // while (encrypted_message_len != RSA_size(publicKey) && encrypted_message_len != -1)
+    printf("len msg : %d\n", strlen(msg) + 1);
+    printf("len rsa : %d\n", RSA_size(publicKey));
     encrypted_message_len = RSA_public_encrypt(strlen(msg) + 1, msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
     if (encrypted_message_len == -1)
     {
