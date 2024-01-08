@@ -23,10 +23,13 @@ rsa.o: include/rsa.c
 file_transfer.o: include/file_transfer.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o file_transfer.o $< $(LDLIBS)
 
-server: src/main_server.c hash.o base_encoding.o signature.o user.o file_transfer.o
+error.o: include/error.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o error.o $< $(LDLIBS)
+
+server: src/main_server.c hash.o base_encoding.o signature.o user.o file_transfer.o error.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
-client: src/main_client.c hash.o base_encoding.o rsa.o signature.o file_transfer.o
+client: src/main_client.c hash.o base_encoding.o rsa.o signature.o file_transfer.o error.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o sectrans $^ $(LDLIBS)
 
 run_server: server

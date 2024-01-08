@@ -30,16 +30,6 @@ const int DEFAULT_CLIENT_PORT = 12346;
 char *token;
 int attribuedPort;
 
-void checkError(char* message){
-    // Check if message contains "error", if so, show message and exit
-    if (strstr(message, "error") != NULL) {
-        // Get message after comma
-        char* error_msg = strchr(message, ',') + 1;
-        printf("ERROR: %s\n", error_msg);
-        exit(EXIT_FAILURE);
-    }
-}
-
 void authenticate(){
 printf("Veuillez entrez votre nom d'utilisateur : \n");
     char username[100];
