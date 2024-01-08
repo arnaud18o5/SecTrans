@@ -86,12 +86,11 @@ long sndmsgencrypted(unsigned char *msg, int port)
     }
 
     unsigned char *encrypted_message = (unsigned char *)malloc(RSA_size(publicKey));
-    printf("size msg : %ld\n", strlen(msg));
 
     // Encrypt message
     int encrypted_message_len;
     // while (encrypted_message_len != RSA_size(publicKey) && encrypted_message_len != -1)
-    encrypted_message_len = RSA_public_encrypt(512, msg, encrypted_message, (unsigned char *)publicKey, RSA_PKCS1_PADDING);
+    encrypted_message_len = RSA_public_encrypt(strlen(msg), msg, encrypted_message, (unsigned char *)publicKey, RSA_PKCS1_PADDING);
     if (encrypted_message_len == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
@@ -118,6 +117,8 @@ long sndmsgencrypted(unsigned char *msg, int port)
     printf("Message en base64 envoyé au serveur : %s\n", base64_msg);
     printf("Taille du message en base64 envoyé au serveur : %ld\n", strlen(base64_msg));
     long long result = sndmsg(base64_msg, port);
+
+    test(encrypted_message);
 
     free(base64_msg);
     free(encrypted_message);
