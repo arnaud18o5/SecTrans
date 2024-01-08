@@ -265,17 +265,21 @@ void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey
         // Decode signature
         size_t decodedLength;
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
-        printf("DECODED SIGNATURE: %s\n", decodedSignature);
+
+        // If we are the client, we need the public key of the server to verify the signature
+        // We assume we should already have the public key as we need it for encrypting all the messages sent to the token
+        // So for now, we simply read it from the file
+        char *publicKeyName = "server_public.pem";
+        char* publicKey = getUser ? "" : load_key(publicKeyName);
+
         // Verify signature
-        if (verifySignature(user->currentOpenedFile, decodedSignature, decodedLength, user->publicKey)) {
-            printf("File uploaded successfully!\n");
+        if (verifySignature(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving, decodedSignature, decodedLength, getUser ? user->publicKey : publicKey)) {
             char message[1024] = "File uploaded successfully!";
             fclose(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
             // Notify client that file was uploaded successfully
             if (getUser) sndmsg(message, user->attribuedPort);
             printf("File uploaded successfully!\n");
         } else {
-            printf("ERROR: Invalid signature, the file is deleted!\n");
             char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
             // Close file and delete it
             fclose(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);

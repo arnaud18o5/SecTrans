@@ -138,7 +138,8 @@ void processDownMessage(char *received_msg)
 
 int main()
 {
-    int port = 12345; // Choisissez le port que vous souhaitez utiliser
+    // Generate RSA key pair
+    generate_rsa_keypair(2048);
 
     // Generate the key for the token
     if (RAND_bytes(tokenKey, sizeof(tokenKey)) != 1) {
@@ -146,7 +147,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    if (startserver(port) == -1)
+    if (startserver(SERVER_PORT) == -1)
     {
         fprintf(stderr, "Failed to start the server\n");
         return EXIT_FAILURE;
