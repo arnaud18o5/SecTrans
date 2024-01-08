@@ -5,6 +5,8 @@
 #include "signature.h"
 #include "user.h"
 #include "file_transfer.h"
+#include "error.h"
+#include "rsa.h"
 
 #include <stdio.h>
 #include <stdlib.h>
