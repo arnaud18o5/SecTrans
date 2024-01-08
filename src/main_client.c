@@ -94,7 +94,7 @@ long sndmsgencrypted(unsigned char *msg, int port)
     // while (encrypted_message_len != RSA_size(publicKey) && encrypted_message_len != -1)
     printf("len msg : %d\n", strlen(msg) + 1);
     printf("len rsa : %d\n", RSA_size(publicKey));
-    encrypted_message_len = RSA_public_encrypt(strlen(msg) + 1, msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
+    encrypted_message_len = RSA_public_encrypt(strlen(msg) + 1, msg, encrypted_message, (unsigned char *)publicKey, RSA_PKCS1_PADDING);
     if (encrypted_message_len == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
