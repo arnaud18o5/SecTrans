@@ -89,6 +89,7 @@ unsigned char *test(unsigned char msg[1024]){
     {
         if (RSA_private_decrypt(rsa_len, msg + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
         {
+            ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
             fprintf(stderr, "Erreur lors du décryptage\n");
             return NULL;
         }
