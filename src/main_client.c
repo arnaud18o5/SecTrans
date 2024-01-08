@@ -113,9 +113,8 @@ long sndmsgencrypted(unsigned char msg[585], int port)
     RSA *publicKey = PEM_read_RSA_PUBKEY(public_key_file, NULL, NULL, NULL);
     if (publicKey == NULL)
     {
-        unsigned long err = ERR_get_error();  // Get the error code
-        char *err_str = ERR_error_string(err, NULL);  // Convert the error code to a string
-        fprintf(stderr, "Erreur lors de la lecture de la clé publique : %s\n", err_str);
+        ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
+        fprintf(stderr, "Erreur lors de la lecture de la clé publique");
         return EXIT_FAILURE;
     }
 
