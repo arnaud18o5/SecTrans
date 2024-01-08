@@ -21,15 +21,15 @@
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 
-const int SERVER_PORT = 12345;
-const int DEFAULT_CLIENT_PORT = 12346;
+const int DEFAULT_SERVER_PORT = 12345;
+const int CLIENT_PORT = 12346;
 
 long sndmsgencrypted(unsigned char *msg, int port)
 {
     printf("msg : %s\n", msg);
     FILE *public_key_file = NULL;
     // Open the public key file
-    if (port == SERVER_PORT)
+    if (port == DEFAULT_SERVER_PORT)
     {
         public_key_file = fopen("server_public.pem", "r");
         if (public_key_file == NULL)
