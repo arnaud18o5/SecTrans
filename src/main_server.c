@@ -42,7 +42,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
         return NULL;
     }
     // Get the public key
-    char privateKey[1024];
+    char privateKey[2048];
     // Read all the file content
     char c;
     int i = 0;
