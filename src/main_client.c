@@ -35,7 +35,7 @@ void checkError(char* message){
         // Get message after comma
         char* error_msg = strchr(message, ',') + 1;
         printf("ERROR: %s\n", error_msg);
-        return;
+        exit(EXIT_FAILURE);
     }
 }
 
