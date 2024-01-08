@@ -47,62 +47,36 @@ unsigned char *test(unsigned char msg[1024]){
     }
     privateKey[i] = '\0';
 
-    // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
+    unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
 
-    // // decouper decodedSignature en pakcet de 128 char
-    // int nbBlocks = (strlen(msg) + 127) / 128;  // Round up to the nearest block
-    // unsigned char packet[128];
+    // decouper decodedSignature en pakcet de 128 char
+    int nbBlocks = (strlen(msg) + 127) / 128;  // Round up to the nearest block
+    unsigned char packet[128];
 
-    // for (int j = 0; j < nbBlocks; j++)
-    // {
-    //     // Initialize the packet with zeros
-    //     memset(packet, 0, sizeof(packet));
+    for (int j = 0; j < nbBlocks; j++)
+    {
+        // Initialize the packet with zeros
+        memset(packet, 0, sizeof(packet));
 
-    //     // Copy the data into the packet
-    //     for (int k = 0; k < 128 && msg[k + (j * 128)] != '\0'; k++)
-    //     {
-    //         packet[k] = msg[k + (j * 128)];
-    //     }
+        // Copy the data into the packet
+        for (int k = 0; k < 128 && msg[k + (j * 128)] != '\0'; k++)
+        {
+            packet[k] = msg[k + (j * 128)];
+        }
 
-    //     // Decrypt the packet
-    //     unsigned char *decryptedPacket = decryptMessage(privateKey, packet);
+        // Decrypt the packet
+        unsigned char *decryptedPacket = decryptMessage(privateKey, packet);
 
-    //     printf("decryptedPacket: %s\n", decryptedPacket);
+        printf("decryptedPacket: %s\n", decryptedPacket);
 
-    //     // Concatenate the decrypted packet into the decrypted message
-    //     strcat(decryptedMessage, decryptedPacket);
-    // }
+        // Concatenate the decrypted packet into the decrypted message
+        strcat(decryptedMessage, decryptedPacket);
+    }
 
-    // // Read the private key
-    // RSA *privateKey = PEM_read_RSAPrivateKey(privateKeyFile, NULL, NULL, NULL);
-    // if (privateKey == NULL)
-    // {
-    //     fprintf(stderr, "Erreur lors de la lecture de la clé privée\n");
-    //     return NULL;
-    // }
-
-    // Decrypt the message
-    // unsigned char *decryptedMessage = (unsigned char *)malloc(1024 * sizeof(char));
-    // int rsa_len = RSA_size(privateKey);
-
-    // for (int i = 0; i < strlen(msg); i += rsa_len)
-    // {
-    //     if (RSA_private_decrypt(rsa_len, msg + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
-    //     {
-    //         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
-    //         fprintf(stderr, "Erreur lors du décryptage\n");
-    //         return NULL;
-    //     }
-    // }
-    unsigned char *decryptedMessage = decryptMessage(privateKey, msg);
     printf("Decrypted message: %s\n", decryptedMessage);
     printf("Decrypted message size: %ld\n", strlen(decryptedMessage));
 
-    // // Log decrypted message and size
-    // printf("Decrypted message: %s\n", decryptedMessage);
-    // printf("Decrypted message size: %ld\n", decryptedMessage);
-
-    // free(decryptedMessage);
+    free(decryptedMessage);
     return "";
 }
 
