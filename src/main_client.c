@@ -28,7 +28,6 @@ char *token;
 int attribuedPort;
 
 unsigned char *test(unsigned char msg[1024]){
-    printf("test\n");
     // Load private key
     FILE *privateKeyFile = fopen("server_private.pem", "r");
     if (privateKeyFile == NULL)
@@ -36,18 +35,6 @@ unsigned char *test(unsigned char msg[1024]){
         fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         return NULL;
     }
-    printf("test1\n");
-    // Get the public key
-    // char privateKey[2048];
-    // // Read all the file content
-    // char c;
-    // int i = 0;
-    // while ((c = fgetc(privateKeyFile)) != EOF)
-    // {
-    //     privateKey[i] = c;
-    //     i++;
-    // }
-    // privateKey[i] = '\0';
 
     RSA *privateKey = PEM_read_RSAPrivateKey(privateKeyFile, NULL, NULL, NULL);
     if (privateKey == NULL)
@@ -57,43 +44,28 @@ unsigned char *test(unsigned char msg[1024]){
     }
     printf("test2\n");
 
-    // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
-
-     // Decrypt the message
-    // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
-    int rsa_len = RSA_size(privateKey);
-    printf("rsa_len : %d\n", rsa_len);
-    // Determine the size of the decrypted message
-    int decryptedMessageSize = (strlen(msg) / rsa_len + 1) * rsa_len;
-    // Log size
-    printf("Decrypted message size: %d\n", decryptedMessageSize);
-    // Allocate memory for the decrypted message
-    unsigned char* decryptedMessage = (unsigned char*) malloc(decryptedMessageSize);
-
-    for (int i = 0; i < strlen(msg); i += rsa_len)
+    // decrypt
+    unsigned char decrypted_message[1024];
+    int decrypted_message_len = RSA_private_decrypt(strlen(msg), msg, decrypted_message, privateKey, RSA_PKCS1_PADDING);
+    if (decrypted_message_len == -1)
     {
-        // Log
-        printf("Decryption of packet %d\n", i / rsa_len);
-        if (RSA_private_decrypt(rsa_len, msg + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
-        {
-            fprintf(stderr, "Erreur lors du décryptage\n");
-            return NULL;
-        }
+        ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
+        fprintf(stderr, "Erreur lors du déchiffrement RSA");
+        return NULL;
     }
 
     printf("Decrypted message: %s\n", decryptedMessage);
-    printf("Decrypted message size: %ld\n", strlen(decryptedMessage));
+    printf("Decrypted message size: %ld\n", decrypted_message_len);
 
     free(decryptedMessage);
     return "";
 }
 
-long sndmsgencrypted(unsigned char msg[585], int port)
+long sndmsgencrypted(unsigned char msg[500], int port)
 {
-    char *testa = "Ceci est le message test";
     // Log message and size
-    printf("Message envoyé au serveur : %s\n", testa);
-    printf("Taille du message envoyé au serveur : %ld\n", strlen(testa));
+    printf("Message envoyé au serveur : %s\n", msg);
+    printf("Taille du message envoyé au serveur : %ld\n", strlen(msg));
 
      // Open the public key file
     FILE *public_key_file = fopen("server_public.pem", "r");
@@ -113,57 +85,15 @@ long sndmsgencrypted(unsigned char msg[585], int port)
         return EXIT_FAILURE;
     }
 
-    // Determine the maximum chunk size. If using RSA_PKCS1_PADDING, the maximum size is the size of the key minus 11.
-    int max_chunk_size = RSA_size(publicKey) - RSA_PKCS1_PADDING_SIZE;
+    unsigned char encrypted_message[512];
 
-    // Log RSA Size
-    printf("RSA size: %d\n", RSA_size(publicKey));
-    // Allocate memory for the encrypted message
-    unsigned char *encrypted_message = (unsigned char *)malloc(strlen(testa) / max_chunk_size * RSA_size(publicKey));
-    int encrypted_message_length = 0;
-
-    // Encrypt the message in chunks
-    int offset = 0;
-    for (int i = 0; i < strlen(testa); i += max_chunk_size)
+    // Encrypt message
+    int encrypted_message_len = RSA_public_encrypt(strlen(msg), msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
+    if (encrypted_message_len == -1)
     {
-        int chunk_size = strlen(testa) - i;
-        if (chunk_size > max_chunk_size)
-            chunk_size = max_chunk_size;
-
-        // Buffers pour le message chiffré et le message original
-        unsigned char *temp_buff = (unsigned char *)malloc(RSA_size(publicKey));
-        if (temp_buff == NULL)
-        {
-            perror("Erreur d'allocation de mémoire pour le message chiffré");
-            exit(EXIT_FAILURE);
-        }
-
-        int result;
-
-        while (result != RSA_size(publicKey))
-        {
-            // Chiffrement RSA
-            result = RSA_public_encrypt(chunk_size, testa + i, temp_buff, publicKey, RSA_PKCS1_PADDING);
-            if (result == -1)
-            {
-                fprintf(stderr, "Erreur lors de l'encryption\n");
-            return EXIT_FAILURE;
-            }
-        }
-
-        // Copy the encrypted chunk into the encrypted message
-        memcpy(encrypted_message + encrypted_message_length, temp_buff, result);
-        encrypted_message_length += result;
-
-        free(temp_buff);
-
-        // if (RSA_public_encrypt(chunk_size, testa + i, encrypted_message + offset, publicKey, RSA_PKCS1_PADDING) == -1)
-        // {
-        //     fprintf(stderr, "Erreur lors de l'encryption\n");
-        //     return EXIT_FAILURE;
-        // }
-
-        offset += RSA_size(publicKey);
+        ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
+        fprintf(stderr, "Erreur lors du chiffrement RSA");
+        return EXIT_FAILURE;
     }
 
     // Log encrypted message hexa and size
@@ -172,7 +102,7 @@ long sndmsgencrypted(unsigned char msg[585], int port)
         printf("%02x", encrypted_message[i]);
     }
     printf("\n");
-    printf("Taille du message chiffré envoyé au serveur : %ld\n", strlen(encrypted_message));
+    printf("Taille du message chiffré envoyé au serveur : %ld\n", strlen(encrypted_message_len));
 
     // close public key file
     fclose(public_key_file);
