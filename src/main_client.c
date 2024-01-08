@@ -86,6 +86,7 @@ long sndmsgencrypted(unsigned char *msg, int port)
     }
 
     unsigned char *encrypted_message = (unsigned char *)malloc(RSA_size(publicKey));
+    printf("size msg : %ld\n", strlen(msg));
 
     // Encrypt message
     int encrypted_message_len;
