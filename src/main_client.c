@@ -48,7 +48,7 @@ unsigned char *test(unsigned char msg[1024])
     // decrypt
     unsigned char *decrypted_message = (unsigned char *)malloc(RSA_size(privateKey));
     printf("msg : %s\n", msg);
-    int decrypted_message_len = RSA_private_decrypt(strlen(msg) + 1, msg, decrypted_message, privateKey, RSA_PKCS1_PADDING);
+    int decrypted_message_len = RSA_private_decrypt(strlen(msg), msg, decrypted_message, privateKey, RSA_PKCS1_PADDING);
     if (decrypted_message_len == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
