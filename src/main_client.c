@@ -113,7 +113,7 @@ long sndmsgencrypted(unsigned char *msg, int port)
 
     // free(encrypted_message);
 
-    char *base64_msg = base64_encode(encrypted_message, encrypted_message_len);
+    char *base64_msg = base64_encode(encrypted_message, encrypted_message_len + 1);
     // Log base64 message and size
     printf("Message en base64 envoyé au serveur : %s\n", base64_msg);
     printf("Taille du message en base64 envoyé au serveur : %ld\n", strlen(base64_msg));
