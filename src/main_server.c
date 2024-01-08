@@ -25,7 +25,10 @@ unsigned char tokenKey[32];
 const int DEFAULT_CLIENT_PORT = 12346;
 int lastAttribuedClientPort = 12347;
 
-void processUpMessage(char *received_msg)
+char currentReceivedFilename[256];
+FILE *currentOpenedFileForReceiving;
+
+void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey, char* uploadDir)
 {
     // Copy received message
     char *received_msg_copy = malloc(strlen(received_msg) + 1);
@@ -35,8 +38,11 @@ void processUpMessage(char *received_msg)
     char *token = strtok(NULL, ",");
 
     // Get user
-    User *user = getUserFromToken(token, tokenKey);
-    if (user == NULL) return;
+    User *user = NULL;
+    if (getUser) {
+        user = getUserFromToken(token, tokenKey);
+        if (user == NULL) return;
+    }
 
     // Get the message after the 2 commas
     char *msg = strchr(received_msg, ',') + 1;
@@ -58,40 +64,52 @@ void processUpMessage(char *received_msg)
         }
 
         // Create full filename
-        char *uploadDir = "upload/";
         char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
         strcpy(fullFilename, uploadDir);
         strcat(fullFilename, filename);
-        printf("Uploading file: %s\n", fullFilename);
-        strcpy(user->currentUploadFileName, fullFilename);
+        printf("Receiving file: %s\n", fullFilename);
+        if (getUser) strcpy(user->currentUploadFileName, fullFilename);
+        else strcpy(currentReceivedFilename, fullFilename);
 
         // Check if file exists, if so send error
         if (access(fullFilename, F_OK) != -1) {
-            char message[1024] = "error,File already exists, please choose another name!";
-            sndmsg(message, user->attribuedPort);
+            if (getUser) {
+                char message[1024] = "error,File already exists, please choose another name!";
+                sndmsg(message, user->attribuedPort);
+            }
             printf("ERROR: File already exists!\n");
             return;
-        } else {
+        } else if (getUser) {
             char message[1024] = "Uploading started!";
             sndmsg(message, user->attribuedPort);
         }
 
         // Open file
-        user->currentOpenedFile = fopen(fullFilename, "w+");
-        if (user->currentOpenedFile == NULL) {
-            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        if (getUser) {
+            user->currentOpenedFile = fopen(fullFilename, "w+");
+            if (user->currentOpenedFile == NULL) {
+                fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            }
+        } else {
+            currentOpenedFileForReceiving = fopen(fullFilename, "w+");
+            if (currentOpenedFileForReceiving == NULL) {
+                fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            }
         }
 
-        // Create metadata file with role in first line and owner in second line
-        char *metadataFilename = malloc(strlen(fullFilename) + 5);
-        strcpy(metadataFilename, fullFilename);
-        strcat(metadataFilename, ".meta");
-        FILE *metadataFile = fopen(metadataFilename, "w+");
-        if (metadataFile == NULL) {
-            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        // Only create metadata file if user is used
+        if (getUser) {
+            // Create metadata file with role in first line and owner in second line
+            char *metadataFilename = malloc(strlen(fullFilename) + 5);
+            strcpy(metadataFilename, fullFilename);
+            strcat(metadataFilename, ".meta");
+            FILE *metadataFile = fopen(metadataFilename, "w+");
+            if (metadataFile == NULL) {
+                fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            }
+            fprintf(metadataFile, "%s\n%s\n", user->role, user->username);
+            fclose(metadataFile);
         }
-        fprintf(metadataFile, "%s\n%s\n", user->role, user->username);
-        fclose(metadataFile);
     }
     // Check if header contains FILE_END
     else if (strstr(msg, fileEnd) != NULL) {
@@ -105,17 +123,17 @@ void processUpMessage(char *received_msg)
         // Verify signature
         if (verifySignature(user->currentOpenedFile, decodedSignature, decodedLength, user->publicKey)) {
             char message[1024] = "File uploaded successfully!";
-            fclose(user->currentOpenedFile);
+            fclose(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
             // Notify client that file was uploaded successfully
-            sndmsg(message, user->attribuedPort);
+            if (getUser) sndmsg(message, user->attribuedPort);
             printf("File uploaded successfully!\n");
         } else {
             char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
             // Close file and delete it
-            fclose(user->currentOpenedFile);
-            unlink(user->currentUploadFileName);
+            fclose(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
+            unlink(getUser ? user->currentUploadFileName : currentReceivedFilename);
             // Notify client that file couldn't be uploaded
-            sndmsg(message, user->attribuedPort);
+            if(getUser) sndmsg(message, user->attribuedPort);
             printf("ERROR: Invalid signature, the file is deleted!\n");
         }
 
@@ -124,7 +142,7 @@ void processUpMessage(char *received_msg)
     }
 
     // Check if header contains PUBLIC_KEY
-    else if (strstr(msg, publicKey) != NULL) {
+    else if (strstr(msg, publicKey) != NULL && getUser) {
         // Get the public key after the comma and copy it in new memory location
         char *publicKey = strchr(msg, ',') + 1;
         strncpy(user->publicKey, publicKey, strlen(publicKey) + 1);
@@ -135,7 +153,7 @@ void processUpMessage(char *received_msg)
         // Decode and write to file
         size_t decodedLength;
         unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
-        fwrite(decodedMessage, 1, decodedLength, user->currentOpenedFile);
+        fwrite(decodedMessage, 1, decodedLength, getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
         free(decodedMessage);
     }
 
@@ -295,7 +313,7 @@ int main()
             // TODO: decrypedToken
             if (strcmp(token, "up") == 0)
             {
-                processUpMessage(received_msg);
+                processReceiveFile(received_msg, 1, tokenKey, "upload/");
             }
             else if (strcmp(token, "list") == 0)
             {

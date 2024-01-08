@@ -11,7 +11,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-void processUploadFile(char* filename, char* token, int receivingPort, int destinationPort, int sendPublicKey, char* keyRSAPrefix){
+void processSendFile(char* filename, char* token, int receivingPort, int destinationPort, int sendPublicKey, char* keyRSAPrefix){
+    // If we don't send public key it means we are sending a file to a client (we are the server, so the client already have the public key)
+    const int waitForReceiverResponse = sendPublicKey
+
     // Start server to receive messages
     if (startserver(receivingPort) == -1)
     {
@@ -39,9 +42,8 @@ void processUploadFile(char* filename, char* token, int receivingPort, int desti
     // Add token if not null for authentication
     if (token != NULL) {
         strcat(server_message, token);
-        strcat(server_message, ",");
     }
-    strcat(server_message, "FILE_START,");
+    strcat(server_message, ",FILE_START,");
     strcat(server_message, filename);
     long long result = sndmsg(server_message, destinationPort);
     if (result != 0)
@@ -50,17 +52,17 @@ void processUploadFile(char* filename, char* token, int receivingPort, int desti
         return;
     }
 
-    // Get server response
-    char server_response[1024] = "";
-    if (getmsg(server_response) == -1)
-    {
-        fprintf(stderr, "ERREUR: Impossible de recevoir un message\n");
-        return;
+    if (waitForReceiverResponse) {
+        // Get server response
+        char server_response[1024] = "";
+        if (getmsg(server_response) == -1)
+        {
+            fprintf(stderr, "ERREUR: Impossible de recevoir un message\n");
+            return;
+        }
+        checkError(server_response);
+        printf("%s\n", server_response);
     }
-
-    checkError(server_response);
-
-    printf("%s\n", server_response);
 
     while (!feof(file))
     {
@@ -68,8 +70,8 @@ void processUploadFile(char* filename, char* token, int receivingPort, int desti
         // Add token
         if (token != NULL) {
             strcat(server_message, token);
-            strcat(server_message, ",");
         }
+        strcat(server_message, ",");
         // Calculate the max num of chars to read
         int max_retreive_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
         // Take in account the base64 encoding
@@ -101,9 +103,8 @@ void processUploadFile(char* filename, char* token, int receivingPort, int desti
         // Add token
         if (token != NULL) {
             strcat(server_message1, token);
-            strcat(server_message1, ",");
         }
-        strcat(server_message1, "PUBLIC_KEY,");
+        strcat(server_message1, ",PUBLIC_KEY,");
         char* publicKeyName = malloc(strlen(keyRSAPrefix) + 1 + strlen("_public.pem") + 1);
         strcpy(publicKeyName, keyRSAPrefix);
         strcat(publicKeyName, "_public.pem");
@@ -139,10 +140,8 @@ void processUploadFile(char* filename, char* token, int receivingPort, int desti
     // Add token
     if (token != NULL) {
         strcat(server_message2, token);
-        strcat(server_message2, ",");
     }
-    strcat(server_message2, "FILE_END");
-    strcat(server_message2, ",");
+    strcat(server_message2, ",FILE_END,");
     strcat(server_message2, encoded_signature);
     free(encoded_signature);
     long long result2 = sndmsg(server_message2, destinationPort);

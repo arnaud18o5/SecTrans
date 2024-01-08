@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "-up") == 0 && argc >= 3)
     {
         // Exemple d'utilisation : ./client -up <nom du fichier>
-        processUploadFile(argv[2], token, attribuedPort, SERVER_PORT, 1, "client");
+        processSendFile(argv[2], token, attribuedPort, SERVER_PORT, 1, "client");
     }
     else if (strcmp(argv[1], "-list") == 0 && argc == 2)
     {
