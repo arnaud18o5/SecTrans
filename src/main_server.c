@@ -497,16 +497,8 @@ int main()
                 printf("Demande de clé publique\n");
                 if (commaPos != NULL)
                 {
-                    char *secondComma = strchr(commaPos + 1, ',');
-                    if (secondComma != NULL)
-                    {
-                        int length = secondComma - (commaPos + 1);
-                        char token[10]; // Taille suffisante pour stocker le token
-                        strncpy(token, commaPos + 1, length);
-                        token[length] = '\0'; // Ajouter le caractère nul à la fin
-                        int portClient = atoi(token);
-                        sndmsg(pub_key, portClient);
-                        printf("Clé publique envoyée au client\n");
+                    sndmsg(pub_key, portClient);
+                    printf("Clé publique envoyée au client\n");
                         /*if (startserver(port) == -1)
                         {
                             fprintf(stderr, "Failed to start the server\n");
@@ -533,15 +525,11 @@ int main()
                             printf("Message déchiffré : %s\n", decryptedMessage);
                             msg_received = 1;
                         }*/
-                    }
 
-                    free(token); // Don't forget to free the memory when you're done
                 }
-                else
-                {
-                    fprintf(stderr, "No comma found in message\n");
-                }
+                else fprintf(stderr, "No comma found in message\n");
             }
+            free(token); // Don't forget to free the memory when you're done
         }
     }
     stopserver();
