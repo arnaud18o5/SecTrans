@@ -35,17 +35,17 @@ unsigned char *test(unsigned char msg[1024]){
         fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         return NULL;
     }
-    // // Get the public key
-    // char privateKey[2048];
-    // // Read all the file content
-    // char c;
-    // int i = 0;
-    // while ((c = fgetc(privateKeyFile)) != EOF)
-    // {
-    //     privateKey[i] = c;
-    //     i++;
-    // }
-    // privateKey[i] = '\0';
+    // Get the public key
+    char privateKey[2048];
+    // Read all the file content
+    char c;
+    int i = 0;
+    while ((c = fgetc(privateKeyFile)) != EOF)
+    {
+        privateKey[i] = c;
+        i++;
+    }
+    privateKey[i] = '\0';
 
     // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
 
@@ -73,13 +73,13 @@ unsigned char *test(unsigned char msg[1024]){
     //     strcat(decryptedMessage, decryptedPacket);
     // }
 
-    // Read the private key
-    RSA *privateKey = PEM_read_RSAPrivateKey(privateKeyFile, NULL, NULL, NULL);
-    if (privateKey == NULL)
-    {
-        fprintf(stderr, "Erreur lors de la lecture de la clé privée\n");
-        return NULL;
-    }
+    // // Read the private key
+    // RSA *privateKey = PEM_read_RSAPrivateKey(privateKeyFile, NULL, NULL, NULL);
+    // if (privateKey == NULL)
+    // {
+    //     fprintf(stderr, "Erreur lors de la lecture de la clé privée\n");
+    //     return NULL;
+    // }
 
     // Decrypt the message
     // unsigned char *decryptedMessage = (unsigned char *)malloc(1024 * sizeof(char));
