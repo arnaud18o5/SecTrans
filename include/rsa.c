@@ -70,7 +70,7 @@ char* load_key(char* filename){
     if (publicKeyFile == NULL)
     {
         fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-        return;
+        return NULL;
     }
 
     // Get the public key
