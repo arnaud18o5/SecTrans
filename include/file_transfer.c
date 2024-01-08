@@ -278,7 +278,7 @@ void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey
             fclose(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
             // Notify client that file was uploaded successfully
             if (getUser) sndmsg(message, user->attribuedPort);
-            printf("File uploaded successfully!\n");
+            printf("File received successfully!\n");
         } else {
             char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
             // Close file and delete it
