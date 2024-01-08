@@ -86,7 +86,7 @@ printf("Veuillez entrez votre nom d'utilisateur : \n");
     attribuedPort = atoi(attribuedPortStr);
 }
 
-void processUploadFile(char* filename, char* token, int receivingPort, int destinationPort, bool sendPublicKey, char* keyRSAPrefix){
+void processUploadFile(char* filename, char* token, int receivingPort, int destinationPort, int sendPublicKey, char* keyRSAPrefix){
     // Start server to receive messages
     if (startserver(receivingPort) == -1)
     {
