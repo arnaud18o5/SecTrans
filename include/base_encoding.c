@@ -9,26 +9,27 @@
 #include <openssl/evp.h>
 
 // Function to decode Base64 to data
-unsigned char* base64_decode(const char* buffer, size_t* length) {
+unsigned char *base64_decode(const char *input, int length)
+{
     BIO *bio, *b64;
 
-    int decodeLen = strlen(buffer);
-    unsigned char* decode = (unsigned char*)malloc(decodeLen);
-    memset(decode, 0, decodeLen);
+    unsigned char *buffer = (unsigned char *)malloc(length);
+    memset(buffer, 0, length);
 
-    bio = BIO_new_mem_buf(buffer, -1);
+    bio = BIO_new_mem_buf((void *)input, length);
     b64 = BIO_new(BIO_f_base64());
     bio = BIO_push(b64, bio);
 
-    *length = BIO_read(bio, decode, decodeLen);
+    BIO_read(bio, buffer, length);
 
     BIO_free_all(bio);
 
-    return decode;
+    return buffer;
 }
 
 // Function to encode data to Base64
-char* base64_encode(const unsigned char* buffer, size_t length) {
+char *base64_encode(const unsigned char *buffer, size_t length)
+{
     BIO *bio, *b64;
     BUF_MEM *bufferPtr;
 
@@ -42,7 +43,7 @@ char* base64_encode(const unsigned char* buffer, size_t length) {
     BIO_set_close(bio, BIO_NOCLOSE);
     BIO_free_all(bio);
 
-    char* ret = (char*)malloc((bufferPtr->length + 1) * sizeof(char));
+    char *ret = (char *)malloc((bufferPtr->length + 1) * sizeof(char));
     memcpy(ret, bufferPtr->data, bufferPtr->length);
     ret[bufferPtr->length] = '\0';
 
