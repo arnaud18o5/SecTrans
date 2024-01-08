@@ -30,6 +30,10 @@ const int DEFAULT_CLIENT_PORT = 12346;
 int lastAttribuedClientPort = 12347;
 
 unsigned char *decryptAndDecodeMessage(char msg[1024]){
+
+    // Log message received and size
+    printf("BEFORE Message received: %s\n", msg);
+    printf("Message size: %ld\n", strlen(msg));
     // Load private key
     FILE *privateKeyFile = fopen("server_private.pem", "r");
     if (privateKeyFile == NULL)
@@ -50,7 +54,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
     privateKey[i] = '\0';
 
     // Log message received and size
-    printf("Message received: %s\n", msg);
+    printf("AFTER Message received: %s\n", msg);
     printf("Message size: %ld\n", strlen(msg));
 
     // decode64
