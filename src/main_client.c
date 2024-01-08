@@ -308,6 +308,7 @@ int main(int argc, char *argv[])
 
         // Send to the server a first message containing a start hint and the filename
         char server_message[1024] = "up,";
+        printf("token : %s\n", token);
         // Add token
         strcat(server_message, token);
         strcat(server_message, ",FILE_START,");
