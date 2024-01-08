@@ -67,6 +67,7 @@
     "stddef.h": "c",
     "signature.h": "c",
     "user.h": "c",
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "rsa.h": "c"
   }
 }
