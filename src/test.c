@@ -5,6 +5,8 @@
 
 #include "../include/encryption.h"
 
+#include "../include/base_encoding.h"
+
 #define KEY_LENGTH 512
 #define PUB_EXP 65537
 #define PRINT_KEYS
