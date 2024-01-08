@@ -529,7 +529,7 @@ int main(int argc, char *argv[])
         char server_message[1024] = "list,";
         // Add token
         strcat(server_message, token);
-        sndmsg(server_message, SERVER_PORT);
+        sndmsgencrypted(server_message, SERVER_PORT);
         // Affichez la liste des fichiers reçue du serveur
         if (startserver(attribuedPort) == -1)
         {
