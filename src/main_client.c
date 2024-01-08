@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     stopserver();
-
+    printf("response : %s\n", response);
     // Check if token_msg contains "error", if so, show message and exit
     if (strstr(response, "error") != NULL)
     {
