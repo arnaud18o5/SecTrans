@@ -66,12 +66,12 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
     // Log message received and size
 
     // Log decoded message hexa and size
-    printf("Decoded message: ");
-    for (int i = 0; i < 512; i++)
-    {
-        printf("%02x", decoded[i]);
-    }
-    printf("\n");
+    // printf("Decoded message: ");
+    // for (int i = 0; i < 512; i++)
+    // {
+    //     printf("%02x", decoded[i]);
+    // }
+    // printf("\n");
     printf("Decoded message size: %ld\n", strlen(decoded));
 
     unsigned char *decryptedMessage = (unsigned char *)malloc(1024 * sizeof(char));
