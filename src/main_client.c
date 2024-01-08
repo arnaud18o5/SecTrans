@@ -45,7 +45,7 @@ unsigned char *test(unsigned char msg[1024]){
     printf("test2\n");
 
     // decrypt
-    unsigned char decrypted_message[1024];
+    unsigned char *decrypted_message = (unsigned char *)malloc(RSA_size(privateKey));
     int decrypted_message_len = RSA_private_decrypt(strlen(msg), msg, decrypted_message, privateKey, RSA_PKCS1_PADDING);
     if (decrypted_message_len == -1)
     {
@@ -56,6 +56,8 @@ unsigned char *test(unsigned char msg[1024]){
 
     printf("Decrypted message: %s\n", decrypted_message);
     printf("Decrypted message size: %d\n", decrypted_message_len);
+
+    free(decrypted_message);
 
     return "";
 }
@@ -84,7 +86,7 @@ long sndmsgencrypted(unsigned char msg[500], int port)
         return EXIT_FAILURE;
     }
 
-    unsigned char encrypted_message[512];
+    unsigned char *encrypted_message = (unsigned char *)malloc(RSA_size(publicKey));
 
     // Encrypt message
     int encrypted_message_len = RSA_public_encrypt(strlen(msg), msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
@@ -107,6 +109,8 @@ long sndmsgencrypted(unsigned char msg[500], int port)
     fclose(public_key_file);
 
     test(encrypted_message);
+
+    free(encrypted_message);
 
     exit(0);
 
