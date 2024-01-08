@@ -338,85 +338,86 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
         printf("%s\n", server_response);
+        /*
+                while (!feof(file))
+                {
+                    char server_message[1024] = "up,";
+                    // Add token
+                    strcat(server_message, token);
+                    strcat(server_message, ",");
+                    // Calculate the max num of chars to read
+                    int max_retreive_size = (1024 - 1024 / 128 * 11) - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
+                    // Take in account the base64 encoding
+                    max_retreive_size = (int)floor(max_retreive_size / 1.37);
+                    unsigned char message[max_retreive_size];
+                    size_t num_read = fread(message, 1, max_retreive_size - 1, file);
+                    message[num_read] = '\0'; // Null-terminate the string
 
-        while (!feof(file))
-        {
-            char server_message[1024] = "up,";
-            // Add token
-            strcat(server_message, token);
-            strcat(server_message, ",");
-            // Calculate the max num of chars to read
-            int max_retreive_size = (1024 - 1024 / 128 * 11) - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
-            // Take in account the base64 encoding
-            max_retreive_size = (int)floor(max_retreive_size / 1.37);
-            unsigned char message[max_retreive_size];
-            size_t num_read = fread(message, 1, max_retreive_size - 1, file);
-            message[num_read] = '\0'; // Null-terminate the string
+                    printf("max retreive size : %d\n", max_retreive_size);
+                    unsigned char encrypted_message[max_retreive_size];
+                    // Split the message into packets of 128
+                    int packet_size = 128 - 11;
+                    int num_packets = (num_read) / packet_size - 1;
+                    // Open the public key file
+                    FILE *public_key_file = fopen("server_public.pem", "r");
+                    if (public_key_file == NULL)
+                    {
+                        fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
+                        return EXIT_FAILURE;
+                    }
+                    // Get the public key
+                    char publicKey[1024];
+                    // Read all the file content
+                    char c;
+                    int i = 0;
+                    while ((c = fgetc(public_key_file)) != EOF)
+                    {
+                        publicKey[i] = c;
+                        i++;
+                    }
+                    publicKey[i] = '\0';
 
-            printf("max retreive size : %d\n", max_retreive_size);
-            unsigned char encrypted_message[max_retreive_size];
-            // Split the message into packets of 128
-            int packet_size = 128 - 11;
-            int num_packets = (num_read) / packet_size - 1;
-            // Open the public key file
-            FILE *public_key_file = fopen("server_public.pem", "r");
-            if (public_key_file == NULL)
-            {
-                fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
-                return EXIT_FAILURE;
-            }
-            // Get the public key
-            char publicKey[1024];
-            // Read all the file content
-            char c;
-            int i = 0;
-            while ((c = fgetc(public_key_file)) != EOF)
-            {
-                publicKey[i] = c;
-                i++;
-            }
-            publicKey[i] = '\0';
+                    // printf("publicKey : %s\n", publicKey);
+                    for (int i = 0; i < num_packets; i++)
+                    {
+                        char packet[packet_size + 1];
+                        strncpy(packet, message + i * packet_size, packet_size);
+                        packet[packet_size] = '\0'; // Null-terminate the packet
 
-            // printf("publicKey : %s\n", publicKey);
-            for (int i = 0; i < num_packets; i++)
-            {
-                char packet[packet_size + 1];
-                strncpy(packet, message + i * packet_size, packet_size);
-                packet[packet_size] = '\0'; // Null-terminate the packet
+                        char *encryptedPacket = encryptMessage(publicKey, packet);
+                        // printf("encryptedPacket : %s\n", encryptedPacket);
 
-                char *encryptedPacket = encryptMessage(publicKey, packet);
-                // printf("encryptedPacket : %s\n", encryptedPacket);
+                        // add encrypted packet to encrypted message
+                        strcat(encrypted_message, encryptedPacket);
 
-                // add encrypted packet to encrypted message
-                strcat(encrypted_message, encryptedPacket);
+                        printf("size packet : %ld\n", strlen(encryptedPacket));
+                    }
 
-                printf("size packet : %ld\n", strlen(encryptedPacket));
-            }
+                    // close public key file
+                    fclose(public_key_file);
 
-            // close public key file
-            fclose(public_key_file);
+                    // printf("encrypted_message : %s\n", encrypted_message);
+                    // printf("size encrypted_message : %d\n", strlen(encrypted_message));
 
-            // printf("encrypted_message : %s\n", encrypted_message);
-            // printf("size encrypted_message : %d\n", strlen(encrypted_message));
+                    // Encode the message to base64
+                    strcat(server_message, encrypted_message);
+                    printf("size server_message : %ld\n", strlen(server_message));
+                    char *encoded_message = base64_encode(server_message, strlen(server_message));
+                    printf("encoded_message : %s\n", encoded_message);
+                    printf("size encoded_message : %ld\n", strlen(encoded_message));
+                    long long result = sndmsg(encoded_message, SERVER_PORT);
+                    // free(encoded_message);
+                    if (result != 0)
+                    {
+                        fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+                        return EXIT_FAILURE;
+                    }
+                    // Show progress
+                    total_read += num_read;
+                    printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
 
-            // Encode the message to base64
-            strcat(server_message, encrypted_message);
-            printf("size server_message : %ld\n", strlen(server_message));
-            char *encoded_message = base64_encode(server_message, strlen(server_message));
-            printf("encoded_message : %s\n", encoded_message);
-            printf("size encoded_message : %ld\n", strlen(encoded_message));
-            long long result = sndmsg(encoded_message, SERVER_PORT);
-            // free(encoded_message);
-            if (result != 0)
-            {
-                fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-                return EXIT_FAILURE;
-            }
-            // Show progress
-            total_read += num_read;
-            printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
-        }
-
+                }
+        */
         // Send the public key to the server
         char server_message1[1024] = "up,";
         // Add token
