@@ -8,7 +8,7 @@
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 
-int generate_rsa_keypair(int bits) {
+int generate_rsa_keypair(int bits, char* prefix) {
     int ret = 0;
     RSA *r = NULL;
     BIGNUM *bne = NULL;
@@ -31,7 +31,10 @@ int generate_rsa_keypair(int bits) {
     }
 
     // 2. save private key
-    privateKeyFile = fopen("client_private.pem", "w");
+    char* privateKeyFilename = malloc(strlen(prefix) + strlen("_private.pem") + 1);
+    strcpy(privateKeyFilename, prefix);
+    strcat(privateKeyFilename, "_private.pem");
+    privateKeyFile = fopen(privateKeyFilename, "w");
     if(privateKeyFile == NULL){
         goto free_stuff;
     }
@@ -41,7 +44,10 @@ int generate_rsa_keypair(int bits) {
     }
 
     // 3. save public key
-    publicKeyFile = fopen("client_public.pem", "w");
+    char* publicKeyFilename = malloc(strlen(prefix) + strlen("_public.pem") + 1);
+    strcpy(publicKeyFilename, prefix);
+    strcat(publicKeyFilename, "_public.pem");
+    publicKeyFile = fopen(publicKeyFilename, "w");
     if(publicKeyFile == NULL){
         goto free_stuff;
     }

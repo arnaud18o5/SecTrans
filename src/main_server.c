@@ -141,7 +141,7 @@ void processDownMessage(char *received_msg)
 int main()
 {
     // Generate RSA key pair
-    generate_rsa_keypair(2048);
+    generate_rsa_keypair(2048, "server");
 
     // Generate the key for the token
     if (RAND_bytes(tokenKey, sizeof(tokenKey)) != 1) {

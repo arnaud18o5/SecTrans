@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
     if (argc < 2) return print_usage();
 
     // Generate RSA key pair
-    generate_rsa_keypair(2048);
+    generate_rsa_keypair(2048, "client");
 
     // Authenticate user from server and get token and port for future communications
     authenticate();
