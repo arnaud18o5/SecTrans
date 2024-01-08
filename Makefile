@@ -23,7 +23,7 @@ rsa.o: include/rsa.c
 server: src/main_server.c hash.o base_encoding.o signature.o user.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
-client: src/main_client.c hash.o base_encoding.o rsa.h
+client: src/main_client.c hash.o base_encoding.o rsa.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o sectrans $^ $(LDLIBS)
 
 run_server: server
