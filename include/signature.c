@@ -63,7 +63,7 @@ int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, 
     return (ret == 1);
 }
 
-unsigned char* getFileSignature(FILE* file, unsigned int* signature_length, char* privateKey) {
+unsigned char* getFileSignature(FILE* file, unsigned int* signature_length, char* privateKeyName) {
     // Create signed hash
     unsigned char* hash = calculate_hash(file);
     // Get the private key to sign the hash
@@ -72,7 +72,12 @@ unsigned char* getFileSignature(FILE* file, unsigned int* signature_length, char
         fprintf(stderr, "Error creating EVP_MD_CTX structure.\n");
         return NULL;
     }
-    FILE *privateKeyFile = fopen("client_private.pem", "r");
+
+    // Open the private key file
+    char* fullPrivateKeyPath = malloc(strlen(privateKeyName) + 1 + strlen("_private.pem") + 1);
+    strcpy(fullPrivateKeyPath, privateKeyName);
+    strcat(fullPrivateKeyPath, "_private.pem");
+    FILE *privateKeyFile = fopen(fullPrivateKeyPath, "r");
     if (privateKeyFile == NULL)
     {
         fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
@@ -88,7 +93,6 @@ unsigned char* getFileSignature(FILE* file, unsigned int* signature_length, char
 
     // Create the signature
     unsigned char *signature_encrypted = malloc(EVP_PKEY_size(privateKey));
-    unsigned int signature_length;
     if (EVP_SignInit_ex(mdctx, EVP_sha256(), NULL) != 1) {
         fprintf(stderr, "Error initializing EVP_SignInit_ex.\n");
         return NULL;
@@ -97,7 +101,7 @@ unsigned char* getFileSignature(FILE* file, unsigned int* signature_length, char
         fprintf(stderr, "Error in EVP_SignUpdate.\n");
         return NULL;
     }
-    if (EVP_SignFinal(mdctx, signature_encrypted, &signature_length, privateKey) != 1) {
+    if (EVP_SignFinal(mdctx, signature_encrypted, signature_length, privateKey) != 1) {
         fprintf(stderr, "Error in EVP_SignFinal.\n");
         return NULL;
     }
