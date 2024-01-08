@@ -9,7 +9,7 @@
 
 #include "encryption.h"
 
-char *decryptMessage(char *pri_key, char *message)
+unsigned char *decryptMessage(char *pri_key, unsigned char *message)
 {
     RSA *rsa = NULL;
 
@@ -55,10 +55,10 @@ char *decryptMessage(char *pri_key, char *message)
 
     RSA_free(rsa);
 
-    return (char *)decrypted_message;
+    return (unsigned char *)decrypted_message;
 }
 
-char *encryptMessage(char *pub_key, char *message)
+unsigned char *encryptMessage(char *pub_key, char *message)
 {
     RSA *rsa = NULL;
 
@@ -110,5 +110,5 @@ char *encryptMessage(char *pub_key, char *message)
     }
 
     RSA_free(rsa);
-    return (char *)encrypted_message;
+    return (unsigned char *)encrypted_message;
 }

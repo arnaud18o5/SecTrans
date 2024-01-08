@@ -97,7 +97,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
         }
 
         // Decrypt the packet
-        char *decryptedPacket = decryptMessage(privateKey, packet);
+        unsigned char *decryptedPacket = decryptMessage(privateKey, packet);
 
         printf("decryptedPacket: %s\n", decryptedPacket);
 

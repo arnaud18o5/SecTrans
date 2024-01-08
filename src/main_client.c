@@ -27,7 +27,7 @@ const int DEFAULT_CLIENT_PORT = 12346;
 char *token;
 int attribuedPort;
 
-long sndmsgencrypted(char msg[585], int port)
+long sndmsgencrypted(unsigned char msg[585], int port)
 {
     // Log message and size
     printf("Message envoyé au serveur : %s\n", msg);
@@ -51,14 +51,14 @@ long sndmsgencrypted(char msg[585], int port)
     }
     publicKey[i] = '\0';
 
-    char *encrypted_message = (char *)malloc(740);
+    unsigned char *encrypted_message = (unsigned char *)malloc(740);
 
     // Split the message into packets of 117 (128 - 11) and encrypt each packet
-    int packet_size = 116;
+    int packet_size = 117;
     int num_packets = (strlen(msg) - 1) / packet_size + 1;
     for (int i = 0; i < num_packets; i++)
     {
-        char packet[packet_size + 1];
+        unsigned char packet[packet_size + 1];
         int index = i * packet_size;
         int j;
         for (j = 0; j < packet_size && msg[index + j] != '\0'; j++) {
@@ -66,7 +66,7 @@ long sndmsgencrypted(char msg[585], int port)
         }
         packet[j] = '\0'; // Null-terminate the packet
 
-        char *encryptedPacket = encryptMessage(publicKey, packet);
+        unsigned char *encryptedPacket = encryptMessage(publicKey, packet);
 
         // add encrypted packet to encrypted message
         strcat(encrypted_message, encryptedPacket);
