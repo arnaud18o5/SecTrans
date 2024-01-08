@@ -78,23 +78,26 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
     //     free(decryptedBlock);
     // }
     // decouper decodedSignature en pakcet de 128 char
-    int nbBlocks = strlen(decoded) * sizeof(char) / 128;
+    int nbBlocks = (strlen(decoded) + 127) / 128;  // Round up to the nearest block
     unsigned char packet[128];
-    int j = 0;
-    int k = 0;
-    for (j = 0; j < nbBlocks; j++)
+
+    for (int j = 0; j < nbBlocks; j++)
     {
-        for (k = 0; k < 128; k++)
+        // Initialize the packet with zeros
+        memset(packet, 0, sizeof(packet));
+
+        // Copy the data into the packet
+        for (int k = 0; k < 128 && decoded[k + (j * 128)] != '\0'; k++)
         {
             packet[k] = decoded[k + (j * 128)];
         }
 
-        // printf("packet: %s\n", packet);
-        //  decrypter packet
+        // Decrypt the packet
         char *decryptedPacket = decryptMessage(privateKey, packet);
 
         printf("decryptedPacket: %s\n", decryptedPacket);
-        // concat decryptedPacket dans decryptedSignature
+
+        // Concatenate the decrypted packet into the decrypted message
         strcat(decryptedMessage, decryptedPacket);
     }
 
