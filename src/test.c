@@ -124,12 +124,9 @@ int main(void)
     char *encrypted = encrypt_message((const unsigned char *)message, sizeof(message), pubKey, &encrypted_size);
     printf("message encrypté: %s\n", encrypted);*/
 
-    const unsigned char *message = "salut les foufous";
-    // code base64
-    char *base64_message = base64_encode(message, strlen(message));
-    printf("message en base64: %s\n", base64_message);
+    const char *message = "8A2j3NlVAADgvWyCZ38AALUDhdt573Ar/rFZgsjDqkESA0noT+/f1ZEHBttYY6YG2CaB3nAUQsWg3vXFQogtLPxERlUDCMzUH8SkqbSb/LfEThudpufVTnT0VuQfOOZKQo+3q9js+l/ESM0j41Z9W6ExesGDz5StFpZpjGR45h0YH6nOdVHAihbOb8MbP80KcKRx3oV1QnESbTWQkBJCJjg/IhXsiw2mKzGyybmfgOWvAu4hSa3fDcAPdtkikfLzYJLX+obAlM0ZZU5dR0H/NL17z/4VTgGwLdVi4/fNlWT72y4b6bgizs3p/A0HHnuICp7XZcF5/8y7zlI/xeJRi04BgfRkHbqbHj3ZqzeDC8Dq/fEHLwqFW165nwjOsPZKBBDAqtB/YdyJUugImy7ERi6/jxGyUJDt65ADy6ptWUhN0YA+RTSnAKaMrUJGVnSSR3KNKD2twaDxPSYEsbEAjb6+3VM39Li6FOhRTrsf5tyK93TD5SmzI8KBw5V1I29AgVGtoQ9l9G4Wey3QaXifiPHqhi0uFu1Tf66quyDuRyPSKVP6L0WzPI75KB6kAmszcgSd+FJtdOApunzxL5Jqa805CjuOagasGiw8HnfcK4P5cYL4gu2TOpTwVJRgurc49CRr2340TJ8up6fqgU7BdzXLROhIhVlAtYgBJ3DASoA=";
 
     // decode base64
-    unsigned char *decoded_message = base64_decode(base64_message, strlen(base64_message));
+    unsigned char *decoded_message = base64_decode(message, strlen(message));
     printf("message décodé: %s\n", decoded_message);
 }
