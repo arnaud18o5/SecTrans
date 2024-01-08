@@ -36,41 +36,37 @@ unsigned char *test(unsigned char msg[1024]){
         return NULL;
     }
     // Get the public key
-    char privateKey[2048];
-    // Read all the file content
-    char c;
-    int i = 0;
-    while ((c = fgetc(privateKeyFile)) != EOF)
+    // char privateKey[2048];
+    // // Read all the file content
+    // char c;
+    // int i = 0;
+    // while ((c = fgetc(privateKeyFile)) != EOF)
+    // {
+    //     privateKey[i] = c;
+    //     i++;
+    // }
+    // privateKey[i] = '\0';
+
+    RSA *privateKey = PEM_read_RSAPrivateKey(privateKeyFile, NULL, NULL, NULL);
+    if (privateKey == NULL)
     {
-        privateKey[i] = c;
-        i++;
+        fprintf(stderr, "Erreur lors de la lecture de la clé privée\n");
+        return NULL;
     }
-    privateKey[i] = '\0';
 
+    // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
+
+     // Decrypt the message
     unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
+    int rsa_len = RSA_size(privateKey);
 
-    // decouper decodedSignature en pakcet de 128 char
-    int nbBlocks = (strlen(msg) + 127) / 128;  // Round up to the nearest block
-    unsigned char packet[128];
-
-    for (int j = 0; j < nbBlocks; j++)
+    for (int i = 0; i < decodedLength; i += rsa_len)
     {
-        // Initialize the packet with zeros
-        memset(packet, 0, sizeof(packet));
-
-        // Copy the data into the packet
-        for (int k = 0; k < 128 && msg[k + (j * 128)] != '\0'; k++)
+        if (RSA_private_decrypt(rsa_len, decoded + i, decryptedMessage + i, privateKey, RSA_PKCS1_PADDING) == -1)
         {
-            packet[k] = msg[k + (j * 128)];
+            fprintf(stderr, "Erreur lors du décryptage\n");
+            return NULL;
         }
-
-        // Decrypt the packet
-        unsigned char *decryptedPacket = decryptMessage(privateKey, packet);
-
-        printf("decryptedPacket: %s\n", decryptedPacket);
-
-        // Concatenate the decrypted packet into the decrypted message
-        strcat(decryptedMessage, decryptedPacket);
     }
 
     printf("Decrypted message: %s\n", decryptedMessage);
