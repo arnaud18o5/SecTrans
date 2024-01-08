@@ -95,7 +95,7 @@ char *encryptMessage(char *pub_key, char *message)
         exit(EXIT_FAILURE);
     }
 
-    while (strlen(encrypted_message) < 128)
+    while (strlen(encrypted_message) != 128)
     {
         // Chiffrement RSA
         int result = RSA_public_encrypt(message_len, (const unsigned char *)message, encrypted_message, rsa, RSA_PKCS1_PADDING);

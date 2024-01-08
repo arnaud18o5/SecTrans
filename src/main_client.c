@@ -59,8 +59,12 @@ long sndmsgencrypted(char msg[585], int port)
     for (int i = 0; i < num_packets; i++)
     {
         char packet[packet_size + 1];
-        strncpy(packet, msg + i * packet_size, packet_size);
-        packet[packet_size] = '\0'; // Null-terminate the packet
+        int index = i * packet_size;
+        int j;
+        for (j = 0; j < packet_size && msg[index + j] != '\0'; j++) {
+            packet[j] = msg[index + j];
+        }
+        packet[j] = '\0'; // Null-terminate the packet
 
         char *encryptedPacket = encryptMessage(publicKey, packet);
 
