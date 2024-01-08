@@ -94,7 +94,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
     //     free(decryptedBlock);
     // }
     // decouper decodedSignature en pakcet de 128 char
-    int nbBlocks = (strlen(decoded) + 127) / 128; // Round up to the nearest block
+    /*int nbBlocks = (strlen(decoded) + 127) / 128; // Round up to the nearest block
     unsigned char packet[128];
 
     for (int j = 0; j < nbBlocks; j++)
@@ -119,7 +119,10 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
 
     // Log decrypted message and size
     printf("Decrypted message: %s\n", decryptedMessage);
-    printf("Decrypted message size: %ld\n", strlen(decryptedMessage));
+    printf("Decrypted message size: %ld\n", strlen(decryptedMessage));*/
+
+    // Decrypt the message
+    int decryptedMessageLength = RSA_private_decrypt(512, decoded, decryptedMessage, rsa, RSA_PKCS1_PADDING);
 
     return decryptedMessage;
 }
