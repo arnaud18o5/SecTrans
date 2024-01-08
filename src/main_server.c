@@ -78,7 +78,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
         printf("%02x", decoded[i]);
     }
     printf("\n");
-    printf("Decoded message size: %ld\n", decodedLength);
+    printf("Decoded message size: %ld\n", strlen(decoded));
 
     unsigned char *decryptedMessage = (unsigned char *)malloc(1024 * sizeof(char));
     // chunk message in 128 char packet and decrypt
