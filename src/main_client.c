@@ -28,7 +28,7 @@ char *token;
 int attribuedPort;
 
 unsigned char *test(unsigned char msg[1024]){
-    print("test\n");
+    printf("test\n");
     // Load private key
     FILE *privateKeyFile = fopen("server_private.pem", "r");
     if (privateKeyFile == NULL)
