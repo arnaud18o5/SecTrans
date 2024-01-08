@@ -547,9 +547,9 @@ int main(int argc, char *argv[])
         char server_message[1024] = "rsa,";
 
         char *base64_server_message = base64_encode(server_message, strlen(server_message));
-        sndmsg(base64_server_message, port);
+        sndmsg(base64_server_message, SERVER_PORT);
 
-        if (startserver(portClient) == -1)
+        if (startserver(DEFAULT_CLIENT_PORT) == -1)
         {
             fprintf(stderr, "Failed to start the server client\n");
             return EXIT_FAILURE;
