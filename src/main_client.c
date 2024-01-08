@@ -90,38 +90,47 @@ long sndmsgencrypted(unsigned char msg[585], int port)
         return EXIT_FAILURE;
     }
     // Get the public key
-    char publicKey[1024];
-    // Read all the file content
-    char c;
-    int i = 0;
-    while ((c = fgetc(public_key_file)) != EOF)
-    {
-        publicKey[i] = c;
-        i++;
-    }
-    publicKey[i] = '\0';
-
-    // unsigned char *encrypted_message = (unsigned char *)malloc(740);
-    unsigned char *encrypted_message = encryptMessage(publicKey, testa);
-
-    // Split the message into packets of 117 (128 - 11) and encrypt each packet
-    // int packet_size = 115;
-    // int num_packets = (strlen(testa) - 1) / packet_size + 1;
-    // for (int i = 0; i < num_packets; i++)
+    // char publicKey[1024];
+    // // Read all the file content
+    // char c;
+    // int i = 0;
+    // while ((c = fgetc(public_key_file)) != EOF)
     // {
-    //     unsigned char packet[packet_size + 1];
-    //     int index = i * packet_size;
-    //     int j;
-    //     for (j = 0; j < packet_size && testa[index + j] != '\0'; j++) {
-    //         packet[j] = testa[index + j];
-    //     }
-    //     packet[j] = '\0'; // Null-terminate the packet
-
-    //     unsigned char *encryptedPacket = encryptMessage(publicKey, packet);
-
-    //     // add encrypted packet to encrypted message
-    //     strcat(encrypted_message, encryptedPacket);
+    //     publicKey[i] = c;
+    //     i++;
     // }
+    // publicKey[i] = '\0';
+
+    // Get the public key
+    RSA *publicKey = PEM_read_RSA_PUBKEY(public_key_file, NULL, NULL, NULL);
+    if (publicKey == NULL)
+    {
+        fprintf(stderr, "Erreur lors de la lecture de la clé publique\n");
+        return EXIT_FAILURE;
+    }
+
+    // Determine the maximum chunk size. If using RSA_PKCS1_PADDING, the maximum size is the size of the key minus 11.
+    int max_chunk_size = RSA_size(publicKey) - RSA_PKCS1_PADDING_SIZE;
+
+    // Allocate memory for the encrypted message
+    unsigned char *encrypted_message = (unsigned char *)malloc(strlen(testa) / max_chunk_size * RSA_size(publicKey));
+
+    // Encrypt the message in chunks
+    int offset = 0;
+    for (int i = 0; i < strlen(testa); i += max_chunk_size)
+    {
+        int chunk_size = strlen(testa) - i;
+        if (chunk_size > max_chunk_size)
+            chunk_size = max_chunk_size;
+
+        if (RSA_public_encrypt(chunk_size, testa + i, encrypted_message + offset, publicKey, RSA_PKCS1_PADDING) == -1)
+        {
+            fprintf(stderr, "Erreur lors de l'encryption\n");
+            return EXIT_FAILURE;
+        }
+
+        offset += RSA_size(publicKey);
+    }
 
     // Log encrypted message hexa and size
     printf("Message chiffré envoyé au serveur :");
