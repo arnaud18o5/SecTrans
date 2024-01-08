@@ -22,6 +22,7 @@
 
 unsigned char tokenKey[32];
 
+const int SERVER_PORT = 12345;
 const int DEFAULT_CLIENT_PORT = 12346;
 int lastAttribuedClientPort = 12347;
 
@@ -106,9 +107,6 @@ void processDownMessage(char *received_msg)
     User *user = getUserFromToken(token, tokenKey);
     if (user == NULL) return;
 
-    char msg[1024];
-    snprintf(msg, 1024, "FILE_START,%s", filename);
-
     // Check if user has access to file
     char *metadataFilename = malloc(strlen(filename) + 5 + 8);
     strcpy(metadataFilename, "upload/");
@@ -131,11 +129,11 @@ void processDownMessage(char *received_msg)
         return;
     }
 
-    // HERE DOWNLOAD (check if file exists, if not send message)
-
-    sndmsg(msg, user->attribuedPort);
-    // Ajoutez le code nécessaire pour envoyer le contenu du fichier au client
-    // ...
+    // Start download
+    char* fullFilename = malloc(strlen(filename) + 8);
+    strcpy(fullFilename, "upload/");
+    strcat(fullFilename, filename);
+    processSendFile(fullFilename, NULL, 0, user->attribuedPort, 0, "server");
 }
 
 int main()

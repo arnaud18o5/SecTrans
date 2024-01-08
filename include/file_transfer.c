@@ -17,16 +17,17 @@
 char currentReceivedFilename[256];
 FILE *currentOpenedFileForReceiving;
 
-void processSendFile(char* filename, char* token, int receivingPort, int destinationPort, int sendPublicKey, char* keyRSAPrefix){
+void processSendFile(char* filename, char* token, int listeningPort, int receiverPort, int sendPublicKey, char* keyRSAPrefix){
     // If we don't send public key it means we are sending a file to a client (we are the server, so the client already have the public key)
     const int waitForReceiverResponse = sendPublicKey;
 
     // Start server to receive messages
-    if (startserver(receivingPort) == -1)
-    {
-        fprintf(stderr, "ERREUR: Impossible de démarrer le serveur pour l'upload\n");
-        return;
-    }
+    if (waitForReceiverResponse) {
+        if(startserver(listeningPort) == -1) {
+            fprintf(stderr, "ERREUR: Impossible de démarrer le serveur pour l'upload\n");
+            return;
+        }
+    } 
 
     // Open the file descriptor to read
     FILE *file = fopen(filename, "r");
@@ -51,7 +52,7 @@ void processSendFile(char* filename, char* token, int receivingPort, int destina
     }
     strcat(server_message, ",FILE_START,");
     strcat(server_message, filename);
-    long long result = sndmsg(server_message, destinationPort);
+    long long result = sndmsg(server_message, receiverPort);
     if (result != 0)
     {
         fprintf(stderr, "ERREUR: Envoi du message au destinataire impossible\n");
@@ -92,7 +93,7 @@ void processSendFile(char* filename, char* token, int receivingPort, int destina
         strcat(server_message, encoded_message);
         free(encoded_message);
 
-        long long result = sndmsg(server_message, destinationPort);
+        long long result = sndmsg(server_message, receiverPort);
         if (result != 0)
         {
             fprintf(stderr, "ERREUR: Envoi du message au destinataire impossible\n");
@@ -117,7 +118,7 @@ void processSendFile(char* filename, char* token, int receivingPort, int destina
         char* publicKey = load_key(publicKeyName);
 
         strcat(server_message1, publicKey);
-        long long result1 = sndmsg(server_message1, destinationPort);
+        long long result1 = sndmsg(server_message1, receiverPort);
         if (result1 != 0)
         {
             fprintf(stderr, "ERREUR: Envoi du message au destinataire impossible\n");
@@ -150,20 +151,22 @@ void processSendFile(char* filename, char* token, int receivingPort, int destina
     strcat(server_message2, ",FILE_END,");
     strcat(server_message2, encoded_signature);
     free(encoded_signature);
-    long long result2 = sndmsg(server_message2, destinationPort);
+    long long result2 = sndmsg(server_message2, receiverPort);
     if (result2 != 0)
     {
         fprintf(stderr, "ERREUR: Envoi du message au destinatire impossible\n");
         return;
     }
 
-    char received_msg[1024] = "";
-    if (getmsg(received_msg) == -1)
-    {
-        fprintf(stderr, "ERREUR: Impossible de recevoir un message\n");
-        return;
+    if (waitForReceiverResponse) {
+        char received_msg[1024] = "";
+        if (getmsg(received_msg) == -1)
+        {
+            fprintf(stderr, "ERREUR: Impossible de recevoir un message\n");
+            return;
+        }
+        printf("%s\n", received_msg);
     }
-    printf("%s\n", received_msg);
 
     fclose(file);
     stopserver();
@@ -280,6 +283,9 @@ void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey
 
         // Free memory
         free(decodedSignature);
+
+        // If don't have a user system (so we're a client), close the program
+        if (!getUser) exit(0);
     }
 
     // Check if header contains PUBLIC_KEY

@@ -115,34 +115,24 @@ void processDownload(char* filename){
     strcat(server_message, ",");
     strcat(server_message, filename);
 
+    // Send download message to server
     sndmsg(server_message, SERVER_PORT);
 
+    // Start server to receive file
     if (startserver(attribuedPort) == -1)
     {
         fprintf(stderr, "Failed to start the server client\n");
         return;
     }
-    int messageReceived = 0;
-    char received_msg[1024] = "";
-    while (messageReceived == 0)
-    {
+
+    while (1) {
+        char received_msg[1024] = "";
         if (getmsg(received_msg) == -1)
         {
             fprintf(stderr, "Error while receiving message\n");
             break;
         }
-        if (strcmp(received_msg, ""))
-        {
-            // Check if message contains error
-            if (strstr(received_msg, "error") != NULL) {
-                // Get message after comma
-                char* error_msg = strchr(received_msg, ',') + 1;
-                printf("%s\n", error_msg);
-                break;
-            }
-            printf("Message reçu du serveur : %s\n", received_msg);
-            messageReceived = 1;
-        }
+        processReceiveFile(received_msg, 0, tokenKey, "download/");
     }
 }
 

@@ -71,6 +71,7 @@
     "rsa.h": "c",
     "stdlib.h": "c",
     "file_transfer.h": "c",
-    "error.h": "c"
+    "error.h": "c",
+    "string.h": "c"
   }
 }
