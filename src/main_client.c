@@ -152,15 +152,6 @@ void removeBeginPublicKey(char *str)
     }
 }
 
-void removeNewlines(char *str)
-{
-    char *pos;
-    while ((pos = strchr(str, '\n')) != NULL)
-    {
-        memmove(pos, pos + 1, strlen(pos));
-    }
-}
-
 void removeEndPublicKey(char *str)
 {
     char *end_ptr = strstr(str, "-----END RSA PUBLIC KEY-----");
@@ -169,13 +160,6 @@ void removeEndPublicKey(char *str)
         size_t suffix_len = strlen("-----END RSA PUBLIC KEY-----");
         *end_ptr = '\0';
     }
-}
-
-void reformatKey(char *str)
-{
-    removeBeginPublicKey(str);
-    removeNewlines(str);
-    removeEndPublicKey(str);
 }
 
 // Fonction pour chiffrer un message avec une clé publique RSA
