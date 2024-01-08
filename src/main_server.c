@@ -530,7 +530,6 @@ int main()
                 size_t encryptedSize = (tokenSize / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
                 // printf("encoded token: %s\n", encryptedToken);
                 char *base64Token = base64_encode(encryptedToken, encryptedSize);
-                printf("base64 token: %s\n", base64Token);
 
                 // Assign port to user
                 user->attribuedPort = lastAttribuedClientPort;
@@ -540,6 +539,7 @@ int main()
                 char message[1024];
                 snprintf(message, 1024, "%s,%d", base64Token, user->attribuedPort);
                 sndmsg(message, DEFAULT_CLIENT_PORT);
+                printf("base64 token: %s\n", base64Token);
 
                 // Free memory
                 free(encryptedToken);
