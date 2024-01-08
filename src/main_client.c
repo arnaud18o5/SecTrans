@@ -27,7 +27,7 @@ const int DEFAULT_CLIENT_PORT = 12346;
 char *token;
 int attribuedPort;
 
-unsigned char *test(char msg[1024]){
+unsigned char *test(unsigned char msg[1024]){
     // Load private key
     FILE *privateKeyFile = fopen("server_private.pem", "r");
     if (privateKeyFile == NULL)
@@ -47,35 +47,35 @@ unsigned char *test(char msg[1024]){
     }
     privateKey[i] = '\0';
 
-    unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
+    // unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
 
-    // decouper decodedSignature en pakcet de 128 char
-    int nbBlocks = (strlen(msg) + 127) / 128;  // Round up to the nearest block
-    unsigned char packet[128];
+    // // decouper decodedSignature en pakcet de 128 char
+    // int nbBlocks = (strlen(msg) + 127) / 128;  // Round up to the nearest block
+    // unsigned char packet[128];
 
-    for (int j = 0; j < nbBlocks; j++)
-    {
-        // Initialize the packet with zeros
-        memset(packet, 0, sizeof(packet));
+    // for (int j = 0; j < nbBlocks; j++)
+    // {
+    //     // Initialize the packet with zeros
+    //     memset(packet, 0, sizeof(packet));
 
-        // Copy the data into the packet
-        for (int k = 0; k < 128 && msg[k + (j * 128)] != '\0'; k++)
-        {
-            packet[k] = msg[k + (j * 128)];
-        }
+    //     // Copy the data into the packet
+    //     for (int k = 0; k < 128 && msg[k + (j * 128)] != '\0'; k++)
+    //     {
+    //         packet[k] = msg[k + (j * 128)];
+    //     }
 
-        // Decrypt the packet
-        unsigned char *decryptedPacket = decryptMessage(privateKey, packet);
+    //     // Decrypt the packet
+    //     unsigned char *decryptedPacket = decryptMessage(privateKey, packet);
 
-        printf("decryptedPacket: %s\n", decryptedPacket);
+    //     printf("decryptedPacket: %s\n", decryptedPacket);
 
-        // Concatenate the decrypted packet into the decrypted message
-        strcat(decryptedMessage, decryptedPacket);
-    }
+    //     // Concatenate the decrypted packet into the decrypted message
+    //     strcat(decryptedMessage, decryptedPacket);
+    // }
 
     // Log decrypted message and size
-    printf("Decrypted message: %s\n", decryptedMessage);
-    printf("Decrypted message size: %ld\n", strlen(decryptedMessage));
+    printf("Decrypted message: %s\n", decryptMessage(privateKey, msg));
+    printf("Decrypted message size: %ld\n", strlen(decryptMessage(privateKey, msg)));
 
     free(decryptedMessage);
     return "";
