@@ -103,7 +103,7 @@ void processSendFile(char* filename, char* token, int listeningPort, int receive
         total_read += num_read;
         printf("Progrès: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
     }
-    printf("DEBUG 1\n");
+
     if (sendPublicKey) {
         // Send the public key to the server
         char server_message1[1024] = "up,";
@@ -128,11 +128,10 @@ void processSendFile(char* filename, char* token, int listeningPort, int receive
         free(publicKeyName);
         free(publicKey);
     }
-    printf("DEBUG 2\n");
+
     // Get file signature to send to recipient
     int signature_length;
     unsigned char *signature = getFileSignature(file, &signature_length, keyRSAPrefix);
-    printf("DEBUG 3\n");
     if (signature == NULL)
     {
         fprintf(stderr, "ERROR: Signature de fichier non générable\n");
@@ -141,9 +140,7 @@ void processSendFile(char* filename, char* token, int listeningPort, int receive
 
     // Encode the signature to base64
     char* encoded_signature = base64_encode(signature, signature_length);
-    printf("DEBUG 4\n");
     free(signature);
-    printf("DEBUG 5\n");
 
     // Send to the recipient a last message containing the signature
     char server_message2[1024] = "up,";
@@ -160,7 +157,6 @@ void processSendFile(char* filename, char* token, int listeningPort, int receive
         fprintf(stderr, "ERREUR: Envoi du message au destinatire impossible\n");
         return;
     }
-    printf("ON EST ICI\n");
 
     if (waitForReceiverResponse) {
         char received_msg[1024] = "";
@@ -173,7 +169,7 @@ void processSendFile(char* filename, char* token, int listeningPort, int receive
     }
 
     fclose(file);
-    stopserver();
+    if (waitForReceiverResponse) stopserver();
 }
 
 void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey, char* uploadDir)
