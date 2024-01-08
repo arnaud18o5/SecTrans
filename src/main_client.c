@@ -28,6 +28,7 @@ char *token;
 int attribuedPort;
 
 unsigned char *test(unsigned char msg[1024]){
+    print("test");
     // Load private key
     FILE *privateKeyFile = fopen("server_private.pem", "r");
     if (privateKeyFile == NULL)
@@ -82,13 +83,6 @@ long sndmsgencrypted(unsigned char msg[585], int port)
     // Log message and size
     printf("Message envoyé au serveur : %s\n", testa);
     printf("Taille du message envoyé au serveur : %ld\n", strlen(testa));
-    // // Open the public key file
-    // FILE *public_key_file = fopen("server_public.pem", "r");
-    // if (public_key_file == NULL)
-    // {
-    //     fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
-    //     return EXIT_FAILURE;
-    // }
 
      // Open the public key file
     FILE *public_key_file = fopen("server_public.pem", "r");
@@ -99,21 +93,6 @@ long sndmsgencrypted(unsigned char msg[585], int port)
         return EXIT_FAILURE;
     }
 
-    // Get the public key
-    char azerty[1024];
-    // Read all the file content
-    char c;
-    int i = 0;
-    while ((c = fgetc(public_key_file)) != EOF)
-    {
-        azerty[i] = c;
-        i++;
-    }
-    azerty[i] = '\0';
-
-    // Log
-    printf("Clé publique du serveur : %s\n", azerty);
-    fseek(public_key_file, 0, SEEK_SET);
     // Get the public key
     RSA *publicKey = PEM_read_RSAPublicKey(public_key_file, NULL, NULL, NULL);
     if (publicKey == NULL)
