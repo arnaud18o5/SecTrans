@@ -5,6 +5,7 @@
 #include "base_encoding.h"
 #include "rsa.h"
 #include "signature.h"
+#include "error.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -13,7 +14,7 @@
 
 void processSendFile(char* filename, char* token, int receivingPort, int destinationPort, int sendPublicKey, char* keyRSAPrefix){
     // If we don't send public key it means we are sending a file to a client (we are the server, so the client already have the public key)
-    const int waitForReceiverResponse = sendPublicKey
+    const int waitForReceiverResponse = sendPublicKey;
 
     // Start server to receive messages
     if (startserver(receivingPort) == -1)
