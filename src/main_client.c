@@ -91,7 +91,7 @@ void processUploading(char* file){
     if (startserver(attribuedPort) == -1)
     {
         fprintf(stderr, "Failed to start the server client\n");
-        return EXIT_FAILURE;
+        return;
     }
 
     // Open the file, read its content in 999 chars; store it in server_message and send it
@@ -99,7 +99,7 @@ void processUploading(char* file){
     if (file == NULL)
     {
         fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-        return EXIT_FAILURE;
+        return;
     }
 
     // Get total file length
@@ -119,7 +119,7 @@ void processUploading(char* file){
     if (result != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-        return EXIT_FAILURE;
+        return;
     }
 
     // Get server response
@@ -127,7 +127,7 @@ void processUploading(char* file){
     if (getmsg(server_response) == -1)
     {
         fprintf(stderr, "Error while receiving message\n");
-        return EXIT_FAILURE;
+        return;
     }
 
     checkError(server_response);
@@ -158,7 +158,7 @@ void processUploading(char* file){
         if (result != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-            return EXIT_FAILURE;
+            return;
         }
         // Show progress
         total_read += num_read;
@@ -174,7 +174,7 @@ void processUploading(char* file){
     if (publicKeyFile == NULL)
     {
         fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-        return EXIT_FAILURE;
+        return;
     }
     // Get the public key
     char publicKey[1024];
@@ -192,7 +192,7 @@ void processUploading(char* file){
     if (result1 != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-        return EXIT_FAILURE;
+        return;
     }
 
     // Get file signature to send to server
@@ -215,14 +215,14 @@ void processUploading(char* file){
     if (result2 != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-        return EXIT_FAILURE;
+        return;
     }
 
     char received_msg[1024] = "";
     if (getmsg(received_msg) == -1)
     {
         fprintf(stderr, "Error while receiving message\n");
-        return EXIT_FAILURE;
+        return;
     }
     printf("%s\n", received_msg);
 
@@ -239,7 +239,7 @@ void processListServerFiles(){
     if (startserver(attribuedPort) == -1)
     {
         fprintf(stderr, "Failed to start the server client\n");
-        return EXIT_FAILURE;
+        return;
     }
     int messageReceived = 0;
     char received_msg[1024] = "";
@@ -271,7 +271,7 @@ void processDownload(char* filename){
     if (startserver(attribuedPort) == -1)
     {
         fprintf(stderr, "Failed to start the server client\n");
-        return EXIT_FAILURE;
+        return;
     }
     int messageReceived = 0;
     char received_msg[1024] = "";
@@ -295,13 +295,6 @@ void processDownload(char* filename){
             messageReceived = 1;
         }
     }
-
-    // int result = read_server_message(server_message);// if (result != 0)
-    // {
-    //    fprintf(stderr, "Erreur lors de la récupération du message du serveur\n");
-    //  return EXIT_FAILURE;
-    //}
-    // printf("Message reçu du serveur : %s\n", server_message);
 }
 
 int print_usage()
