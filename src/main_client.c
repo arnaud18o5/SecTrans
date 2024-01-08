@@ -3,6 +3,7 @@
 #include "hash.h"
 #include "base_encoding.h"
 #include "rsa.h"
+#include "signature.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,22 +29,18 @@ const int DEFAULT_CLIENT_PORT = 12346;
 char *token;
 int attribuedPort;
 
-int print_usage()
-{
-    fprintf(stderr, "Usage: ./client <option>\n");
-    fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  -up <message>: Upload a message to the server\n");
-    fprintf(stderr, "  -list: List files stored on the server\n");
-    fprintf(stderr, "  -down <message>: Download a message from the server\n");
-    return EXIT_FAILURE;
+void checkError(char* message){
+    // Check if message contains "error", if so, show message and exit
+    if (strstr(message, "error") != NULL) {
+        // Get message after comma
+        char* error_msg = strchr(response, ',') + 1;
+        printf("ERROR: %s\n", error_msg);
+        return EXIT_FAILURE;
+    }
 }
 
-int main(int argc, char *argv[])
-{
-    // TO BE MOVED WHEN LOGIN ??
-    generate_rsa_keypair();
-
-    printf("Veuillez entrez votre nom d'utilisateur : \n");
+void authenticate(){
+printf("Veuillez entrez votre nom d'utilisateur : \n");
     char username[100];
     scanf("%s", username);
 
@@ -78,13 +75,7 @@ int main(int argc, char *argv[])
     }
     stopserver();
 
-    // Check if token_msg contains "error", if so, show message and exit
-    if (strstr(response, "error") != NULL) {
-        // Get message after comma
-        char* error_msg = strchr(response, ',') + 1;
-        printf("Error while authenticating: %s\n", error_msg);
-        return EXIT_FAILURE;
-    }
+    checkError(response);
 
     // Save token
     char *attribuedToken = strtok(response, ",");
@@ -93,270 +84,261 @@ int main(int argc, char *argv[])
     // Save port
     char *attribuedPortStr = strtok(NULL, ",");
     attribuedPort = atoi(attribuedPortStr);
+}
 
-    if (argc < 2) return print_usage();
-
-    // Traitement des options en fonction des arguments de la ligne de commande
-    if (strcmp(argv[1], "-up") == 0 && argc >= 3)
+void processUploading(char* file){
+    // Start server to receive server messages
+    if (startserver(attribuedPort) == -1)
     {
-        // Exemple d'utilisation : ./client -up <nom du fichier>
+        fprintf(stderr, "Failed to start the server client\n");
+        return EXIT_FAILURE;
+    }
 
-        // Start server to receive server messages
-        if (startserver(attribuedPort) == -1)
-        {
-            fprintf(stderr, "Failed to start the server client\n");
-            return EXIT_FAILURE;
-        }
+    // Open the file, read its content in 999 chars; store it in server_message and send it
+    FILE *file = fopen(file, "r");
+    if (file == NULL)
+    {
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        return EXIT_FAILURE;
+    }
 
-        // Open the file, read its content in 999 chars; store it in server_message and send it
-        FILE *file = fopen(argv[2], "r");
-        if (file == NULL)
-        {
-            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-            return EXIT_FAILURE;
-        }
+    // Get total file length
+    fseek(file, 0, SEEK_END);
+    long long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
 
-        // Get total file length
-        fseek(file, 0, SEEK_END);
-        long long file_size = ftell(file);
-        fseek(file, 0, SEEK_SET);
+    long long total_read = 0;
 
-        long long total_read = 0;
+    // Send to the server a first message containing a start hint and the filename
+    char server_message[1024] = "up,";
+    // Add token
+    strcat(server_message, token);
+    strcat(server_message, ",FILE_START,");
+    strcat(server_message, file);
+    long long result = sndmsg(server_message, SERVER_PORT);
+    if (result != 0)
+    {
+        fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+        return EXIT_FAILURE;
+    }
 
-        // Send to the server a first message containing a start hint and the filename
+    // Get server response
+    char server_response[1024] = "";
+    if (getmsg(server_response) == -1)
+    {
+        fprintf(stderr, "Error while receiving message\n");
+        return EXIT_FAILURE;
+    }
+
+    checkError(server_response);
+
+    printf("%s\n", server_response);
+
+    while (!feof(file))
+    {
         char server_message[1024] = "up,";
         // Add token
         strcat(server_message, token);
-        strcat(server_message, ",FILE_START,");
-        strcat(server_message, argv[2]);
+        strcat(server_message, ",");
+        // Calculate the max num of chars to read
+        int max_retreive_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
+        // Take in account the base64 encoding
+        max_retreive_size = (int)floor(max_retreive_size / 1.37);
+
+        unsigned char message[max_retreive_size];
+        size_t num_read = fread(message, 1, max_retreive_size - 1, file);
+        message[num_read] = '\0'; // Null-terminate the string
+
+        // Encode the message to base64
+        char* encoded_message = base64_encode(message, num_read);
+        strcat(server_message, encoded_message);
+        free(encoded_message);
+
         long long result = sndmsg(server_message, SERVER_PORT);
         if (result != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
             return EXIT_FAILURE;
         }
+        // Show progress
+        total_read += num_read;
+        printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
+    }
 
-        // Get server response
-        char server_response[1024] = "";
-        if (getmsg(server_response) == -1)
-        {
-            fprintf(stderr, "Error while receiving message\n");
-            return EXIT_FAILURE;
-        }
-        // Check if server response contains "error", if so, show message and exit
-        if (strstr(server_response, "error") != NULL) {
-            // Get message after comma
-            char* error_msg = strchr(server_response, ',') + 1;
-            printf("%s\n", error_msg);
-            return EXIT_FAILURE;
-        }
-        printf("%s\n", server_response);
+    // Send the public key to the server
+    char server_message1[1024] = "up,";
+    // Add token
+    strcat(server_message1, token);
+    strcat(server_message1, ",PUBLIC_KEY,");
+    FILE *publicKeyFile = fopen("client_public.pem", "r");
+    if (publicKeyFile == NULL)
+    {
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        return EXIT_FAILURE;
+    }
+    // Get the public key
+    char publicKey[1024];
+    // Read all the file content
+    char c;
+    int i = 0;
+    while ((c = fgetc(publicKeyFile)) != EOF)
+    {
+        publicKey[i] = c;
+        i++;
+    }
+    publicKey[i] = '\0';
+    strcat(server_message1, publicKey);
+    long long result1 = sndmsg(server_message1, SERVER_PORT);
+    if (result1 != 0)
+    {
+        fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+        return EXIT_FAILURE;
+    }
 
-        while (!feof(file))
-        {
-            char server_message[1024] = "up,";
-            // Add token
-            strcat(server_message, token);
-            strcat(server_message, ",");
-            // Calculate the max num of chars to read
-            int max_retreive_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
-            // Take in account the base64 encoding
-            max_retreive_size = (int)floor(max_retreive_size / 1.37);
+    // Get file signature to send to server
+    int signature_length;
+    unsigned char *signature = getFileSignature(file, &signature_length, "client");
 
-            unsigned char message[max_retreive_size];
-            size_t num_read = fread(message, 1, max_retreive_size - 1, file);
-            message[num_read] = '\0'; // Null-terminate the string
+    // Encode the signature to base64
+    char* encoded_signature = base64_encode(signature, signature_length);
+    free(signature);
 
-            // Encode the message to base64
-            char* encoded_message = base64_encode(message, num_read);
-            strcat(server_message, encoded_message);
-            free(encoded_message);
+    // Send to the server a last message containing an end hint with signed hash
+    char server_message2[1024] = "up,";
+    // Add token
+    strcat(server_message2, token);
+    strcat(server_message2, ",FILE_END");
+    strcat(server_message2, ",");
+    strcat(server_message2, encoded_signature);
+    free(encoded_signature);
+    long long result2 = sndmsg(server_message2, SERVER_PORT);
+    if (result2 != 0)
+    {
+        fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+        return EXIT_FAILURE;
+    }
 
-            long long result = sndmsg(server_message, SERVER_PORT);
-            if (result != 0)
-            {
-                fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-                return EXIT_FAILURE;
-            }
-            // Show progress
-            total_read += num_read;
-            printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
-        }
+    char received_msg[1024] = "";
+    if (getmsg(received_msg) == -1)
+    {
+        fprintf(stderr, "Error while receiving message\n");
+        return EXIT_FAILURE;
+    }
+    printf("%s\n", received_msg);
 
-        // Send the public key to the server
-        char server_message1[1024] = "up,";
-        // Add token
-        strcat(server_message1, token);
-        strcat(server_message1, ",PUBLIC_KEY,");
-        FILE *publicKeyFile = fopen("client_public.pem", "r");
-        if (publicKeyFile == NULL)
-        {
-            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-            return EXIT_FAILURE;
-        }
-        // Get the public key
-        char publicKey[1024];
-        // Read all the file content
-        char c;
-        int i = 0;
-        while ((c = fgetc(publicKeyFile)) != EOF)
-        {
-            publicKey[i] = c;
-            i++;
-        }
-        publicKey[i] = '\0';
-        strcat(server_message1, publicKey);
-        long long result1 = sndmsg(server_message1, SERVER_PORT);
-        if (result1 != 0)
-        {
-            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-            return EXIT_FAILURE;
-        }
+    fclose(file);
+    stopserver();
+}
 
-        // Create signed hash
-        unsigned char* hash = calculate_hash(file);
-        // Get the private key to sign the hash
-        EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
-        if(!mdctx) {
-            fprintf(stderr, "Error creating EVP_MD_CTX structure.\n");
-            return EXIT_FAILURE;
-        }
-        FILE *privateKeyFile = fopen("client_private.pem", "r");
-        if (privateKeyFile == NULL)
-        {
-            fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-            return EXIT_FAILURE;
-        }
-        // Load the private key
-        EVP_PKEY *privateKey;
-        if (!(privateKey = EVP_PKEY_new())) {
-            fprintf(stderr, "Error creating EVP_PKEY structure.\n");
-            return EXIT_FAILURE;
-        }
-        PEM_read_PrivateKey(privateKeyFile, &privateKey, NULL, NULL);
-
-        // Create the signature
-        unsigned char *signature_encrypted = malloc(EVP_PKEY_size(privateKey));
-        unsigned int signature_length;
-        if (EVP_SignInit_ex(mdctx, EVP_sha256(), NULL) != 1) {
-            fprintf(stderr, "Error initializing EVP_SignInit_ex.\n");
-            return EXIT_FAILURE;
-        }
-        if (EVP_SignUpdate(mdctx, hash, SHA256_DIGEST_LENGTH) != 1) {
-            fprintf(stderr, "Error in EVP_SignUpdate.\n");
-            return EXIT_FAILURE;
-        }
-        if (EVP_SignFinal(mdctx, signature_encrypted, &signature_length, privateKey) != 1) {
-            fprintf(stderr, "Error in EVP_SignFinal.\n");
-            return EXIT_FAILURE;
-        }
-        EVP_PKEY_free(privateKey);
-        EVP_MD_CTX_free(mdctx);
-
-        // Encode the signature to base64
-        char* encoded_signature = base64_encode(signature_encrypted, signature_length);
-        free(signature_encrypted);
-
-        // Send to the server a last message containing an end hint with signed hash
-        char server_message2[1024] = "up,";
-        // Add token
-        strcat(server_message2, token);
-        strcat(server_message2, ",FILE_END");
-        strcat(server_message2, ",");
-        strcat(server_message2, encoded_signature);
-        free(encoded_signature);
-        long long result2 = sndmsg(server_message2, SERVER_PORT);
-        if (result2 != 0)
-        {
-            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-            return EXIT_FAILURE;
-        }
-
-        char received_msg[1024] = "";
+void processListServerFiles(){
+    char server_message[1024] = "list,";
+    // Add token
+    strcat(server_message, token);
+    sndmsg(server_message, SERVER_PORT);
+    // Affichez la liste des fichiers reçue du serveur
+    if (startserver(attribuedPort) == -1)
+    {
+        fprintf(stderr, "Failed to start the server client\n");
+        return EXIT_FAILURE;
+    }
+    int messageReceived = 0;
+    char received_msg[1024] = "";
+    while (messageReceived == 0)
+    {
         if (getmsg(received_msg) == -1)
         {
             fprintf(stderr, "Error while receiving message\n");
-            return EXIT_FAILURE;
+            break;
         }
-        printf("%s\n", received_msg);
+        if (strcmp(received_msg, ""))
+        {
+            printf("Liste des fichiers stockés sur le serveur :\n%s\n", received_msg);
+            messageReceived = 1;
+        }
+    }
+}
 
-        fclose(file);
-        stopserver();
+void processDownload(char* filename){
+    // Exemple d'utilisation : ./client -down "filename"
+    char server_message[1024] = "down,";
+    // Add token
+    strcat(server_message, token);
+    strcat(server_message, ",");
+    strcat(server_message, filename);
+
+    sndmsg(server_message, SERVER_PORT);
+
+    if (startserver(attribuedPort) == -1)
+    {
+        fprintf(stderr, "Failed to start the server client\n");
+        return EXIT_FAILURE;
+    }
+    int messageReceived = 0;
+    char received_msg[1024] = "";
+    while (messageReceived == 0)
+    {
+        if (getmsg(received_msg) == -1)
+        {
+            fprintf(stderr, "Error while receiving message\n");
+            break;
+        }
+        if (strcmp(received_msg, ""))
+        {
+            // Check if message contains error
+            if (strstr(received_msg, "error") != NULL) {
+                // Get message after comma
+                char* error_msg = strchr(received_msg, ',') + 1;
+                printf("%s\n", error_msg);
+                break;
+            }
+            printf("Message reçu du serveur : %s\n", received_msg);
+            messageReceived = 1;
+        }
+    }
+
+    // int result = read_server_message(server_message);// if (result != 0)
+    // {
+    //    fprintf(stderr, "Erreur lors de la récupération du message du serveur\n");
+    //  return EXIT_FAILURE;
+    //}
+    // printf("Message reçu du serveur : %s\n", server_message);
+}
+
+int print_usage()
+{
+    fprintf(stderr, "Usage: ./client <option>\n");
+    fprintf(stderr, "Options:\n");
+    fprintf(stderr, "  -up <message>: Upload a message to the server\n");
+    fprintf(stderr, "  -list: List files stored on the server\n");
+    fprintf(stderr, "  -down <message>: Download a message from the server\n");
+    return EXIT_FAILURE;
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc < 2) return print_usage();
+
+    // Generate RSA key pair
+    generate_rsa_keypair();
+
+    // Authenticate user from server and get token and port for future communications
+    authenticate();
+
+    // Traitement des options en fonction des arguments de la ligne de commande
+    if (strcmp(argv[1], "-up") == 0 && argc >= 3)
+    {
+        // Exemple d'utilisation : ./client -up <nom du fichier>
+        processUploading(argv[2]);
     }
     else if (strcmp(argv[1], "-list") == 0 && argc == 2)
     {
         // Exemple d'utilisation : ./client -list
-        char server_message[1024] = "list,";
-        // Add token
-        strcat(server_message, token);
-        sndmsg(server_message, SERVER_PORT);
-        // Affichez la liste des fichiers reçue du serveur
-        if (startserver(attribuedPort) == -1)
-        {
-            fprintf(stderr, "Failed to start the server client\n");
-            return EXIT_FAILURE;
-        }
-        int messageReceived = 0;
-        char received_msg[1024] = "";
-        while (messageReceived == 0)
-        {
-            if (getmsg(received_msg) == -1)
-            {
-                fprintf(stderr, "Error while receiving message\n");
-                break;
-            }
-            if (strcmp(received_msg, ""))
-            {
-                printf("Liste des fichiers stockés sur le serveur :\n%s\n", received_msg);
-                messageReceived = 1;
-            }
-        }
+        processListServerFiles();
     }
     else if (strcmp(argv[1], "-down") == 0 && argc == 3)
     {
         // Exemple d'utilisation : ./client -down "filename"
-        char server_message[1024] = "down,";
-        // Add token
-        strcat(server_message, token);
-        strcat(server_message, ",");
-        strcat(server_message, argv[2]);
-
-        sndmsg(server_message, SERVER_PORT);
-
-        if (startserver(attribuedPort) == -1)
-        {
-            fprintf(stderr, "Failed to start the server client\n");
-            return EXIT_FAILURE;
-        }
-        int messageReceived = 0;
-        char received_msg[1024] = "";
-        while (messageReceived == 0)
-        {
-            if (getmsg(received_msg) == -1)
-            {
-                fprintf(stderr, "Error while receiving message\n");
-                break;
-            }
-            if (strcmp(received_msg, ""))
-            {
-                // Check if message contains error
-                if (strstr(received_msg, "error") != NULL) {
-                    // Get message after comma
-                    char* error_msg = strchr(received_msg, ',') + 1;
-                    printf("%s\n", error_msg);
-                    break;
-                }
-                printf("Message reçu du serveur : %s\n", received_msg);
-                messageReceived = 1;
-            }
-        }
-
-        // int result = read_server_message(server_message);// if (result != 0)
-        // {
-        //    fprintf(stderr, "Erreur lors de la récupération du message du serveur\n");
-        //  return EXIT_FAILURE;
-        //}
-        // printf("Message reçu du serveur : %s\n", server_message);
+        processDownload(argv[2]);
     }
     else
     {
