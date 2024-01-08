@@ -29,6 +29,9 @@ int attribuedPort;
 
 long sndmsgencrypted(char msg[585], int port)
 {
+    // Log message and size
+    printf("Message envoyé au serveur : %s\n", msg);
+    printf("Taille du message envoyé au serveur : %ld\n", strlen(msg));
     // Open the public key file
     FILE *public_key_file = fopen("server_public.pem", "r");
     if (public_key_file == NULL)
@@ -65,10 +68,17 @@ long sndmsgencrypted(char msg[585], int port)
         strcat(encrypted_message, encryptedPacket);
     }
 
+    // Log encrypted message and size
+    printf("Message chiffré envoyé au serveur : %s\n", encrypted_message);
+    printf("Taille du message chiffré envoyé au serveur : %ld\n", strlen(encrypted_message));
+
     // close public key file
     fclose(public_key_file);
 
     char *base64_msg = base64_encode(msg, strlen(msg));
+    // Log base64 message and size
+    printf("Message en base64 envoyé au serveur : %s\n", base64_msg);
+    printf("Taille du message en base64 envoyé au serveur : %ld\n", strlen(base64_msg));
     long long result = sndmsg(base64_msg, port);
 
     free(base64_msg);
