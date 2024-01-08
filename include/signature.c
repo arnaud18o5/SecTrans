@@ -7,6 +7,7 @@
 #include <openssl/err.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <string.h>
 
 int verifySignature(FILE* file, unsigned char* signature, size_t signature_len, char* publicKey) {
     // Set file to beginning
