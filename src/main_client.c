@@ -66,6 +66,7 @@ unsigned char *test(unsigned char *msg)
 
 long sndmsgencrypted(unsigned char *msg, int port)
 {
+    printf("msg : %s\n", msg);
     // Log message and size
     msg[strlen(msg) - 1] = '\0';
     // Open the public key file
