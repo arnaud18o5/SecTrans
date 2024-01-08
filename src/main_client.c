@@ -27,6 +27,56 @@ const int DEFAULT_CLIENT_PORT = 12346;
 char *token;
 int attribuedPort;
 
+long sndmsgencrypted(char msg[585], int port)
+{
+    // Open the public key file
+    FILE *public_key_file = fopen("server_public.pem", "r");
+    if (public_key_file == NULL)
+    {
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
+        return EXIT_FAILURE;
+    }
+    // Get the public key
+    char publicKey[1024];
+    // Read all the file content
+    char c;
+    int i = 0;
+    while ((c = fgetc(public_key_file)) != EOF)
+    {
+        publicKey[i] = c;
+        i++;
+    }
+    publicKey[i] = '\0';
+
+    char *encrypted_message = (char *)malloc(740);
+
+    // Split the message into packets of 117 (128 - 11) and encrypt each packet
+    int packet_size = 117;
+    int num_packets = (strlen(msg) - 1) / packet_size + 1;
+    for (int i = 0; i < num_packets; i++)
+    {
+        char packet[packet_size + 1];
+        strncpy(packet, msg + i * packet_size, packet_size);
+        packet[packet_size] = '\0'; // Null-terminate the packet
+
+        char *encryptedPacket = encryptMessage(publicKey, packet);
+
+        // add encrypted packet to encrypted message
+        strcat(encrypted_message, encryptedPacket);
+    }
+
+    // close public key file
+    fclose(public_key_file);
+
+    char *base64_msg = base64_encode(msg, strlen(msg));
+    long long result = sndmsg(base64_msg, port);
+
+    free(base64_msg);
+    free(encrypted_message);
+
+    return result;
+}
+
 int generate_rsa_keypair(char* name) {
     int ret = 0;
     RSA *r = NULL;
@@ -194,15 +244,16 @@ int main(int argc, char *argv[])
 
     startserver(DEFAULT_CLIENT_PORT);
 
-    char auth_message[1024] = "auth,";
+    char auth_message[585] = "auth,";
     strcat(auth_message, username);
     strcat(auth_message, ",");
     strcat(auth_message, password_hash_hexa);
 
     // Encode the auth message in base64
-    char *base64_auth_message = base64_encode(auth_message, strlen(auth_message));
+    // char *base64_auth_message = base64_encode(auth_message, strlen(auth_message));
     
-    if (sndmsg(base64_auth_message, SERVER_PORT) != 0)
+    // if (sndmsg(base64_auth_message, SERVER_PORT) != 0)
+    if (sndmsgencrypted(base64_auth_message, SERVER_PORT) != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
         return EXIT_FAILURE;

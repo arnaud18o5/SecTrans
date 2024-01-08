@@ -29,49 +29,45 @@ unsigned char tokenKey[32];
 const int DEFAULT_CLIENT_PORT = 12346;
 int lastAttribuedClientPort = 12347;
 
-/*char *decryptMessage(char *pri_key, char *decoded)
-{
-    RSA *rsa = NULL;
-
-    // Charger la clé privée RSA depuis la chaîne PEM
-    BIO *bio_priv = BIO_new_mem_buf(pri_key, -1);
-    if (bio_priv == NULL)
+unsigned char *decryptAndDecodeMessage(char* msg){
+    // Load private key
+    FILE *privateKeyFile = fopen("server_private.pem", "r");
+    if (privateKeyFile == NULL)
     {
-        perror("Erreur lors de la création du BIO pour la clé privée");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        return NULL;
+    }
+    // Get the public key
+    char privateKey[1024];
+    // Read all the file content
+    char c;
+    int i = 0;
+    while ((c = fgetc(privateKeyFile)) != EOF)
+    {
+        privateKey[i] = c;
+        i++;
+    }
+    privateKey[i] = '\0';
+
+    // decode64
+    size_t decodedLength;
+    unsigned char *decoded = base64_decode(msg, &decodedLength);
+
+    unsigned char* decryptedMessage = (unsigned char*) malloc(1024);
+    // chunk message in 128 char packet and decrypt
+    int nbBlocks = strlen(msg) * sizeof(char) / 128;
+    for (int i = 0; i < nbBlocks; i++) {
+        char *block = malloc(129);
+        strncpy(block, decoded + i * 128, 128);
+        block[128] = '\0';
+        char *decryptedBlock = decryptMessage(privateKey, block);
+        strcat(decryptedMessage, decryptedBlock);
+        free(block);
+        free(decryptedBlock);
     }
 
-    rsa = PEM_read_bio_RSAPrivateKey(bio_priv, NULL, NULL, NULL);
-    if (rsa == NULL)
-    {
-        ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
-        perror("Erreur lors de la lecture de la clé privée");
-        BIO_free(bio_priv);
-        exit(EXIT_FAILURE);
-    }
-
-    BIO_free(bio_priv);
-
-    int rsa_len = RSA_size(rsa);
-
-    // Buffer pour le message déchiffré
-    unsigned char *decrypted_message = (unsigned char *)malloc(rsa_len);
-
-    // Déchiffrement RSA
-    int result = RSA_private_decrypt(rsa_len, decoded, decrypted_message, rsa, RSA_PKCS1_PADDING);
-    if (result == -1)
-    {
-        ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs
-        perror("Erreur lors du déchiffrement RSA");
-        RSA_free(rsa);
-        free(decrypted_message);
-        exit(EXIT_FAILURE);
-    }
-
-    RSA_free(rsa);
-
-    return (char *)decrypted_message;
-}*/
+    return decryptedMessage;
+}
 
 void processUpMessage(char *received_msg)
 {
@@ -214,31 +210,6 @@ void processUpMessage(char *received_msg)
             i++;
         }
         privateKey[i] = '\0';
-
-        // printf("privateKey: %s\n", privateKey);
-
-        char *decryptedSignature = malloc(strlen(received_msg) * sizeof(char));
-
-        // decouper decodedSignature en pakcet de 128 char
-        unsigned char packet[128];
-        int j = 0;
-        int k = 0;
-        for (j = 0; j < nbBlocks; j++)
-        {
-            for (k = 0; k < 128; k++)
-            {
-                packet[k] = received_msg[k + (j * 128)];
-            }
-
-            // printf("packet: %s\n", packet);
-            //  decrypter packet
-            char *decryptedPacket = decryptMessage(privateKey, packet);
-
-            printf("decryptedPacket: %s\n", decryptedPacket);
-            // concat decryptedPacket dans decryptedSignature
-            strcat(decryptedSignature, decryptedPacket);
-        }
-        free(decryptedSignature);
     }
 
     free(received_msg_copy);
@@ -427,8 +398,9 @@ int main()
 
         printf("Received message: %s\n", received_msg);
 
-        size_t decodedLength;
-        unsigned char *decoded = base64_decode(received_msg, &decodedLength);
+        // size_t decodedLength;
+        // unsigned char *decoded = base64_decode(received_msg, &decodedLength);
+        unsigned char *decoded = decryptAndDecodeMessage(received_msg);
         printf("Decoded message: %s\n", decoded);
 
         char *commaPos = strchr(decoded, ',');
