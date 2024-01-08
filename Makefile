@@ -17,21 +17,26 @@ signature.o: include/signature.c
 user.o: include/user.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o user.o $< $(LDLIBS)
 
-server: src/main_server.c hash.o base_encoding.o signature.o user.o
+rsa.o: include/rsa.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o rsa.o $< $(LDLIBS)
+
+file_transfer.o: include/file_transfer.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o file_transfer.o $< $(LDLIBS)
+
+error.o: include/error.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o error.o $< $(LDLIBS)
+
+server: src/main_server.c hash.o base_encoding.o signature.o user.o file_transfer.o error.o rsa.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
-client: src/main_client.c hash.o base_encoding.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o client $^ $(LDLIBS)
+client: src/main_client.c hash.o base_encoding.o signature.o user.o file_transfer.o error.o rsa.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o sectrans $^ $(LDLIBS)
 
 run_server: server
 	@echo "Running server..."
 	@LD_LIBRARY_PATH=./lib ./server
 
-run_client: client
-	@echo "Running client..."
-	@LD_LIBRARY_PATH=./lib 
-
 clean:
-	rm -f server client
+	rm -f server sectrans *.o
 
-.PHONY: all run_server run_client clean
+.PHONY: all run_server client clean

@@ -66,6 +66,12 @@
     "base_encoding.h": "c",
     "stddef.h": "c",
     "signature.h": "c",
-    "user.h": "c"
+    "user.h": "c",
+    "stdio.h": "c",
+    "rsa.h": "c",
+    "stdlib.h": "c",
+    "file_transfer.h": "c",
+    "error.h": "c",
+    "string.h": "c"
   }
 }
