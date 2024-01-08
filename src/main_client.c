@@ -201,7 +201,7 @@ int generate_rsa_keypair(char* name) {
 
     char *server_public_key = NULL;
 
-    int bits = 2048;
+    int bits = 4096;
     unsigned long exponent = RSA_F4; // 65537
     FILE *privateKeyFile, *publicKeyFile;
 
