@@ -313,6 +313,8 @@ int main(int argc, char *argv[])
         strcat(server_message, ",FILE_START,");
         strcat(server_message, argv[2]);
 
+        printf("server_message : %s\n", server_message);
+
         // Encode the server message in base64
         // char *base64_server_message = base64_encode(server_message, strlen(server_message));
         long long result = sndmsgencrypted(server_message, SERVER_PORT);
