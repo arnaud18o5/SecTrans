@@ -108,9 +108,10 @@ unsigned char *test(unsigned char msg[1024]){
 
 long sndmsgencrypted(unsigned char msg[585], int port)
 {
+    char *test = "Ceci est le message test";
     // Log message and size
-    printf("Message envoyé au serveur : %s\n", msg);
-    printf("Taille du message envoyé au serveur : %ld\n", strlen(msg));
+    printf("Message envoyé au serveur : %s\n", test);
+    printf("Taille du message envoyé au serveur : %ld\n", strlen(test));
     // Open the public key file
     FILE *public_key_file = fopen("server_public.pem", "r");
     if (public_key_file == NULL)
@@ -134,14 +135,14 @@ long sndmsgencrypted(unsigned char msg[585], int port)
 
     // Split the message into packets of 117 (128 - 11) and encrypt each packet
     int packet_size = 115;
-    int num_packets = (strlen(msg) - 1) / packet_size + 1;
+    int num_packets = (strlen(test) - 1) / packet_size + 1;
     for (int i = 0; i < num_packets; i++)
     {
         unsigned char packet[packet_size + 1];
         int index = i * packet_size;
         int j;
-        for (j = 0; j < packet_size && msg[index + j] != '\0'; j++) {
-            packet[j] = msg[index + j];
+        for (j = 0; j < packet_size && test[index + j] != '\0'; j++) {
+            packet[j] = test[index + j];
         }
         packet[j] = '\0'; // Null-terminate the packet
 
