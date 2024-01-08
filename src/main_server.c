@@ -32,10 +32,8 @@ int lastAttribuedClientPort = 12347;
 unsigned char *decryptAndDecodeMessage(char msg[1024])
 {
 
-    unsigned char *decoded = base64_decode(msg, strlen(msg) + 1);
+    unsigned char *decoded = base64_decode(msg, strlen(msg));
     // Log message received and size
-    printf("BEFORE Message received: %s\n", msg);
-    printf("Message size: %ld\n", strlen(msg));
     // Load private key
     FILE *privateKeyFile = fopen("server_private.pem", "r");
     if (privateKeyFile == NULL)
@@ -66,8 +64,6 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
     fclose(privateKeyFile);
 
     // Log message received and size
-    printf("AFTER Message received: %s\n", msg);
-    printf("Message size: %ld\n", strlen(msg));
 
     // Log decoded message hexa and size
     printf("Decoded message: ");
@@ -120,7 +116,8 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
 
     // Decrypt the message
     int decryptedMessageLength = RSA_private_decrypt(512, decoded, decryptedMessage, rsa, RSA_PKCS1_PADDING);
-
+    printf("decryptedMessageLength: %d\n", decryptedMessageLength);
+    printf("decryptedMessage: %s\n", decryptedMessage);
     return decryptedMessage;
 }
 
