@@ -109,7 +109,7 @@ long sndmsgencrypted(unsigned char *msg, int port)
     // close public key file
     fclose(public_key_file);
 
-    test(encrypted_message);
+    // test(encrypted_message);
 
     free(encrypted_message);
 
