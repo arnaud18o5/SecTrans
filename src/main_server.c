@@ -29,7 +29,8 @@ unsigned char tokenKey[32];
 const int DEFAULT_CLIENT_PORT = 12346;
 int lastAttribuedClientPort = 12347;
 
-unsigned char *decryptAndDecodeMessage(char msg[1024]){
+unsigned char *decryptAndDecodeMessage(char msg[1024])
+{
 
     // Log message received and size
     printf("BEFORE Message received: %s\n", msg);
@@ -42,7 +43,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
         return NULL;
     }
     // Get the public key
-    char privateKey[2048];
+    /*char privateKey[2048];
     // Read all the file content
     char c;
     int i = 0;
@@ -51,7 +52,17 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
         privateKey[i] = c;
         i++;
     }
-    privateKey[i] = '\0';
+    privateKey[i] = '\0';*/
+
+    // Get the private key
+    RSA *rsa = NULL;
+    rsa = PEM_read_RSAPrivateKey(privateKeyFile, &rsa, NULL, NULL);
+    if (rsa == NULL)
+    {
+        ERR_print_errors_fp(stderr);
+        return NULL;
+    }
+    fclose(privateKeyFile);
 
     // Log message received and size
     printf("AFTER Message received: %s\n", msg);
@@ -63,13 +74,14 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
 
     // Log decoded message hexa and size
     printf("Decoded message: ");
-    for (int i = 0; i < decodedLength; i++) {
+    for (int i = 0; i < decodedLength; i++)
+    {
         printf("%02x", decoded[i]);
     }
     printf("\n");
     printf("Decoded message size: %ld\n", decodedLength);
 
-    unsigned char* decryptedMessage = (unsigned char*) malloc(1024 * sizeof(char));
+    unsigned char *decryptedMessage = (unsigned char *)malloc(1024 * sizeof(char));
     // chunk message in 128 char packet and decrypt
     // int nbBlocks = strlen(msg) * sizeof(char) / 128;
     // for (int i = 0; i < nbBlocks; i++) {
@@ -82,7 +94,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024]){
     //     free(decryptedBlock);
     // }
     // decouper decodedSignature en pakcet de 128 char
-    int nbBlocks = (strlen(decoded) + 127) / 128;  // Round up to the nearest block
+    int nbBlocks = (strlen(decoded) + 127) / 128; // Round up to the nearest block
     unsigned char packet[128];
 
     for (int j = 0; j < nbBlocks; j++)
@@ -123,7 +135,8 @@ void processUpMessage(char *received_msg)
 
     // Get user
     User *user = getUserFromToken(token, tokenKey);
-    if (user == NULL) return;
+    if (user == NULL)
+        return;
 
     // Get the message after the 2 commas
     char *msg = strchr(received_msg, ',') + 1;
@@ -155,19 +168,23 @@ void processUpMessage(char *received_msg)
         strcpy(user->currentUploadFileName, fullFilename);
 
         // Check if file exists, if so send error
-        if (access(fullFilename, F_OK) != -1) {
+        if (access(fullFilename, F_OK) != -1)
+        {
             char message[1024] = "error,File already exists, please choose another name!";
             sndmsg(message, user->attribuedPort);
             printf("ERROR: File already exists!\n");
             return;
-        } else {
+        }
+        else
+        {
             char message[1024] = "Uploading started!";
             sndmsg(message, user->attribuedPort);
         }
 
         // Open file
         user->currentOpenedFile = fopen(fullFilename, "w+");
-        if (user->currentOpenedFile == NULL) {
+        if (user->currentOpenedFile == NULL)
+        {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         }
 
@@ -176,7 +193,8 @@ void processUpMessage(char *received_msg)
         strcpy(metadataFilename, fullFilename);
         strcat(metadataFilename, ".meta");
         FILE *metadataFile = fopen(metadataFilename, "w+");
-        if (metadataFile == NULL) {
+        if (metadataFile == NULL)
+        {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
         }
         fprintf(metadataFile, "%s\n%s\n", user->role, user->username);
@@ -196,7 +214,8 @@ void processUpMessage(char *received_msg)
         printf("decoded signature: %s\n", decodedSignature);
 
         // Verify signature
-        if (verifySignature(user->currentOpenedFile, decodedSignature, decodedLength, user->publicKey)) {
+        if (verifySignature(user->currentOpenedFile, decodedSignature, decodedLength, user->publicKey))
+        {
             char message[1024] = "File uploaded successfully!";
             fclose(user->currentOpenedFile);
             // Notify client that file was uploaded successfully
@@ -258,11 +277,13 @@ void processUpMessage(char *received_msg)
     free(received_msg_copy);
 }
 
-void processListMessage(char *received_msg) {
+void processListMessage(char *received_msg)
+{
     // Get token after the first comma
     char *token = strchr(received_msg, ',') + 1;
     User *user = getUserFromToken(token, tokenKey);
-    if (user == NULL) return;
+    if (user == NULL)
+        return;
 
     // Ouvrir le répertoire /upload
     DIR *dir;
@@ -281,26 +302,30 @@ void processListMessage(char *received_msg) {
     res[0] = '\0';         // Chaîne vide
 
     // Parcourir les fichiers du répertoire
-    while ((entry = readdir(dir)) != NULL) {
+    while ((entry = readdir(dir)) != NULL)
+    {
         // Get only file finished by .meta
-        if (strstr(entry->d_name, ".meta") != NULL) {
+        if (strstr(entry->d_name, ".meta") != NULL)
+        {
             // Open file and read first line
             char *metadateFullFilename = malloc(strlen(entry->d_name) + 8);
             strcpy(metadateFullFilename, "upload/");
             strcat(metadateFullFilename, entry->d_name);
             FILE *metadataFile = fopen(metadateFullFilename, "r");
-            if (metadataFile == NULL) continue;
+            if (metadataFile == NULL)
+                continue;
             char role[20];
             fscanf(metadataFile, "%s", role);
             fclose(metadataFile);
 
             // Check if user has access to file
-            if (strcmp(user->role, role) == 0) {
+            if (strcmp(user->role, role) == 0)
+            {
                 // Allouer de l'espace pour le nouveau nom de fichier (sans .meta)
                 char *filename = malloc(strlen(entry->d_name) - 5);
                 // Reallouer la chaîne résultante pour y ajouter le nouveau nom de fichier
                 res = realloc(res, strlen(res) + strlen(entry->d_name) - 5 + 5);
-                
+
                 // Concaténer le nouveau nom de fichier à la chaîne résultante (sans .meta)
                 strncpy(filename, entry->d_name, strlen(entry->d_name) - 5);
                 filename[strlen(entry->d_name) - 5] = '\0';
@@ -311,9 +336,12 @@ void processListMessage(char *received_msg) {
         }
     }
     // If res size is 0, no file was found
-    if (strlen(res) == 0) {
+    if (strlen(res) == 0)
+    {
         sndmsg("No file found!", user->attribuedPort);
-    } else {
+    }
+    else
+    {
         sndmsg(res, user->attribuedPort);
     }
 
@@ -337,7 +365,8 @@ void processDownMessage(char *received_msg)
 
     // Get user
     User *user = getUserFromToken(token, tokenKey);
-    if (user == NULL) return;
+    if (user == NULL)
+        return;
 
     char msg[1024];
     snprintf(msg, 1024, "FILE_START,%s", filename);
@@ -348,7 +377,8 @@ void processDownMessage(char *received_msg)
     strcat(metadataFilename, filename);
     strcat(metadataFilename, ".meta");
     FILE *metadataFile = fopen(metadataFilename, "r");
-    if (metadataFile == NULL) {
+    if (metadataFile == NULL)
+    {
         char message[1024] = "error,File doesn't exist!";
         sndmsg(message, user->attribuedPort);
         printf("ERROR: File doesn't exist!\n");
@@ -357,7 +387,8 @@ void processDownMessage(char *received_msg)
     char role[20];
     fscanf(metadataFile, "%s", role);
     fclose(metadataFile);
-    if (strcmp(user->role, role) != 0) {
+    if (strcmp(user->role, role) != 0)
+    {
         char message[1024] = "error,You don't have access to this file!";
         sndmsg(message, user->attribuedPort);
         printf("ERROR: User doesn't have access to this file!\n");
@@ -418,7 +449,8 @@ int main()
     printf("\n%s\n%s\n", pri_key, pub_key);
 
     // Generate the key for the token
-    if (RAND_bytes(tokenKey, sizeof(tokenKey)) != 1) {
+    if (RAND_bytes(tokenKey, sizeof(tokenKey)) != 1)
+    {
         fprintf(stderr, "Error generating AES key\n");
         return EXIT_FAILURE;
     }
@@ -482,7 +514,8 @@ int main()
 
                 // Authenticate user
                 User *user = authenticateUser(clientUsername, clientPassword);
-                if (user == NULL) {
+                if (user == NULL)
+                {
                     sndmsg("error,Bad credentials", DEFAULT_CLIENT_PORT);
                     fprintf(stderr, "Error when authenticating: bad credentials\n");
                     continue;
@@ -490,7 +523,7 @@ int main()
 
                 // Generate token
                 size_t tokenSize = strlen(clientUsername) + strlen(user->role) + 2;
-                unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role),tokenSize,tokenKey);
+                unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role), tokenSize, tokenKey);
                 size_t encryptedSize = (tokenSize / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
                 char *base64Token = base64_encode(encryptedToken, encryptedSize);
 
@@ -502,7 +535,7 @@ int main()
                 char message[1024];
                 snprintf(message, 1024, "%s,%d", base64Token, user->attribuedPort);
                 sndmsg(message, DEFAULT_CLIENT_PORT);
-                
+
                 // Free memory
                 free(encryptedToken);
                 free(base64Token);
@@ -514,35 +547,35 @@ int main()
                 {
                     sndmsg(pub_key, DEFAULT_CLIENT_PORT);
                     printf("Clé publique envoyée au client\n");
-                        /*if (startserver(port) == -1)
+                    /*if (startserver(port) == -1)
+                    {
+                        fprintf(stderr, "Failed to start the server\n");
+                        return EXIT_FAILURE;
+                    }*/
+
+                    /*char msg_to_decrypt[1024];
+
+                    int msg_received = 0;
+                    printf("En attente de message du client...\n");
+                    while (msg_received == 0)
+                    {
+                        printf("Entrée boucle\n");
+                        if (getmsg(msg_to_decrypt) == -1)
                         {
-                            fprintf(stderr, "Failed to start the server\n");
-                            return EXIT_FAILURE;
-                        }*/
-
-                        /*char msg_to_decrypt[1024];
-
-                        int msg_received = 0;
-                        printf("En attente de message du client...\n");
-                        while (msg_received == 0)
-                        {
-                            printf("Entrée boucle\n");
-                            if (getmsg(msg_to_decrypt) == -1)
-                            {
-                                printf("Erreur\n");
-                                fprintf(stderr, "Error while receiving message\n");
-                                break;
-                            }
-                            printf("Message reçu !!!\n");
-                            printf("Message reçu : %s\n", msg_to_decrypt);
-                            RSA *rsa = NULL;
-                            char *decryptedMessage = decryptMessage(pri_key, msg_to_decrypt);
-                            printf("Message déchiffré : %s\n", decryptedMessage);
-                            msg_received = 1;
-                        }*/
-
+                            printf("Erreur\n");
+                            fprintf(stderr, "Error while receiving message\n");
+                            break;
+                        }
+                        printf("Message reçu !!!\n");
+                        printf("Message reçu : %s\n", msg_to_decrypt);
+                        RSA *rsa = NULL;
+                        char *decryptedMessage = decryptMessage(pri_key, msg_to_decrypt);
+                        printf("Message déchiffré : %s\n", decryptedMessage);
+                        msg_received = 1;
+                    }*/
                 }
-                else fprintf(stderr, "No comma found in message\n");
+                else
+                    fprintf(stderr, "No comma found in message\n");
             }
             free(token); // Don't forget to free the memory when you're done
         }
