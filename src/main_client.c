@@ -27,7 +27,7 @@ const int DEFAULT_CLIENT_PORT = 12346;
 char *token;
 int attribuedPort;
 
-int generate_rsa_keypair() {
+int generate_rsa_keypair(char* name) {
     int ret = 0;
     RSA *r = NULL;
     BIGNUM *bne = NULL;
@@ -55,7 +55,10 @@ int generate_rsa_keypair() {
     }
 
     // 2. save private key
-    privateKeyFile = fopen("client_private.pem", "w");
+    char* private_key_file_name = malloc(strlen(name) + strlen("_private.pem") + 1);
+    strcpy(private_key_file_name, name);
+    strcat(private_key_file_name, "_private.pem");
+    privateKeyFile = fopen(private_key_file_name, "w");
     if (privateKeyFile == NULL)
     {
         goto free_stuff;
@@ -67,7 +70,10 @@ int generate_rsa_keypair() {
     }
 
     // 3. save public key
-    publicKeyFile = fopen("client_public.pem", "w");
+    char* public_key_file_name = malloc(strlen(name) + strlen("_public.pem") + 1);
+    strcpy(public_key_file_name, name);
+    strcat(public_key_file_name, "_public.pem");
+    publicKeyFile = fopen(public_key_file_name, "w");
     if (publicKeyFile == NULL)
     {
         goto free_stuff;
@@ -169,7 +175,8 @@ int print_usage()
 int main(int argc, char *argv[])
 {
     // TO BE MOVED WHEN LOGIN ??
-    generate_rsa_keypair();
+    generate_rsa_keypair("client");
+    generate_rsa_keypair("server");
 
     printf("Veuillez entrez votre nom d'utilisateur : \n");
     char username[100];
@@ -308,7 +315,7 @@ int main(int argc, char *argv[])
             int packet_size = 128 - 11;
             int num_packets = (num_read) / packet_size - 1;
             // Open the public key file
-            FILE *public_key_file = fopen("server_public_key.pem", "r");
+            FILE *public_key_file = fopen("server_public.pem", "r");
             if (public_key_file == NULL)
             {
                 fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
