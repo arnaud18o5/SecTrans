@@ -96,7 +96,7 @@ void processListMessage(char *received_msg) {
 
 void processDownMessage(char *received_msg)
 {
-    printf("Envoyer le contenu du fichier au client\n");
+    printf("DOWNLOAD: Envoie d'un fichier au client\n");
 
     // Get data
     strtok(received_msg, ",");

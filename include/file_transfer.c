@@ -157,6 +157,7 @@ void processSendFile(char* filename, char* token, int listeningPort, int receive
         fprintf(stderr, "ERREUR: Envoi du message au destinatire impossible\n");
         return;
     }
+    printf("ON EST ICI");
 
     if (waitForReceiverResponse) {
         char received_msg[1024] = "";
