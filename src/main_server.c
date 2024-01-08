@@ -72,7 +72,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
     //     printf("%02x", decoded[i]);
     // }
     // printf("\n");
-    printf("Decoded message size: %ld\n", strlen(decoded));
+    // printf("Decoded message size: %ld\n", strlen(decoded));
 
     unsigned char *decryptedMessage = (unsigned char *)malloc(1024 * sizeof(char));
     // chunk message in 128 char packet and decrypt
@@ -468,12 +468,12 @@ int main()
             break;
         }
 
-        printf("Received message: %s\n", received_msg);
+        // printf("Received message: %s\n", received_msg);
 
         // size_t decodedLength;
         // unsigned char *decoded = base64_decode(received_msg, &decodedLength);
         unsigned char *decoded = decryptAndDecodeMessage(received_msg);
-        printf("Decoded message: %s\n", decoded);
+        // printf("Decoded message: %s\n", decoded);
 
         char *commaPos = strchr(decoded, ',');
         if (commaPos != NULL)
