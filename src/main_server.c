@@ -535,7 +535,8 @@ int main()
                 user->attribuedPort = lastAttribuedClientPort;
                 lastAttribuedClientPort++;
 
-                printf("message: %s\n", base64Token);
+                // mettre \0 a la fin du base64token
+                base64Token[strlen(base64Token) - 1] = '\0';
                 // Send token to client with the port
                 char message[1024];
                 snprintf(message, 1024, "%s,%d", base64Token, user->attribuedPort);
