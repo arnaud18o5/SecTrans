@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
     {
         sprintf(password_hash_hexa + (i * 2), "%02x", password_hash[i]);
     }
-    // free(password_hash);
+    free(password_hash);
 
     startserver(DEFAULT_CLIENT_PORT);
 
