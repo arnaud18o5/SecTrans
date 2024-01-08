@@ -73,7 +73,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
 
     // Log decoded message hexa and size
     printf("Decoded message: ");
-    for (int i = 0; i < decodedLength; i++)
+    for (int i = 0; i < 512; i++)
     {
         printf("%02x", decoded[i]);
     }
