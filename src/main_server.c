@@ -463,6 +463,8 @@ int main()
                 // Get login and password
                 char clientUsername[30];
                 char clientPassword[65];
+                // log received_msg
+                printf("received_msg: %s\n", received_msg);
                 getLoginAndPassword(received_msg, clientUsername, clientPassword);
 
                 // Authenticate user
