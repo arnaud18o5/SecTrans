@@ -86,19 +86,19 @@ printf("Veuillez entrez votre nom d'utilisateur : \n");
     attribuedPort = atoi(attribuedPortStr);
 }
 
-void processUploading(char* filename){
-    // Start server to receive server messages
-    if (startserver(attribuedPort) == -1)
+void processUploadFile(char* filename, char* token, int receivingPort, int destinationPort, bool sendPublicKey, char* keyRSAPrefix){
+    // Start server to receive messages
+    if (startserver(receivingPort) == -1)
     {
-        fprintf(stderr, "Failed to start the server client\n");
+        fprintf(stderr, "ERREUR: Impossible de démarrer le serveur pour l'upload\n");
         return;
     }
 
-    // Open the file, read its content in 999 chars; store it in server_message and send it
+    // Open the file descriptor to read
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
-        fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        fprintf(stderr, "ERREUR: Impossible d'ouvrir le fichier à upload\n");
         return;
     }
 
@@ -111,14 +111,17 @@ void processUploading(char* filename){
 
     // Send to the server a first message containing a start hint and the filename
     char server_message[1024] = "up,";
-    // Add token
-    strcat(server_message, token);
-    strcat(server_message, ",FILE_START,");
+    // Add token if not null for authentication
+    if (token != NULL) {
+        strcat(server_message, token);
+        strcat(server_message, ",");
+    }
+    strcat(server_message, "FILE_START,");
     strcat(server_message, filename);
-    long long result = sndmsg(server_message, SERVER_PORT);
+    long long result = sndmsg(server_message, destinationPort);
     if (result != 0)
     {
-        fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+        fprintf(stderr, "ERREUR: Envoi du message au destinataire impossible\n");
         return;
     }
 
@@ -126,7 +129,7 @@ void processUploading(char* filename){
     char server_response[1024] = "";
     if (getmsg(server_response) == -1)
     {
-        fprintf(stderr, "Error while receiving message\n");
+        fprintf(stderr, "ERREUR: Impossible de recevoir un message\n");
         return;
     }
 
@@ -138,8 +141,10 @@ void processUploading(char* filename){
     {
         char server_message[1024] = "up,";
         // Add token
-        strcat(server_message, token);
-        strcat(server_message, ",");
+        if (token != NULL) {
+            strcat(server_message, token);
+            strcat(server_message, ",");
+        }
         // Calculate the max num of chars to read
         int max_retreive_size = 1024 - strlen(server_message) - 1 - 1; // 1 for the comma, 1 for the null-terminator
         // Take in account the base64 encoding
@@ -154,53 +159,49 @@ void processUploading(char* filename){
         strcat(server_message, encoded_message);
         free(encoded_message);
 
-        long long result = sndmsg(server_message, SERVER_PORT);
+        long long result = sndmsg(server_message, destinationPort);
         if (result != 0)
         {
-            fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+            fprintf(stderr, "ERREUR: Envoi du message au destinataire impossible\n");
             return;
         }
         // Show progress
         total_read += num_read;
-        printf("Progress: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
+        printf("Progrès: %lld/%lld (%lld%%)\n", total_read, file_size, total_read * 100 / file_size);
     }
 
-    // Send the public key to the server
-    char server_message1[1024] = "up,";
-    // Add token
-    strcat(server_message1, token);
-    strcat(server_message1, ",PUBLIC_KEY,");
-    FILE *publicKeyFile = fopen("client_public.pem", "r");
-    if (publicKeyFile == NULL)
-    {
-        fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-        return;
-    }
-    // Get the public key
-    char publicKey[1024];
-    // Read all the file content
-    char c;
-    int i = 0;
-    while ((c = fgetc(publicKeyFile)) != EOF)
-    {
-        publicKey[i] = c;
-        i++;
-    }
-    publicKey[i] = '\0';
-    strcat(server_message1, publicKey);
-    long long result1 = sndmsg(server_message1, SERVER_PORT);
-    if (result1 != 0)
-    {
-        fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
-        return;
+    if (sendPublicKey) {
+        // Send the public key to the server
+        char server_message1[1024] = "up,";
+        // Add token
+        if (token != NULL) {
+            strcat(server_message1, token);
+            strcat(server_message1, ",");
+        }
+        strcat(server_message1, "PUBLIC_KEY,");
+        char* publicKeyName = malloc(strlen(keyRSAPrefix) + 1 + strlen("_public.pem") + 1);
+        strcpy(publicKeyName, keyRSAPrefix);
+        strcat(publicKeyName, "_public.pem");
+        char* publicKey = load_key(publicKeyName);
+
+        strcat(server_message1, publicKey);
+        long long result1 = sndmsg(server_message1, destinationPort);
+        if (result1 != 0)
+        {
+            fprintf(stderr, "ERREUR: Envoi du message au destinataire impossible\n");
+            return;
+        }
+
+        free(publicKeyName);
+        free(publicKey);
     }
 
-    // Get file signature to send to server
+    // Get file signature to send to recipient
     int signature_length;
-    unsigned char *signature = getFileSignature(file, &signature_length, "client");
+    unsigned char *signature = getFileSignature(file, &signature_length, keyRSAPrefix);
     if (signature == NULL)
     {
-        fprintf(stderr, "Error while getting file signature\n");
+        fprintf(stderr, "ERROR: Signature de fichier non générable\n");
         return;
     }
 
@@ -208,25 +209,28 @@ void processUploading(char* filename){
     char* encoded_signature = base64_encode(signature, signature_length);
     free(signature);
 
-    // Send to the server a last message containing an end hint with signed hash
+    // Send to the recipient a last message containing the signature
     char server_message2[1024] = "up,";
     // Add token
-    strcat(server_message2, token);
-    strcat(server_message2, ",FILE_END");
+    if (token != NULL) {
+        strcat(server_message2, token);
+        strcat(server_message2, ",");
+    }
+    strcat(server_message2, "FILE_END");
     strcat(server_message2, ",");
     strcat(server_message2, encoded_signature);
     free(encoded_signature);
-    long long result2 = sndmsg(server_message2, SERVER_PORT);
+    long long result2 = sndmsg(server_message2, destinationPort);
     if (result2 != 0)
     {
-        fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
+        fprintf(stderr, "ERREUR: Envoi du message au destinatire impossible\n");
         return;
     }
 
     char received_msg[1024] = "";
     if (getmsg(received_msg) == -1)
     {
-        fprintf(stderr, "Error while receiving message\n");
+        fprintf(stderr, "ERREUR: Impossible de recevoir un message\n");
         return;
     }
     printf("%s\n", received_msg);
@@ -317,7 +321,7 @@ int main(int argc, char *argv[])
     if (argc < 2) return print_usage();
 
     // Generate RSA key pair
-    generate_rsa_keypair();
+    generate_rsa_keypair(2048);
 
     // Authenticate user from server and get token and port for future communications
     authenticate();
@@ -326,7 +330,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "-up") == 0 && argc >= 3)
     {
         // Exemple d'utilisation : ./client -up <nom du fichier>
-        processUploading(argv[2]);
+        processUploadFile(argv[2], token, attribuedPort, SERVER_PORT, true, "client");
     }
     else if (strcmp(argv[1], "-list") == 0 && argc == 2)
     {

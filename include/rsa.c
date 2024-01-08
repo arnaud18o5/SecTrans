@@ -8,13 +8,12 @@
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 
-int generate_rsa_keypair() {
+int generate_rsa_keypair(int bits) {
     int ret = 0;
     RSA *r = NULL;
     BIGNUM *bne = NULL;
     unsigned long e = RSA_F4;
 
-    int bits = 2048;
     unsigned long exponent = RSA_F4; // 65537
     FILE *privateKeyFile, *publicKeyFile;
 
@@ -58,4 +57,25 @@ free_stuff:
     if(publicKeyFile) fclose(publicKeyFile);
 
     return (ret == 1) ? 0 : 1;
+}
+
+char* load_key(char* filename){
+    FILE *publicKeyFile = fopen(filename, "r");
+    if (publicKeyFile == NULL)
+    {
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+        return;
+    }
+
+    // Get the public key
+    char* publicKey = malloc(2048);
+    // Read all the file content
+    char c;
+    int i = 0;
+    while ((c = fgetc(publicKeyFile)) != EOF)
+    {
+        publicKey[i] = c;
+        i++;
+    }
+    publicKey[i] = '\0';
 }
