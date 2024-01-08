@@ -601,56 +601,7 @@ int main(int argc, char *argv[])
     }
     else if (strcmp(argv[1], "-rsa") == 0 && argc == 2)
     {
-        char server_message[1024] = "rsa,";
-
-        char *base64_server_message = base64_encode(server_message, strlen(server_message));
-        sndmsg(base64_server_message, SERVER_PORT);
-
-        if (startserver(DEFAULT_CLIENT_PORT) == -1)
-        {
-            fprintf(stderr, "Failed to start the server client\n");
-            return EXIT_FAILURE;
-        }
-
-        int messageReceived = 0;
-        char received_msg[1024];
-        while (messageReceived == 0)
-        {
-            if (getmsg(received_msg) == -1)
-            {
-                fprintf(stderr, "Error while receiving message\n");
-                break;
-            }
-            if (strcmp(received_msg, ""))
-            {
-                // sauvegarde de la clef publique du serveur
-                FILE *file = fopen("server_public_key.pem", "w");
-                if (file == NULL)
-                {
-                    fprintf(stderr, "Failed to open the file\n");
-                    return EXIT_FAILURE;
-                }
-                fprintf(file, "%s", received_msg);
-                fclose(file);
-                messageReceived = 1;
-                /*printf("Message reçu du serveur : %s\n", received_msg);
-                char *rsa = "Hello les foufous les foufous ca va les foufous de foufous ???";
-                printf("envoie du message vers serveur : %s\n", rsa);
-
-                char *encrypted_message = encryptMessage(received_msg, rsa);
-                sleep(1);
-                printf("envoie du message vers serveur : %s\n", rsa);
-                printf("envoie du message vers serveur : %s\n", encrypted_message);
-                printf("size : %d\n", strlen(encrypted_message));
-                printf("port : %d\n", port);
-                sndmsg(encrypted_message, port);
-
-                printf("Message envoyé avec succès au serveur.\n");
-                messageReceived = 1;
-                // Libérer la mémoire
-                free(encrypted_message);*/
-            }
-        }
+        printf("end\n");
     }
     else
     {
