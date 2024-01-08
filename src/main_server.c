@@ -201,7 +201,7 @@ void processUpMessage(char *received_msg)
         if (privateKeyFile == NULL)
         {
             fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
-            return EXIT_FAILURE;
+            return;
         }
         // Get the public key
         char privateKey[1024];

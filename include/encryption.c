@@ -4,6 +4,8 @@
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
+#include <openssl/rsa.h>
+#include <openssl/err.h>
 
 #include "encryption.h"
 
