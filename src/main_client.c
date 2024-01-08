@@ -107,6 +107,7 @@ long sndmsgencrypted(unsigned char msg[585], int port)
 
     // Allocate memory for the encrypted message
     unsigned char *encrypted_message = (unsigned char *)malloc(strlen(testa) / max_chunk_size * RSA_size(publicKey));
+    int encrypted_message_length = 0;
 
     // Encrypt the message in chunks
     int offset = 0;
@@ -124,10 +125,12 @@ long sndmsgencrypted(unsigned char msg[585], int port)
             exit(EXIT_FAILURE);
         }
 
-        while (strlen(temp_buff) != RSA_size(publicKey))
+        int result;
+
+        while (result != RSA_size(publicKey))
         {
             // Chiffrement RSA
-            int result = RSA_public_encrypt(chunk_size, testa + i, temp_buff, publicKey, RSA_PKCS1_PADDING);
+            result = RSA_public_encrypt(chunk_size, testa + i, temp_buff, publicKey, RSA_PKCS1_PADDING);
             if (result == -1)
             {
                 fprintf(stderr, "Erreur lors de l'encryption\n");
@@ -135,8 +138,9 @@ long sndmsgencrypted(unsigned char msg[585], int port)
             }
         }
 
-        // Concat without null-terminator
-        strcat(encrypted_message, temp_buff);
+        // Copy the encrypted chunk into the encrypted message
+        memcpy(encrypted_message + encrypted_message_length, temp_buff, result);
+        encrypted_message_length += result;
 
         free(temp_buff);
 
