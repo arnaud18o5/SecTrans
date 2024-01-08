@@ -77,7 +77,7 @@ unsigned char *test(unsigned char msg[1024]){
     printf("Decrypted message: %s\n", decryptMessage(privateKey, msg));
     printf("Decrypted message size: %ld\n", strlen(decryptMessage(privateKey, msg)));
 
-    free(decryptedMessage);
+    // free(decryptedMessage);
     return "";
 }
 
