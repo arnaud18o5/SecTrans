@@ -26,7 +26,7 @@ file_transfer.o: include/file_transfer.c
 error.o: include/error.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c -o error.o $< $(LDLIBS)
 
-server: src/main_server.c hash.o base_encoding.o signature.o user.o file_transfer.o error.o
+server: src/main_server.c hash.o base_encoding.o signature.o user.o file_transfer.o error.o rsa.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
 client: src/main_client.c hash.o base_encoding.o rsa.o signature.o file_transfer.o error.o
