@@ -29,7 +29,7 @@ error.o: include/error.c
 server: src/main_server.c hash.o base_encoding.o signature.o user.o file_transfer.o error.o rsa.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o server $^ $(LDLIBS)
 
-client: src/main_client.c hash.o base_encoding.o rsa.o signature.o file_transfer.o error.o
+client: src/main_client.c hash.o base_encoding.o signature.o user.o file_transfer.o error.o rsa.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o sectrans $^ $(LDLIBS)
 
 run_server: server
