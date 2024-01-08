@@ -200,6 +200,21 @@ void reformatKey(char *str)
     return encrypted;
 }*/
 
+void removeNewlines(char *str)
+{
+    char *src = str;
+    char *dst = str;
+    while (*src)
+    {
+        if (*src != '\n')
+        {
+            *dst++ = *src;
+        }
+        src++;
+    }
+    *dst = '\0'; // Terminer la chaîne
+}
+
 int print_usage()
 {
     fprintf(stderr, "Usage: ./client <option>\n");
@@ -315,15 +330,7 @@ int main(int argc, char *argv[])
         strcat(server_message, argv[2]);
 
         printf("server_message : %s\n", server_message);
-
-        // Remove all newline characters from server_message
-        char *ptr = strchr(server_message, '\n');
-        while (ptr != NULL)
-        {
-            *ptr = ' ';
-            ptr = strchr(ptr, '\n');
-        }
-
+        removeNewlines(server_message);
         // Encode the server message in base64
         // char *base64_server_message = base64_encode(server_message, strlen(server_message));
         long long result = sndmsgencrypted(server_message, SERVER_PORT);
