@@ -33,9 +33,9 @@ void checkError(char* message){
     // Check if message contains "error", if so, show message and exit
     if (strstr(message, "error") != NULL) {
         // Get message after comma
-        char* error_msg = strchr(response, ',') + 1;
+        char* error_msg = strchr(message, ',') + 1;
         printf("ERROR: %s\n", error_msg);
-        return EXIT_FAILURE;
+        return;
     }
 }
 
@@ -63,7 +63,7 @@ printf("Veuillez entrez votre nom d'utilisateur : \n");
     if (sndmsg(auth_message, SERVER_PORT) != 0)
     {
         fprintf(stderr, "Erreur lors de l'envoi des informations d'authentification au serveur\n");
-        return EXIT_FAILURE;
+        return;
     }
 
     free(password_hash_hexa);
@@ -71,7 +71,7 @@ printf("Veuillez entrez votre nom d'utilisateur : \n");
     char response[1024] = "";
     if (getmsg(response) == -1) {
         fprintf(stderr, "Error while receiving AES token message\n");
-        return EXIT_FAILURE;
+        return;
     }
     stopserver();
 
