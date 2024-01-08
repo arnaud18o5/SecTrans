@@ -108,7 +108,7 @@ long sndmsgencrypted(unsigned char msg[585], int port)
     unsigned char *encrypted_message = (unsigned char *)malloc(740);
 
     // Split the message into packets of 117 (128 - 11) and encrypt each packet
-    int packet_size = 117;
+    int packet_size = 115;
     int num_packets = (strlen(msg) - 1) / packet_size + 1;
     for (int i = 0; i < num_packets; i++)
     {
