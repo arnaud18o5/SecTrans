@@ -54,10 +54,9 @@ unsigned char *test(unsigned char msg[1024]){
         return NULL;
     }
 
-    printf("Decrypted message: %s\n", decryptedMessage);
-    printf("Decrypted message size: %ld\n", decrypted_message_len);
+    printf("Decrypted message: %s\n", decrypted_message);
+    printf("Decrypted message size: %d\n", decrypted_message_len);
 
-    free(decryptedMessage);
     return "";
 }
 
@@ -102,7 +101,7 @@ long sndmsgencrypted(unsigned char msg[500], int port)
         printf("%02x", encrypted_message[i]);
     }
     printf("\n");
-    printf("Taille du message chiffré envoyé au serveur : %ld\n", strlen(encrypted_message_len));
+    printf("Taille du message chiffré envoyé au serveur : %d\n", encrypted_message_len);
 
     // close public key file
     fclose(public_key_file);
