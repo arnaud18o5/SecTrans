@@ -29,7 +29,7 @@ unsigned char tokenKey[32];
 const int DEFAULT_CLIENT_PORT = 12346;
 int lastAttribuedClientPort = 12347;
 
-unsigned char *decryptAndDecodeMessage(char* msg){
+unsigned char *decryptAndDecodeMessage(char[1024] msg){
     // Load private key
     FILE *privateKeyFile = fopen("server_private.pem", "r");
     if (privateKeyFile == NULL)
