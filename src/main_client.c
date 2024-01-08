@@ -72,8 +72,11 @@ long sndmsgencrypted(char msg[585], int port)
         strcat(encrypted_message, encryptedPacket);
     }
 
-    // Log encrypted message and size
-    printf("Message chiffré envoyé au serveur : %s\n", encrypted_message);
+    // Log encrypted message hexa and size
+    printf("Message chiffré envoyé au serveur :");
+    for (int i = 0; i < strlen(encrypted_message); i++) {
+        printf("%02x", encrypted_message[i]);
+    }
     printf("Taille du message chiffré envoyé au serveur : %ld\n", strlen(encrypted_message));
 
     // close public key file
