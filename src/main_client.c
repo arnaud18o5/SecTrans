@@ -27,7 +27,8 @@ const int DEFAULT_CLIENT_PORT = 12346;
 char *token;
 int attribuedPort;
 
-unsigned char *test(unsigned char msg[1024]){
+unsigned char *test(unsigned char msg[1024])
+{
     // Load private key
     FILE *privateKeyFile = fopen("server_private.pem", "r");
     if (privateKeyFile == NULL)
@@ -46,6 +47,7 @@ unsigned char *test(unsigned char msg[1024]){
 
     // decrypt
     unsigned char *decrypted_message = (unsigned char *)malloc(RSA_size(privateKey));
+    printf("msg : %s\n", msg);
     int decrypted_message_len = RSA_private_decrypt(strlen(msg), msg, decrypted_message, privateKey, RSA_PKCS1_PADDING);
     if (decrypted_message_len == -1)
     {
@@ -68,11 +70,11 @@ long sndmsgencrypted(unsigned char msg[500], int port)
     printf("Message envoyé au serveur : %s\n", msg);
     printf("Taille du message envoyé au serveur : %ld\n", strlen(msg));
 
-     // Open the public key file
+    // Open the public key file
     FILE *public_key_file = fopen("server_public.pem", "r");
     if (public_key_file == NULL)
     {
-        
+
         fprintf(stderr, "Erreur lors de l'ouverture du fichier de clé publique\n");
         return EXIT_FAILURE;
     }
@@ -90,7 +92,8 @@ long sndmsgencrypted(unsigned char msg[500], int port)
 
     // Encrypt message
     int encrypted_message_len;
-    while (encrypted_message_len != RSA_size(publicKey) && encrypted_message_len != -1) encrypted_message_len = RSA_public_encrypt(strlen(msg), msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
+    while (encrypted_message_len != RSA_size(publicKey) && encrypted_message_len != -1)
+        encrypted_message_len = RSA_public_encrypt(strlen(msg), msg, encrypted_message, publicKey, RSA_PKCS1_PADDING);
     if (encrypted_message_len == -1)
     {
         ERR_print_errors_fp(stderr); // Imprimer des informations sur les erreurs OpenSSL
@@ -100,7 +103,8 @@ long sndmsgencrypted(unsigned char msg[500], int port)
 
     // Log encrypted message hexa and size
     printf("Message chiffré envoyé au serveur :");
-    for (int i = 0; i < strlen(encrypted_message); i++) {
+    for (int i = 0; i < strlen(encrypted_message); i++)
+    {
         printf("%02x", encrypted_message[i]);
     }
     printf("\n");
@@ -127,7 +131,8 @@ long sndmsgencrypted(unsigned char msg[500], int port)
     return result;
 }
 
-int generate_rsa_keypair(char* name) {
+int generate_rsa_keypair(char *name)
+{
     int ret = 0;
     RSA *r = NULL;
     BIGNUM *bne = NULL;
@@ -155,7 +160,7 @@ int generate_rsa_keypair(char* name) {
     }
 
     // 2. save private key
-    char* private_key_file_name = malloc(strlen(name) + strlen("_private.pem") + 1);
+    char *private_key_file_name = malloc(strlen(name) + strlen("_private.pem") + 1);
     strcpy(private_key_file_name, name);
     strcat(private_key_file_name, "_private.pem");
     privateKeyFile = fopen(private_key_file_name, "w");
@@ -170,7 +175,7 @@ int generate_rsa_keypair(char* name) {
     }
 
     // 3. save public key
-    char* public_key_file_name = malloc(strlen(name) + strlen("_public.pem") + 1);
+    char *public_key_file_name = malloc(strlen(name) + strlen("_public.pem") + 1);
     strcpy(public_key_file_name, name);
     strcat(public_key_file_name, "_public.pem");
     publicKeyFile = fopen(public_key_file_name, "w");
@@ -285,9 +290,10 @@ int main(int argc, char *argv[])
     printf("Veuillez entrez votre mot de passe : \n");
     char password[100];
     scanf("%s", password);
-    unsigned char* password_hash = calculate_hash_from_string(password);
-    char* password_hash_hexa = malloc(SHA256_DIGEST_LENGTH * 2 + 1);
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+    unsigned char *password_hash = calculate_hash_from_string(password);
+    char *password_hash_hexa = malloc(SHA256_DIGEST_LENGTH * 2 + 1);
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
         sprintf(password_hash_hexa + (i * 2), "%02x", password_hash[i]);
     }
     free(password_hash);
@@ -301,7 +307,7 @@ int main(int argc, char *argv[])
 
     // Encode the auth message in base64
     // char *base64_auth_message = base64_encode(auth_message, strlen(auth_message));
-    
+
     // if (sndmsg(base64_auth_message, SERVER_PORT) != 0)
     if (sndmsgencrypted(auth_message, SERVER_PORT) != 0)
     {
@@ -312,16 +318,18 @@ int main(int argc, char *argv[])
     free(password_hash_hexa);
 
     char response[1024] = "";
-    if (getmsg(response) == -1) {
+    if (getmsg(response) == -1)
+    {
         fprintf(stderr, "Error while receiving AES token message\n");
         return EXIT_FAILURE;
     }
     stopserver();
 
     // Check if token_msg contains "error", if so, show message and exit
-    if (strstr(response, "error") != NULL) {
+    if (strstr(response, "error") != NULL)
+    {
         // Get message after comma
-        char* error_msg = strchr(response, ',') + 1;
+        char *error_msg = strchr(response, ',') + 1;
         printf("Error while authenticating: %s\n", error_msg);
         return EXIT_FAILURE;
     }
@@ -388,9 +396,10 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
         // Check if server response contains "error", if so, show message and exit
-        if (strstr(server_response, "error") != NULL) {
+        if (strstr(server_response, "error") != NULL)
+        {
             // Get message after comma
-            char* error_msg = strchr(server_response, ',') + 1;
+            char *error_msg = strchr(server_response, ',') + 1;
             printf("%s\n", error_msg);
             return EXIT_FAILURE;
         }
@@ -636,9 +645,10 @@ int main(int argc, char *argv[])
             if (strcmp(received_msg, ""))
             {
                 // Check if message contains error
-                if (strstr(received_msg, "error") != NULL) {
+                if (strstr(received_msg, "error") != NULL)
+                {
                     // Get message after comma
-                    char* error_msg = strchr(received_msg, ',') + 1;
+                    char *error_msg = strchr(received_msg, ',') + 1;
                     printf("%s\n", error_msg);
                     break;
                 }
