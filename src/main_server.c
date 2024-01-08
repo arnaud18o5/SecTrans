@@ -70,7 +70,7 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
 
     // decode64
     size_t decodedLength;
-    unsigned char *decoded = base64_decode(msg, strlen(msg) + 1);
+    unsigned char *decoded = base64_decode(msg, strlen(msg));
     printf("Decoded message: %s\n", decoded);
 
     // Log decoded message hexa and size
