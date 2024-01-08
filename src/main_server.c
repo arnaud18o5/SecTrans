@@ -49,9 +49,17 @@ unsigned char *decryptAndDecodeMessage(char* msg){
     }
     privateKey[i] = '\0';
 
+    // Log message received and size
+    printf("Message received: %s\n", msg);
+    printf("Message size: %ld\n", strlen(msg));
+
     // decode64
     size_t decodedLength;
     unsigned char *decoded = base64_decode(msg, &decodedLength);
+
+    // Log decoded message and size
+    printf("Decoded message: %s\n", decoded);
+    printf("Decoded message size: %ld\n", decodedLength);
 
     unsigned char* decryptedMessage = (unsigned char*) malloc(1024);
     // chunk message in 128 char packet and decrypt
@@ -65,6 +73,10 @@ unsigned char *decryptAndDecodeMessage(char* msg){
         free(block);
         free(decryptedBlock);
     }
+
+    // Log decrypted message and size
+    printf("Decrypted message: %s\n", decryptedMessage);
+    printf("Decrypted message size: %ld\n", strlen(decryptedMessage));
 
     return decryptedMessage;
 }
