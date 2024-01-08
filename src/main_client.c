@@ -118,7 +118,7 @@ long sndmsgencrypted(unsigned char msg[585], int port)
             chunk_size = max_chunk_size;
 
         // Buffers pour le message chiffré et le message original
-        unsigned char *temp_buff = (unsigned char *)malloc(chunk_size);
+        unsigned char *temp_buff = (unsigned char *)malloc(RSA_size(publicKey));
         if (temp_buff == NULL)
         {
             perror("Erreur d'allocation de mémoire pour le message chiffré");
