@@ -78,4 +78,8 @@ char* load_key(char* filename){
         i++;
     }
     publicKey[i] = '\0';
+
+    fclose(publicKeyFile);
+
+    return publicKey;
 }
