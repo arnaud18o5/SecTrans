@@ -528,6 +528,7 @@ int main()
                 size_t tokenSize = strlen(clientUsername) + strlen(user->role) + 2;
                 unsigned char *encryptedToken = encryptToken(createSpecialToken(clientUsername, user->role), tokenSize, tokenKey);
                 size_t encryptedSize = (tokenSize / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
+                printf("encoded token: %s\n", encryptedToken);
                 char *base64Token = base64_encode(encryptedToken, encryptedSize);
 
                 // Assign port to user
