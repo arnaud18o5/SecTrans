@@ -70,6 +70,7 @@
     "stdio.h": "c",
     "rsa.h": "c",
     "stdlib.h": "c",
-    "file_transfer.h": "c"
+    "file_transfer.h": "c",
+    "error.h": "c"
   }
 }

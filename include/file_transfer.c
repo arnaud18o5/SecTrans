@@ -6,11 +6,16 @@
 #include "rsa.h"
 #include "signature.h"
 #include "error.h"
+#include "user.h"
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+char currentReceivedFilename[256];
+FILE *currentOpenedFileForReceiving;
 
 void processSendFile(char* filename, char* token, int receivingPort, int destinationPort, int sendPublicKey, char* keyRSAPrefix){
     // If we don't send public key it means we are sending a file to a client (we are the server, so the client already have the public key)
@@ -162,4 +167,136 @@ void processSendFile(char* filename, char* token, int receivingPort, int destina
 
     fclose(file);
     stopserver();
+}
+
+void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey, char* uploadDir)
+{
+    // Copy received message
+    char *received_msg_copy = malloc(strlen(received_msg) + 1);
+    strcpy(received_msg_copy, received_msg);
+    // Get token after the first comma
+    strtok(received_msg_copy, ",");
+    char *token = strtok(NULL, ",");
+
+    // Get user
+    User *user = NULL;
+    if (getUser) {
+        user = getUserFromToken(token, tokenKey);
+        if (user == NULL) return;
+    }
+
+    // Get the message after the 2 commas
+    char *msg = strchr(received_msg, ',') + 1;
+    msg = strchr(msg, ',') + 1;
+
+    // Check if header contains FILE_START
+    char *fileStart = "FILE_START";
+    char *publicKey = "PUBLIC_KEY";
+    char *fileEnd = "FILE_END";
+
+    if (strstr(msg, fileStart) != NULL) {
+        // Get filename
+        char *filename = strchr(msg, ',') + 1;
+
+        // Get only the filename without the path
+        char *filenameWithoutPath = strrchr(filename, '/');
+        if (filenameWithoutPath != NULL) {
+            filename = filenameWithoutPath + 1;
+        }
+
+        // Create full filename
+        char *fullFilename = malloc(strlen(uploadDir) + strlen(filename) + 1);
+        strcpy(fullFilename, uploadDir);
+        strcat(fullFilename, filename);
+        printf("Receiving file: %s\n", fullFilename);
+        if (getUser) strcpy(user->currentUploadFileName, fullFilename);
+        else strcpy(currentReceivedFilename, fullFilename);
+
+        // Check if file exists, if so send error
+        if (access(fullFilename, F_OK) != -1) {
+            if (getUser) {
+                char message[1024] = "error,File already exists, please choose another name!";
+                sndmsg(message, user->attribuedPort);
+            }
+            printf("ERROR: File already exists!\n");
+            return;
+        } else if (getUser) {
+            char message[1024] = "Uploading started!";
+            sndmsg(message, user->attribuedPort);
+        }
+
+        // Open file
+        if (getUser) {
+            user->currentOpenedFile = fopen(fullFilename, "w+");
+            if (user->currentOpenedFile == NULL) {
+                fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            }
+        } else {
+            currentOpenedFileForReceiving = fopen(fullFilename, "w+");
+            if (currentOpenedFileForReceiving == NULL) {
+                fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            }
+        }
+
+        // Only create metadata file if user is used
+        if (getUser) {
+            // Create metadata file with role in first line and owner in second line
+            char *metadataFilename = malloc(strlen(fullFilename) + 5);
+            strcpy(metadataFilename, fullFilename);
+            strcat(metadataFilename, ".meta");
+            FILE *metadataFile = fopen(metadataFilename, "w+");
+            if (metadataFile == NULL) {
+                fprintf(stderr, "Erreur lors de l'ouverture du fichier\n");
+            }
+            fprintf(metadataFile, "%s\n%s\n", user->role, user->username);
+            fclose(metadataFile);
+        }
+    }
+    // Check if header contains FILE_END
+    else if (strstr(msg, fileEnd) != NULL) {
+        // Get the signature after the comma
+        char *signature = strchr(msg, ',') + 1;
+
+        // Decode signature
+        size_t decodedLength;
+        unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
+
+        // Verify signature
+        if (verifySignature(user->currentOpenedFile, decodedSignature, decodedLength, user->publicKey)) {
+            char message[1024] = "File uploaded successfully!";
+            fclose(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
+            // Notify client that file was uploaded successfully
+            if (getUser) sndmsg(message, user->attribuedPort);
+            printf("File uploaded successfully!\n");
+        } else {
+            char message[1024] = "Invalid signature, the file couldn't be uploaded, please retry!";
+            // Close file and delete it
+            fclose(getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
+            unlink(getUser ? user->currentUploadFileName : currentReceivedFilename);
+            // Notify client that file couldn't be uploaded
+            if(getUser) sndmsg(message, user->attribuedPort);
+            printf("ERROR: Invalid signature, the file is deleted!\n");
+        }
+
+        // Free memory
+        free(decodedSignature);
+    }
+
+    // Check if header contains PUBLIC_KEY
+    else if (strstr(msg, publicKey) != NULL && getUser) {
+        // Get the public key after the comma and copy it in new memory location
+        char *publicKey = strchr(msg, ',') + 1;
+        strncpy(user->publicKey, publicKey, strlen(publicKey) + 1);
+    }
+
+    // Write to file
+    else {
+        // Decode and write to file
+        size_t decodedLength;
+        unsigned char *decodedMessage = base64_decode(msg, &decodedLength);
+        fwrite(decodedMessage, 1, decodedLength, getUser ? user->currentOpenedFile : currentOpenedFileForReceiving);
+        free(decodedMessage);
+    }
+
+    free(received_msg_copy);
 }
