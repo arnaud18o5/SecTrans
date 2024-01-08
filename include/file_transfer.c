@@ -261,7 +261,7 @@ void processReceiveFile(char *received_msg, int getUser, unsigned char* tokenKey
     else if (strstr(msg, fileEnd) != NULL) {
         // Get the signature after the comma
         char *signature = strchr(msg, ',') + 1;
-
+        printf("SIGNATURE: %s\n", signature);
         // Decode signature
         size_t decodedLength;
         unsigned char *decodedSignature = base64_decode(signature, &decodedLength);
