@@ -116,9 +116,11 @@ unsigned char *decryptAndDecodeMessage(char msg[1024])
 
     // Decrypt the message
     int decryptedMessageLength = RSA_private_decrypt(512, decoded, decryptedMessage, rsa, RSA_PKCS1_PADDING);
-    printf("decryptedMessageLength: %d\n", decryptedMessageLength);
-    printf("decryptedMessage: %s\n", decryptedMessage);
-
+    if (decryptedMessageLength == -1)
+    {
+        ERR_print_errors_fp(stderr);
+        return NULL;
+    }
     // Keep only the first {decryptedMessageLength} characters of decryptedMessage
     decryptedMessage[decryptedMessageLength] = '\0';
     printf("decryptedMessage: %s\n", decryptedMessage);
