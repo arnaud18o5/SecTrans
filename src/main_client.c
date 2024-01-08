@@ -64,7 +64,7 @@ unsigned char *test(unsigned char msg[1024])
     return "";
 }
 
-long sndmsgencrypted(unsigned char msg[500], int port)
+long sndmsgencrypted(unsigned char *msg, int port)
 {
     // Log message and size
     printf("Message envoyé au serveur : %s\n", msg);
