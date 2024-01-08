@@ -67,7 +67,6 @@ unsigned char *test(unsigned char *msg)
 long sndmsgencrypted(unsigned char *msg, int port)
 {
     // Log message and size
-    printf("Message envoyé au serveur : %s\n", msg);
     msg[strlen(msg) - 1] = '\0';
     // Open the public key file
     FILE *public_key_file = fopen("server_public.pem", "r");
@@ -92,8 +91,6 @@ long sndmsgencrypted(unsigned char *msg, int port)
     // Encrypt message
     int encrypted_message_len;
     // while (encrypted_message_len != RSA_size(publicKey) && encrypted_message_len != -1)
-    printf("len msg : %d\n", strlen(msg) + 1);
-    printf("len rsa : %d\n", RSA_size(publicKey));
     encrypted_message_len = RSA_public_encrypt(strlen(msg), msg, encrypted_message, (unsigned char *)publicKey, RSA_PKCS1_PADDING);
     if (encrypted_message_len == -1)
     {
@@ -109,8 +106,6 @@ long sndmsgencrypted(unsigned char *msg, int port)
         printf("%02x", encrypted_message[i]);
     }
     printf("\n");
-    printf("Taille du message chiffré envoyé au serveur : %d %d\n", strlen(encrypted_message), encrypted_message_len);
-
     // close public key file
     fclose(public_key_file);
 
@@ -118,9 +113,7 @@ long sndmsgencrypted(unsigned char *msg, int port)
 
     free(encrypted_message);
 
-    exit(0);
-
-    char *base64_msg = base64_encode(encrypted_message, strlen(encrypted_message));
+    char *base64_msg = base64_encode(encrypted_message, encrypted_message_len);
     // Log base64 message and size
     printf("Message en base64 envoyé au serveur : %s\n", base64_msg);
     printf("Taille du message en base64 envoyé au serveur : %ld\n", strlen(base64_msg));
