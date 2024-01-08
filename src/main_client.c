@@ -314,8 +314,8 @@ int main(int argc, char *argv[])
         strcat(server_message, argv[2]);
 
         // Encode the server message in base64
-        char *base64_server_message = base64_encode(server_message, strlen(server_message));
-        long long result = sndmsgencrypted(base64_server_message, SERVER_PORT);
+        // char *base64_server_message = base64_encode(server_message, strlen(server_message));
+        long long result = sndmsgencrypted(server_message, SERVER_PORT);
         if (result != 0)
         {
             fprintf(stderr, "Erreur lors de l'envoi du message au serveur\n");
